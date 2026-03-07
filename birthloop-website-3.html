@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birth Loop — Celebrating the Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #B8972A;
+    --gold-light: #d4b04a;
+    --gold-pale: #f5edd8;
+    --black: #1a1a1a;
+    --cream: #faf8f3;
+    --warm-white: #fefcf8;
+    --mid: #5c5147;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--warm-white);
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 60px;
+    background: rgba(254,252,248,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(184,151,42,0.15);
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; font-weight: 700;
+    color: var(--black); letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+
+  .nav-logo img { height: 50px; width: auto; }
+
+  .nav-links { display: flex; gap: 36px; list-style: none; align-items: center; }
+  .nav-links a {
+    font-size: 0.85rem; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--mid);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  .nav-cta {
+    background: var(--gold); color: white !important;
+    padding: 10px 24px; border-radius: 2px;
+    letter-spacing: 0.12em !important;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--gold-light) !important; color: white !important; }
+
+  /* ── HERO ── */
+  #home {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 80px 60px 80px 80px;
+    position: relative; z-index: 2;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold);
+    border: 1px solid var(--gold); padding: 6px 14px;
+    margin-bottom: 32px; width: fit-content;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 4.2rem; font-weight: 900; line-height: 1.05;
+    color: var(--black); margin-bottom: 24px;
+  }
+
+  .hero-title em {
+    font-style: italic; color: var(--gold);
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem; font-weight: 300; line-height: 1.8;
+    color: var(--mid); max-width: 440px; margin-bottom: 44px;
+  }
+
+  .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .btn-primary {
+    background: var(--black); color: white;
+    padding: 16px 36px; font-size: 0.85rem;
+    font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+    text-decoration: none; border: 2px solid var(--black);
+    transition: all 0.25s;
+  }
+  .btn-primary:hover { background: var(--gold); border-color: var(--gold); }
+
+  .btn-outline {
+    background: transparent; color: var(--black);
+    padding: 16px 36px; font-size: 0.85rem;
+    font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+    text-decoration: none; border: 2px solid var(--black);
+    transition: all 0.25s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  .hero-right {
+    position: relative; background: var(--gold-pale);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-right::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--gold-pale) 0%, #ede4c8 100%);
+  }
+
+  .hero-illustration {
+    position: relative; z-index: 2;
+    text-align: center; padding: 60px;
+  }
+
+  /* Big infinity loop SVG in hero */
+  .hero-loop-svg {
+    width: 320px; opacity: 0.9;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+
+  .hero-tagline {
+    font-family: 'Playfair Display', serif;
+    font-style: italic; font-size: 1.2rem;
+    color: var(--gold); margin-top: 24px; letter-spacing: 0.05em;
+  }
+
+  /* Decorative loop corner */
+  .deco-loop {
+    position: absolute; top: -40px; right: -40px;
+    width: 160px; opacity: 0.12;
+  }
+
+  /* ── ABOUT ── */
+  #about {
+    padding: 120px 80px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 100px;
+    align-items: center;
+    background: var(--warm-white);
+  }
+
+  .about-visual {
+    position: relative;
+  }
+
+  .about-img-box {
+    width: 100%; aspect-ratio: 4/5;
+    background: var(--gold-pale);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+
+  .about-img-box svg { width: 60%; opacity: 0.6; }
+
+  .about-accent {
+    position: absolute; bottom: -24px; right: -24px;
+    width: 180px; height: 180px;
+    background: var(--gold);
+    z-index: -1;
+  }
+
+  .about-stat {
+    position: absolute; top: -24px; left: -24px;
+    background: var(--black); color: white;
+    padding: 20px 28px;
+  }
+
+  .about-stat strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem; font-weight: 900; color: var(--gold);
+    line-height: 1;
+  }
+
+  .about-stat span { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .section-label {
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem; font-weight: 900; line-height: 1.1;
+    margin-bottom: 24px;
+  }
+
+  .section-body {
+    font-size: 1rem; font-weight: 300; line-height: 1.9;
+    color: var(--mid); margin-bottom: 16px;
+  }
+
+  .divider {
+    width: 48px; height: 3px; background: var(--gold);
+    margin: 32px 0;
+  }
+
+  /* ── SERVICES ── */
+  #services {
+    padding: 120px 80px;
+    background: var(--black);
+    color: white;
+  }
+
+  .services-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 72px;
+  }
+
+  .services-header .section-label { color: var(--gold-light); }
+  .services-header .section-title { color: white; max-width: 500px; }
+
+  .services-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+  }
+
+  .service-card {
+    background: #252320;
+    padding: 52px 40px;
+    border-top: 3px solid transparent;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+
+  .service-card:hover {
+    border-top-color: var(--gold);
+    background: #2d2a25;
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute; bottom: 0; right: 0;
+    width: 120px; height: 120px;
+    background: var(--gold); opacity: 0.04;
+    border-radius: 50%; transform: translate(40px, 40px);
+  }
+
+  .service-icon {
+    width: 52px; height: 52px; margin-bottom: 28px;
+    opacity: 0.85;
+  }
+
+  .service-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; font-weight: 700; margin-bottom: 16px;
+    color: white;
+  }
+
+  .service-card p {
+    font-size: 0.9rem; font-weight: 300; line-height: 1.8;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .service-formats {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px;
+  }
+
+  .format-tag {
+    font-size: 0.7rem; letter-spacing: 0.12em;
+    text-transform: uppercase; font-weight: 600;
+    padding: 4px 12px; border: 1px solid rgba(184,151,42,0.4);
+    color: var(--gold-light);
+  }
+
+  /* ── TESTIMONIALS ── */
+  #testimonials {
+    padding: 120px 80px;
+    background: var(--cream);
+  }
+
+  .testimonials-header { text-align: center; margin-bottom: 72px; }
+
+  .testimonials-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+  }
+
+  .testimonial-card {
+    background: white; padding: 44px 36px;
+    border-bottom: 3px solid var(--gold-pale);
+    transition: border-color 0.3s;
+    position: relative;
+  }
+
+  .testimonial-card:hover { border-bottom-color: var(--gold); }
+
+  .quote-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem; line-height: 0.8;
+    color: var(--gold); opacity: 0.3;
+    margin-bottom: 16px; display: block;
+  }
+
+  .testimonial-card blockquote {
+    font-size: 1rem; line-height: 1.8; font-weight: 300;
+    color: var(--mid); font-style: italic; margin-bottom: 28px;
+  }
+
+  .testimonial-author strong {
+    display: block; font-size: 0.9rem; font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .testimonial-author span {
+    font-size: 0.8rem; color: var(--gold); font-weight: 400;
+  }
+
+  .stars { color: var(--gold); font-size: 0.85rem; margin-bottom: 16px; }
+
+  /* ── BOOKING ── */
+  #booking {
+    padding: 120px 80px;
+    background: var(--warm-white);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: start;
+  }
+
+  .booking-info .section-title { font-size: 2.6rem; }
+
+  .booking-options {
+    display: flex; flex-direction: column; gap: 16px;
+    margin: 40px 0;
+  }
+
+  .booking-option {
+    display: flex; align-items: flex-start; gap: 20px;
+    padding: 24px; border: 1px solid rgba(184,151,42,0.2);
+    background: white; cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .booking-option:hover, .booking-option.selected {
+    border-color: var(--gold);
+    background: var(--gold-pale);
+  }
+
+  .booking-option-icon {
+    width: 44px; height: 44px; min-width: 44px;
+    background: var(--gold-pale); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .booking-option h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; margin-bottom: 4px;
+  }
+
+  .booking-option p { font-size: 0.85rem; color: var(--mid); font-weight: 300; }
+
+  /* Form */
+  .booking-form { background: var(--black); padding: 52px 48px; }
+
+  .booking-form h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem; color: white; margin-bottom: 8px;
+  }
+
+  .booking-form .sub {
+    font-size: 0.85rem; color: rgba(255,255,255,0.5);
+    margin-bottom: 36px; font-weight: 300;
+  }
+
+  .form-group { margin-bottom: 20px; }
+
+  .form-group label {
+    display: block; font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(255,255,255,0.5); margin-bottom: 8px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%; background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: white; padding: 14px 18px;
+    font-family: 'Jost', sans-serif; font-size: 0.9rem;
+    outline: none; transition: border-color 0.2s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--gold);
+  }
+
+  .form-group select option { background: #1a1a1a; }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .form-submit {
+    width: 100%; background: var(--gold); color: white;
+    padding: 18px; font-family: 'Jost', sans-serif;
+    font-size: 0.85rem; font-weight: 600; letter-spacing: 0.15em;
+    text-transform: uppercase; border: none; cursor: pointer;
+    margin-top: 8px; transition: background 0.2s;
+  }
+
+  .form-submit:hover { background: var(--gold-light); }
+
+  /* ── FAQs ── */
+  #faqs {
+    padding: 120px 80px;
+    background: var(--gold-pale);
+  }
+
+  .faqs-inner {
+    max-width: 800px; margin: 0 auto;
+  }
+
+  .faqs-header { text-align: center; margin-bottom: 64px; }
+
+  .faq-item {
+    border-bottom: 1px solid rgba(184,151,42,0.3);
+    overflow: hidden;
+  }
+
+  .faq-question {
+    width: 100%; background: none; border: none;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 24px 0; cursor: pointer;
+    font-family: 'Jost', sans-serif; font-size: 1rem;
+    font-weight: 500; text-align: left; color: var(--black);
+  }
+
+  .faq-question svg {
+    min-width: 20px; transition: transform 0.3s; color: var(--gold);
+  }
+
+  .faq-question.open svg { transform: rotate(45deg); }
+
+  .faq-answer {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    font-size: 0.95rem; font-weight: 300; line-height: 1.9;
+    color: var(--mid);
+  }
+
+  .faq-answer.open {
+    max-height: 300px;
+    padding-bottom: 20px;
+  }
+
+  /* ── CONTACT ── */
+  #contact {
+    padding: 120px 80px;
+    background: var(--black);
+    color: white;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center;
+  }
+
+  #contact .section-label { color: var(--gold-light); }
+  #contact .section-title { color: white; }
+  #contact .section-body { color: rgba(255,255,255,0.55); }
+
+  .contact-details { margin-top: 40px; display: flex; flex-direction: column; gap: 20px; }
+
+  .contact-item {
+    display: flex; align-items: center; gap: 16px;
+    font-size: 0.95rem; color: rgba(255,255,255,0.7);
+  }
+
+  .contact-item-icon {
+    width: 40px; height: 40px; min-width: 40px;
+    border: 1px solid rgba(184,151,42,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold);
+  }
+
+  .contact-form-simple { }
+
+  .contact-form-simple .form-group label { color: rgba(255,255,255,0.4); }
+  .contact-form-simple .form-group input,
+  .contact-form-simple .form-group textarea {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.1);
+    color: white;
+    font-family: 'Jost', sans-serif;
+  }
+  .contact-form-simple .form-group input:focus,
+  .contact-form-simple .form-group textarea:focus {
+    border-color: var(--gold);
+  }
+  .contact-form-simple .form-group input::placeholder,
+  .contact-form-simple .form-group textarea::placeholder { color: rgba(255,255,255,0.25); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #111;
+    padding: 60px 80px 40px;
+    display: flex; flex-direction: column;
+  }
+
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 32px; flex-wrap: wrap; gap: 40px;
+  }
+
+  .footer-brand .nav-logo { color: white; font-size: 1.4rem; }
+  .footer-tagline {
+    font-size: 0.85rem; color: rgba(255,255,255,0.35);
+    margin-top: 10px; font-weight: 300; font-style: italic;
+  }
+
+  .footer-links h4 {
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 16px;
+  }
+
+  .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-links ul a {
+    font-size: 0.85rem; color: rgba(255,255,255,0.45); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links ul a:hover { color: white; }
+
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.78rem; color: rgba(255,255,255,0.25);
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .fade-up {
+    opacity: 0; transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    #home, #about, #booking, #contact {
+      grid-template-columns: 1fr;
+    }
+    .hero-left { padding: 60px 24px; }
+    .hero-right { min-height: 340px; }
+    #about, #booking, #contact, #services, #testimonials, #faqs {
+      padding: 80px 24px;
+    }
+    .services-header { flex-direction: column; gap: 16px; align-items: flex-start; }
+    .services-grid, .testimonials-grid { grid-template-columns: 1fr; }
+    .hero-title { font-size: 2.8rem; }
+    .booking-form { padding: 36px 24px; }
+    footer { padding: 40px 24px; }
+    .footer-top { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-logo">
+    <img src="Logo-17.png" alt="Birth Loop Logo">
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#testimonials">Stories</a></li>
+    <li><a href="#faqs">FAQs</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#booking" class="nav-cta">Book Now</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="home">
+  <div class="hero-left fade-up">
+    <span class="hero-tag">Celebrating the Journey</span>
+    <h1 class="hero-title">
+      Birth<br>
+      <em>reimagined.</em><br>
+      For you.
+    </h1>
+    <p class="hero-subtitle">
+      Birth Loop transforms birth preparation into an empowering, gamified experience — building confidence and community through immersive antenatal and postnatal sessions.
+    </p>
+    <div class="hero-buttons">
+      <a href="#booking" class="btn-primary">Book a Session</a>
+      <a href="#about" class="btn-outline">Learn More</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-illustration fade-up">
+      <svg class="hero-loop-svg" viewBox="0 0 400 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Infinity loop -->
+        <path d="M60 110 C60 60, 120 20, 200 110 C280 200, 340 160, 340 110 C340 60, 280 20, 200 110 C120 200, 60 160, 60 110Z"
+              stroke="#B8972A" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <!-- Arrow up -->
+        <line x1="196" y1="60" x2="204" y2="30" stroke="#B8972A" stroke-width="3" stroke-linecap="round"/>
+        <polyline points="196,32 204,30 202,38" stroke="#B8972A" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Arrow down -->
+        <line x1="204" y1="160" x2="196" y2="190" stroke="#B8972A" stroke-width="3" stroke-linecap="round"/>
+        <polyline points="198,182 196,190 204,188" stroke="#B8972A" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Pregnant silhouette -->
+        <circle cx="200" cy="96" r="10" stroke="#B8972A" stroke-width="2" fill="none" opacity="0.7"/>
+        <path d="M193 106 C193 106, 190 120, 192 132 C194 140, 208 140, 210 132 C212 120, 208 108, 207 106" stroke="#B8972A" stroke-width="2" fill="none" opacity="0.7"/>
+        <ellipse cx="204" cy="120" rx="7" ry="8" stroke="#B8972A" stroke-width="1.5" fill="none" opacity="0.5"/>
+      </svg>
+      <p class="hero-tagline">Celebrating the Journey</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-visual fade-up">
+    <div class="about-img-box">
+      <!-- Circle of women illustration (SVG) -->
+      <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="80" stroke="#B8972A" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.4"/>
+        <!-- 6 simplified pregnant figures around circle -->
+        <g opacity="0.7">
+          <circle cx="100" cy="28" r="7" stroke="#B8972A" stroke-width="1.5"/>
+          <path d="M95 35 Q93 50 96 56 Q104 56 107 50 Q110 44 105 35" stroke="#B8972A" stroke-width="1.5" fill="none"/>
+          <ellipse cx="102" cy="47" rx="5" ry="5" stroke="#B8972A" stroke-width="1" opacity="0.5"/>
+
+          <circle cx="155" cy="50" r="7" stroke="#B8972A" stroke-width="1.5"/>
+          <path d="M150 57 Q148 72 151 78 Q159 78 162 72 Q165 66 160 57" stroke="#B8972A" stroke-width="1.5" fill="none"/>
+          <ellipse cx="157" cy="69" rx="5" ry="5" stroke="#B8972A" stroke-width="1" opacity="0.5"/>
+
+          <circle cx="172" cy="110" r="7" stroke="#B8972A" stroke-width="1.5"/>
+          <path d="M167 117 Q165 132 168 138 Q176 138 179 132 Q182 126 177 117" stroke="#B8972A" stroke-width="1.5" fill="none"/>
+          <ellipse cx="174" cy="129" rx="5" ry="5" stroke="#B8972A" stroke-width="1" opacity="0.5"/>
+
+          <circle cx="100" cy="165" r="7" stroke="#B8972A" stroke-width="1.5"/>
+          <path d="M95 172 Q93 187 96 190 Q104 190 107 187 Q110 181 105 172" stroke="#B8972A" stroke-width="1.5" fill="none"/>
+
+          <circle cx="45" cy="120" r="7" stroke="#B8972A" stroke-width="1.5"/>
+          <path d="M40 127 Q38 142 41 148 Q49 148 52 142 Q55 136 50 127" stroke="#B8972A" stroke-width="1.5" fill="none"/>
+          <ellipse cx="47" cy="139" rx="5" ry="5" stroke="#B8972A" stroke-width="1" opacity="0.5"/>
+
+          <circle cx="45" cy="55" r="7" stroke="#B8972A" stroke-width="1.5"/>
+          <path d="M40 62 Q38 77 41 83 Q49 83 52 77 Q55 71 50 62" stroke="#B8972A" stroke-width="1.5" fill="none"/>
+          <ellipse cx="47" cy="74" rx="5" ry="5" stroke="#B8972A" stroke-width="1" opacity="0.5"/>
+        </g>
+        <text x="100" y="96" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a1a" font-family="Playfair Display, serif">BIRTH</text>
+        <text x="100" y="110" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a1a" font-family="Playfair Display, serif">LOOP</text>
+        <circle cx="100" cy="100" r="20" stroke="#B8972A" stroke-width="1" opacity="0.4"/>
+      </svg>
+    </div>
+    <div class="about-accent"></div>
+    <div class="about-stat">
+      <strong>100+</strong>
+      <span>Families supported</span>
+    </div>
+  </div>
+
+  <div class="about-text fade-up">
+    <p class="section-label">About Birth Loop</p>
+    <h2 class="section-title">Where birth preparation becomes a celebration</h2>
+    <div class="divider"></div>
+    <p class="section-body">
+      Birth Loop is a gamified, immersive learning experience that transforms the traditional approach to birth preparation. Funded by the Thinc Fund and currently piloted across South London, we bridge health equity gaps through play.
+    </p>
+    <p class="section-body">
+      Using a board-game-based methodology, participants build health literacy and advocacy skills in a warm, celebratory setting — navigating their own learning pathway through the maternity journey.
+    </p>
+    <p class="section-body">
+      Every session is supported by a Midwife, Professional Counsellor, and Peer Supporters, ensuring both clinical expertise and lived-experience wisdom are present for every family.
+    </p>
+    <a href="#services" class="btn-primary" style="display:inline-block; margin-top:16px;">Explore Sessions</a>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-header fade-up">
+    <div>
+      <p class="section-label">What We Offer</p>
+      <h2 class="section-title">Sessions designed<br>around <em style="color:var(--gold-light); font-family:'Playfair Display',serif; font-style:italic;">you</em></h2>
+    </div>
+    <a href="#booking" class="btn-primary">Book Your Spot</a>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-card fade-up">
+      <svg class="service-icon" viewBox="0 0 52 52" fill="none">
+        <circle cx="26" cy="16" r="8" stroke="#B8972A" stroke-width="2"/>
+        <path d="M19 24 C17 28, 15 38, 18 44 C21 48, 31 48, 34 44 C37 38, 35 28, 33 24" stroke="#B8972A" stroke-width="2" fill="none"/>
+        <ellipse cx="28" cy="36" rx="7" ry="7" stroke="#B8972A" stroke-width="1.5"/>
+      </svg>
+      <h3>Antenatal Classes</h3>
+      <p>Evidence-based birth preparation using our signature board-game method. Build confidence, knowledge, and community before your birth.</p>
+      <div class="service-formats">
+        <span class="format-tag">Women-Only</span>
+        <span class="format-tag">Couples</span>
+        <span class="format-tag">Men-Only</span>
+      </div>
+    </div>
+
+    <div class="service-card fade-up">
+      <svg class="service-icon" viewBox="0 0 52 52" fill="none">
+        <circle cx="22" cy="14" r="7" stroke="#B8972A" stroke-width="2"/>
+        <path d="M16 22 Q14 34, 17 40 Q22 44, 28 40 Q31 34, 29 22" stroke="#B8972A" stroke-width="2" fill="none"/>
+        <circle cx="34" cy="30" r="5" stroke="#B8972A" stroke-width="1.5"/>
+        <path d="M32 34 L29 40" stroke="#B8972A" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <h3>Postnatal Support</h3>
+      <p>A gentle, community-centred space for new parents. Share experiences, access expert guidance, and find your footing in those precious early weeks.</p>
+      <div class="service-formats">
+        <span class="format-tag">Group Sessions</span>
+        <span class="format-tag">1-to-1</span>
+      </div>
+    </div>
+
+    <div class="service-card fade-up">
+      <svg class="service-icon" viewBox="0 0 52 52" fill="none">
+        <path d="M10 26 C10 12, 26 6, 26 26 C26 6, 42 12, 42 26 C42 40, 26 46, 26 36 C26 46, 10 40, 10 26Z" stroke="#B8972A" stroke-width="2" fill="none"/>
+        <circle cx="26" cy="26" r="5" stroke="#B8972A" stroke-width="1.5" fill="none"/>
+      </svg>
+      <h3>The Birth Loop Game</h3>
+      <p>Our flagship immersive experience — a large-scale board game where you navigate the full maternity journey through tactile challenges, peer learning, and real-world scenarios.</p>
+      <div class="service-formats">
+        <span class="format-tag">All Formats</span>
+        <span class="format-tag">Community Events</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="testimonials-header fade-up">
+    <p class="section-label">Community Stories</p>
+    <h2 class="section-title">What families say</h2>
+  </div>
+
+  <div class="testimonials-grid">
+    <div class="testimonial-card fade-up">
+      <span class="quote-mark">"</span>
+      <div class="stars">★★★★★</div>
+      <blockquote>Birth Loop changed everything for me. I went into my birth feeling genuinely prepared — not just informed, but confident in my own instincts.</blockquote>
+      <div class="testimonial-author">
+        <strong>Amara T.</strong>
+        <span>First-time mum, Brixton</span>
+      </div>
+    </div>
+
+    <div class="testimonial-card fade-up">
+      <span class="quote-mark">"</span>
+      <div class="stars">★★★★★</div>
+      <blockquote>As a dad I had no idea where to start. The men's session gave me practical tools and took away all the clinical jargon. I actually understood what was happening.</blockquote>
+      <div class="testimonial-author">
+        <strong>Marcus D.</strong>
+        <span>Father of two, Peckham</span>
+      </div>
+    </div>
+
+    <div class="testimonial-card fade-up">
+      <span class="quote-mark">"</span>
+      <div class="stars">★★★★★</div>
+      <blockquote>The postnatal sessions felt like a lifeline. Meeting other mums going through the same things — and having a midwife and counsellor right there — was exactly what I needed.</blockquote>
+      <div class="testimonial-author">
+        <strong>Priya R.</strong>
+        <span>New parent, South London</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING -->
+<section id="booking">
+  <div class="booking-info fade-up">
+    <p class="section-label">Reserve Your Place</p>
+    <h2 class="section-title">Book a session</h2>
+    <div class="divider"></div>
+    <p class="section-body">All sessions are free to attend and include childcare provision, travel support, food, and a Confidence Toolkit to take home.</p>
+
+    <div class="booking-options">
+      <div class="booking-option selected" onclick="selectOption(this)">
+        <div class="booking-option-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="7" r="3.5" stroke="#B8972A" stroke-width="1.5"/>
+            <path d="M5 16 Q5 12, 10 12 Q15 12, 15 16" stroke="#B8972A" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h4>Antenatal Class</h4>
+          <p>6-week course · Women-only, Couples or Men-only</p>
+        </div>
+      </div>
+      <div class="booking-option" onclick="selectOption(this)">
+        <div class="booking-option-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="8" cy="7" r="3" stroke="#B8972A" stroke-width="1.5"/>
+            <circle cx="14" cy="12" r="2.5" stroke="#B8972A" stroke-width="1.5"/>
+            <path d="M4 17 Q4 14, 8 14 Q10 14, 11 15" stroke="#B8972A" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h4>Postnatal Support</h4>
+          <p>Drop-in or ongoing group · All welcome</p>
+        </div>
+      </div>
+      <div class="booking-option" onclick="selectOption(this)">
+        <div class="booking-option-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M4 10 C4 5, 10 3, 10 10 C10 3, 16 5, 16 10 C16 16, 10 18, 10 14 C10 18, 4 16, 4 10Z" stroke="#B8972A" stroke-width="1.5" fill="none"/>
+          </svg>
+        </div>
+        <div>
+          <h4>The Birth Loop Game Event</h4>
+          <p>Full immersive session · Community format</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form class="booking-form fade-up" action="https://formspree.io/f/learnloopuk@gmail.com" method="POST">
+    <h3>Reserve your place</h3>
+    <p class="sub">We'll confirm your spot within 24 hours.</p>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" name="firstName" placeholder="Your first name" required>
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" name="lastName" placeholder="Your last name" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" name="email" placeholder="your@email.com" required>
+    </div>
+
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="tel" name="phone" placeholder="+44 ..." required>
+    </div>
+
+    <div class="form-group">
+      <label>Session Type</label>
+      <select name="sessionType" required>
+        <option value="">-- Select a session type --</option>
+        <option>Antenatal Class — Women-Only</option>
+        <option>Antenatal Class — Couples</option>
+        <option>Antenatal Class — Men-Only</option>
+        <option>Postnatal Support</option>
+        <option>Birth Loop Game Event</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Due Date / Baby's Age (optional)</label>
+      <input type="text" name="dueDate" placeholder="e.g. August 2025 / 6 weeks old">
+    </div>
+
+    <div class="form-group">
+      <label>Anything we should know?</label>
+      <textarea name="message" placeholder="Accessibility needs, questions, or anything else..."></textarea>
+    </div>
+
+    <button type="submit" class="form-submit">Submit Booking Request</button>
+  </form>
+</section>
+
+<!-- FAQs -->
+<section id="faqs">
+  <div class="faqs-inner">
+    <div class="faqs-header fade-up">
+      <p class="section-label">Questions</p>
+      <h2 class="section-title">Frequently asked</h2>
+    </div>
+
+    <div class="faq-item fade-up">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        How much do sessions cost?
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/>
+        </svg>
+      </button>
+      <div class="faq-answer">All Birth Loop sessions are completely free to attend, including childcare provision, travel support, food and refreshments, and a Confidence Toolkit goody bag to take home.</div>
+    </div>
+
+    <div class="faq-item fade-up">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Where do sessions take place?
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/>
+        </svg>
+      </button>
+      <div class="faq-answer">Sessions are currently running across South London including Brixton and Peckham. We are expanding to further areas soon — get in touch to find your nearest session.</div>
+    </div>
+
+    <div class="faq-item fade-up">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Who facilitates the sessions?
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/>
+        </svg>
+      </button>
+      <div class="faq-answer">Every session includes a qualified Midwife & Facilitator, a Professional Counsellor providing trauma-informed care, and Peer Supporters with lived maternity experience. All staff are DBS checked.</div>
+    </div>
+
+    <div class="faq-item fade-up">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Can I bring my partner or a support person?
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/>
+        </svg>
+      </button>
+      <div class="faq-answer">Absolutely. We offer dedicated Couples sessions, Women-Only sessions, and Men-Only sessions — each thoughtfully adapted. Just select the right format when booking.</div>
+    </div>
+
+    <div class="faq-item fade-up">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        How far in advance should I book?
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/>
+        </svg>
+      </button>
+      <div class="faq-answer">We recommend booking as early as possible as spaces fill quickly. For antenatal classes, ideally 6–8 weeks before your due date. For postnatal, you can join at any time.</div>
+    </div>
+
+    <div class="faq-item fade-up">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        Is Birth Loop accessible for neurodiverse participants?
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/>
+        </svg>
+      </button>
+      <div class="faq-answer">Yes — our approach was specifically designed to be accessible. We use tactile tools like Play-Doh, visual puzzles, and physical counters to bypass language and literacy barriers, making it welcoming for neurodiverse participants and ESL speakers.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-left fade-up">
+    <p class="section-label">Get In Touch</p>
+    <h2 class="section-title">We'd love to hear from you</h2>
+    <div class="divider"></div>
+    <p class="section-body">Whether you have a question about an upcoming session, want to partner with us, or simply want to learn more about Birth Loop — reach out.</p>
+
+    <div class="contact-details">
+      <div class="contact-item">
+        <div class="contact-item-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="4" width="12" height="9" rx="1"/>
+            <path d="M2 4 L8 9 L14 4"/>
+          </svg>
+        </div>
+        <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6f070a0303002f0d061d1b070300001f410c00411a04">[email&#160;protected]</a>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M8 2 C5.2 2, 3 4.2, 3 7 C3 10.5, 8 14, 8 14 C8 14, 13 10.5, 13 7 C13 4.2, 10.8 2, 8 2Z"/>
+            <circle cx="8" cy="7" r="2"/>
+          </svg>
+        </div>
+        South London · Brixton & Peckham
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="2" width="12" height="12" rx="3"/>
+            <circle cx="8" cy="8" r="3"/>
+            <circle cx="11.5" cy="4.5" r="0.8" fill="currentColor"/>
+          </svg>
+        </div>
+        @birthloop
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-form-simple fade-up">
+    <form class="booking-form" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(184,151,42,0.2);" action="https://formspree.io/f/learnloopuk@gmail.com" method="POST">
+      <h3 style="color:white; font-family:'Playfair Display',serif; font-size:1.6rem; margin-bottom:8px;">Send a message</h3>
+      <p class="sub" style="color:rgba(255,255,255,0.4); font-size:0.85rem; margin-bottom:28px; font-weight:300;">We respond within 1 working day.</p>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" name="name" placeholder="Your name" style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.1); color:white; font-family:'Jost',sans-serif;" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="your@email.com" style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.1); color:white; font-family:'Jost',sans-serif;" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea name="message" placeholder="How can we help?" style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.1); color:white; font-family:'Jost',sans-serif; min-height:120px; resize:vertical;" required></textarea>
+      </div>
+      <button type="submit" class="form-submit">Send Message</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#home" class="nav-logo" style="color:white;">
+        <img src="Logo-17.png" alt="Birth Loop Logo" style="height:60px;">
+      </a>
+      <p class="footer-tagline">Celebrating the Journey</p>
+    </div>
+
+    <div class="footer-links">
+      <h4>Navigate</h4>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#testimonials">Stories</a></li>
+        <li><a href="#booking">Book</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-links">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#faqs">FAQs</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Safeguarding</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-links">
+      <h4>Funded by</h4>
+      <ul>
+        <li><a href="#">Thinc Fund</a></li>
+        <li><a href="#">Brixton & Peckham</a></li>
+        <li><a href="#">NHS Partnerships</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2025 Birth Loop. All rights reserved.</span>
+    <span>Designed with ♥ for South London families</span>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // FAQ toggle
+  function toggleFaq(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpen = answer.classList.contains('open');
+    document.querySelectorAll('.faq-answer.open').forEach(a => { a.classList.remove('open'); a.previousElementSibling.classList.remove('open'); });
+    if (!isOpen) { answer.classList.add('open'); btn.classList.add('open'); }
+  }
+
+  // Booking option select
+  function selectOption(el) {
+    document.querySelectorAll('.booking-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    const type = el.querySelector('h4').textCont
