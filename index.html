@@ -1091,4 +1091,9 @@
   function selectOption(el) {
     document.querySelectorAll('.booking-option').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
-    const type = el.querySelector('h4').textCont
+    const type = el.querySelector('h4').textContent;
+    console.log('Selected:', type);
+  }
+</script>
+</body>
+</html>
