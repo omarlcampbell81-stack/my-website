@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thank You — Birth Loop</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #B8972A;
+    --gold-light: #d4b04a;
+    --gold-pale: #f5edd8;
+    --black: #1a1a1a;
+    --cream: #faf8f3;
+    --warm-white: #fefcf8;
+    --mid: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Jost', sans-serif; background: var(--warm-white); color: var(--black); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* NAV */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 60px;
+    background: rgba(254,252,248,0.95);
+    border-bottom: 1px solid rgba(184,151,42,0.15);
+  }
+  .nav-logo { text-decoration: none; display: flex; align-items: center; gap: 12px; }
+  .nav-logo img { height: 80px; width: auto; }
+  .nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
+  .nav-links a { font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta { background: var(--gold) !important; color: white !important; padding: 10px 22px; letter-spacing: 0.12em !important; }
+  .nav-cta:hover { background: var(--gold-light) !important; }
+
+  /* MAIN */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    background: var(--cream);
+  }
+
+  .thank-you-box {
+    background: var(--black);
+    max-width: 640px;
+    width: 100%;
+    padding: 72px 60px;
+    text-align: center;
+    position: relative;
+  }
+
+  .thank-you-box::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gold);
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 6px 14px;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  p {
+    font-size: 1rem;
+    font-weight: 300;
+    line-height: 1.9;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 14px;
+  }
+
+  .divider {
+    width: 48px;
+    height: 3px;
+    background: var(--gold);
+    margin: 28px auto;
+  }
+
+  .btn-home {
+    display: inline-block;
+    margin-top: 12px;
+    background: var(--gold);
+    color: white;
+    padding: 15px 34px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 2px solid var(--gold);
+    transition: all 0.25s;
+  }
+
+  .btn-home:hover {
+    background: var(--gold-light);
+    border-color: var(--gold-light);
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 28px 20px;
+    background: var(--black);
+    color: rgba(255,255,255,0.3);
+    font-size: 0.78rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 600px) {
+    nav { padding: 16px 20px; }
+    .thank-you-box { padding: 48px 28px; }
+    h1 { font-size: 2.2rem; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://www.birthloop.com" class="nav-logo">
+    <img src="Logo.png" alt="Birth Loop">
+  </a>
+  <ul class="nav-links">
+    <li><a href="https://www.birthloop.com/#about">About</a></li>
+    <li><a href="https://www.birthloop.com/#services">Services</a></li>
+    <li><a href="https://www.birthloop.com/#booking" class="nav-cta">Book Now</a></li>
+  </ul>
+</nav>
+
+<!-- MAIN -->
+<main>
+  <div class="thank-you-box">
+    <span class="tag">Submission Received</span>
+    <h1>Thank <em>you.</em></h1>
+    <div class="divider"></div>
+    <p>We've received your booking request and will be in touch within <strong style="color:white;">1 working day</strong> to confirm your place.</p>
+
+    <div style="background:rgba(184,151,42,0.08);border:1px solid rgba(184,151,42,0.3);padding:28px 32px;margin:28px 0;text-align:left;">
+      <p style="font-size:0.72rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Important Booking Information</p>
+      <p style="margin-bottom:10px;">📍 <strong style="color:white;">Venue confirmation</strong> — The exact venue address will be confirmed in your booking email once your place is secured.</p>
+      <p style="margin-bottom:10px;">🎟️ <strong style="color:white;">Limited spaces</strong> — Our sessions are small and intimate. Places are allocated on a first come, first served basis.</p>
+      <p style="margin-bottom:10px;">⏳ <strong style="color:white;">Waitlist</strong> — If the session is fully booked, we will contact you to add you to our waitlist and notify you of the next available date.</p>
+      <p style="margin-bottom:0;">✉️ <strong style="color:white;">Check your inbox</strong> — Please keep an eye on your email including your spam folder for your confirmation from us.</p>
+    </div>
+
+    <p>In the meantime, follow us on Instagram <strong style="color:var(--gold);">@birthloop</strong> for updates on upcoming sessions.</p>
+    <a href="https://www.birthloop.com" class="btn-home">Back to Birth Loop</a>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  © 2026 Birth Loop · Operated by Learn Loop Ltd
+</footer>
+
+</body>
+</html>
