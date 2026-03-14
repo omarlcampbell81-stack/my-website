@@ -1546,17 +1546,30 @@ Community health educator specialising in culturally sensitive birth education f
   }
 
   renderCalendar();
- // Keep forms on page after submission
-['contact-form', 'booking-form'].forEach(id => {
+ /['contact-form', 'booking-form'].forEach(id => {
   const form = document.getElementById(id);
   if (form) {
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
       const data = new FormData(form);
-      await fetch(form.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
-      form.innerHTML = '<p style="color:var(--gold);font-family:\'Playfair Display\',serif;font-size:1.2rem;text-align:center;padding:40px 0;">Thank you! We\'ll be in touch soon. ✨</p>';
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: data,
+          headers: { 'Accept': 'application/json' }
+        });
+        const result = await response.json();
+        if (result.success) {
+          form.innerHTML = '<p style="color:var(--gold);font-family:\'Playfair Display\',serif;font-size:1.2rem;text-align:center;padding:40px 0;">Thank you! We\'ll be in touch soon. ✨</p>';
+        } else {
+          alert('Something went wrong. Please try again.');
+        }
+      } catch (error) {
+        alert('Something went wrong. Please try again.');
+      }
     });
   }
+});
 });
 </script>
 
