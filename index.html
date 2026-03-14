@@ -1671,12 +1671,12 @@ return match?match[2]:null;
 
 function acceptCookies(){
 setCookie('cookie_consent','accepted',365);
-document.getElementById('cookie-banner').style.display='none';
+document.getElementById('cookie-banner').classList.remove('visible');
 }
 
 function declineCookies(){
 setCookie('cookie_consent','essential',365);
-document.getElementById('cookie-banner').style.display='none';
+document.getElementById('cookie-banner').classList.remove('visible');
 }
 
 function openCookieModal(e){
@@ -1690,7 +1690,9 @@ document.getElementById('cookie-modal').style.display='none';
 
 window.onload=function(){
 if(!getCookie('cookie_consent')){
-document.getElementById('cookie-banner').style.display='flex';
+setTimeout(function(){
+document.getElementById('cookie-banner').classList.add('visible');
+}, 800);
 }
 }
 
