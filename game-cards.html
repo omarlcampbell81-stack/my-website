@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Game Cards</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --gold: #C9A624;
+    --gold-light: #E8D070;
+    --gold-pale: #F5E9C0;
+    --teal: #2AABB8;
+    --teal-dark: #1e8a96;
+    --teal-deeper: #155f69;
+    --teal-pale: #e0f5f7;
+    --black: #1A1A1A;
+    --cream: #FDFCF6;
+    --white: #ffffff;
+    --grey: #5a9aa3;
+    --green: #2AABB8;
+    --green-light: #50c5d0;
+    --card-w: min(380px, 92vw);
+    --card-h: min(560px, 78vh);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #ffffff;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    color: var(--black);
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    width: 100%;
+    background: var(--teal);
+    border-bottom: 3px solid var(--gold);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+  }
+  .logo span { color: #fff; font-weight: 400; }
+
+  /* ── Deck selector ── */
+  .deck-section {
+    width: 100%;
+    max-width: 520px;
+    padding: 20px 16px 10px;
+  }
+  .deck-section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--teal-dark);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .deck-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .deck-btn {
+    background: var(--teal-pale);
+    border: 1.5px solid var(--teal);
+    color: var(--teal-deeper);
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-align: left;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.3;
+  }
+  .deck-btn:hover { border-color: var(--gold); background: #fff8dc; }
+  .deck-btn.active {
+    background: var(--teal);
+    border-color: var(--gold);
+    color: #fff;
+    font-weight: 600;
+  }
+  .deck-btn .icon { font-size: 1.1rem; flex-shrink: 0; }
+  .deck-btn .count {
+    margin-left: auto;
+    font-size: 0.7rem;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+  .deck-btn.gold-node {
+    border-color: var(--gold);
+    background: #fff8dc;
+    color: #7a5a00;
+  }
+  .deck-btn.gold-node.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--black);
+  }
+  .deck-btn.labour {
+    border-color: var(--teal-dark);
+    background: #d4f0f3;
+    color: var(--teal-deeper);
+  }
+  .deck-btn.labour.active {
+    background: var(--teal-dark);
+    border-color: var(--teal-dark);
+    color: #fff;
+  }
+
+  /* ── Card stage ── */
+  .stage {
+    width: 100%;
+    max-width: 520px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+  }
+
+  .deck-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal-dark);
+    align-self: flex-start;
+  }
+  .deck-label span { color: var(--teal-deeper); font-weight: 600; }
+
+  /* ── Card ── */
+  .card-wrap {
+    width: var(--card-w);
+    height: var(--card-h);
+    perspective: 1200px;
+    cursor: pointer;
+  }
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-inner.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Front */
+  .card-front {
+    background: var(--teal);
+    border: 2.5px solid var(--gold);
+  }
+  .card-front.gold-node {
+    background: linear-gradient(160deg, #2AABB8, #1e8a96);
+    border-color: var(--gold);
+    border-width: 3px;
+  }
+  .card-front.labour-card {
+    background: linear-gradient(160deg, #1e8a96, #155f69);
+    border-color: var(--gold);
+    border-width: 2.5px;
+  }
+
+  .card-header {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-type {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .card-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.06em;
+  }
+  .badge-easy { background: rgba(255,255,255,0.25); color: #fff; }
+  .badge-medium { background: var(--gold); color: var(--black); }
+  .badge-hard { background: #1A1A1A; color: #fff; }
+  .badge-gold { background: var(--gold); color: var(--black); }
+  .badge-green { background: rgba(255,255,255,0.2); color: #fff; }
+
+  .card-body {
+    flex: 1;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+  .card-theme {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+  .card-question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: #fff;
+  }
+  .card-options {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .card-option {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: #fff;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    border-left: 2px solid var(--gold);
+  }
+  .card-tap-hint {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+  .tap-star { color: var(--gold); }
+
+  .card-footer {
+    padding: 8px 18px 12px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  /* Back */
+  .card-back {
+    background: var(--teal-deeper);
+    border: 2.5px solid var(--gold);
+    transform: rotateY(180deg);
+  }
+  .card-back.gold-node { border-color: var(--gold); border-width: 3px; }
+  .card-back.labour-card { border-color: var(--gold); }
+
+  .back-header {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .back-header-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .back-body {
+    flex: 1;
+    padding: 16px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .answer-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .answer-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    line-height: 1.55;
+    color: #fff;
+    font-weight: 400;
+  }
+  .facilitator-box {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .facilitator-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 4px;
+  }
+  .facilitator-text {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.8);
+  }
+  .mechanic-box {
+    background: rgba(201,166,36,0.15);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .mechanic-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .mechanic-text {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.85);
+  }
+  .token-reward {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gold);
+    color: var(--black);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+    align-self: flex-start;
+  }
+
+  /* ── Controls ── */
+  .controls {
+    display: flex;
+    gap: 10px;
+    width: var(--card-w);
+  }
+  .btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.18s;
+    letter-spacing: 0.02em;
+  }
+  .btn-draw {
+    background: var(--teal);
+    color: #fff;
+    border: 2px solid var(--gold);
+  }
+  .btn-draw:hover { background: var(--teal-dark); }
+  .btn-draw:active { transform: scale(0.97); }
+  .btn-reveal {
+    background: #fff;
+    color: var(--teal-deeper);
+    border: 1.5px solid var(--teal);
+  }
+  .btn-shuffle {
+    flex: 0 0 48px;
+    background: #fff;
+    color: var(--teal-deeper);
+    border: 1.5px solid var(--teal);
+    font-size: 1.1rem;
+    padding: 13px 0;
+  }
+  .btn-shuffle:hover { border-color: var(--gold); transform: rotate(180deg); }
+  .btn-shuffle:active { transform: scale(0.95) rotate(180deg); }
+
+  .card-counter {
+    font-size: 0.72rem;
+    color: var(--teal-dark);
+    text-align: center;
+  }
+  .card-counter span { color: var(--teal-deeper); font-weight: 600; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    width: var(--card-w);
+    height: var(--card-h);
+    border: 2px dashed var(--teal);
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--teal-dark);
+    background: var(--teal-pale);
+  }
+  .empty-state .icon { font-size: 2.5rem; opacity: 0.5; }
+  .empty-state p { font-size: 0.85rem; text-align: center; max-width: 200px; line-height: 1.5; }
+
+  /* ── Slide animation ── */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .card-wrap { animation: slideIn 0.3s ease forwards; }
+
+  /* ── Gold shimmer on gold node cards ── */
+  .gold-shimmer {
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(201,166,36,0.15), transparent);
+    animation: shimmer 2.5s infinite;
+    pointer-events: none;
+  }
+  @keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 200%; }
+  }
+
+  /* ── Labour Loop square header ── */
+  .labour-square-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--green-light);
+    letter-spacing: 0.06em;
+  }
+
+  /* Scrollbar */
+  .back-body::-webkit-scrollbar { width: 4px; }
+  .back-body::-webkit-scrollbar-track { background: transparent; }
+  .back-body::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">BIRTH LOOP <span>Card Draw</span></div>
+  <div style="font-size:0.7rem;color:rgba(255,255,255,0.7)">Tap card to reveal</div>
+</div>
+
+<div class="deck-section">
+  <h2>Choose a deck</h2>
+  <div class="deck-grid" id="deckGrid"></div>
+</div>
+
+<div class="stage">
+  <div class="deck-label" id="deckLabel">Select a deck above</div>
+  <div id="cardStage">
+    <div class="empty-state">
+      <div class="icon">🃏</div>
+      <p>Select a deck and tap Draw Card</p>
+    </div>
+  </div>
+  <div class="controls" id="controls" style="display:none">
+    <button class="btn btn-reveal" id="btnReveal" onclick="flipCard()">Reveal Answer</button>
+    <button class="btn btn-draw" id="btnDraw" onclick="drawCard()">Draw Card</button>
+    <button class="btn btn-shuffle" onclick="reshuffleDeck()" title="Shuffle deck">🔀</button>
+  </div>
+  <div class="card-counter" id="counter"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CARD DATA
+// ══════════════════════════════════════════════════════
+const DECKS = {
+
+  // ── KNOWLEDGE ─────────────────────────────────────
+  knowledge: {
+    label: 'Knowledge', icon: '📚', count: 54, type: 'circuit',
+    cards: [
+      { format:'Health Literacy', diff:'Easy', q:'Your notes say "fundal height 34cm at 36 weeks, plotting below 10th centile, referred for growth scan." What does this mean?', a:'Your bump measurement is smaller than expected for this stage. A scan is being arranged to check the baby\'s size more accurately. It does not mean something is wrong.', fac:'Key message: a referral is precaution, not diagnosis. Reinforce the team is being thorough.' },
+      { format:'Health Literacy', diff:'Medium', q:'Your discharge letter says: "Para 1+0, SVD at 39+4, blood loss 350ml, Apgar 9 at 1 min." Decode this in plain language.', a:'Your first baby (+0 previous losses). Straightforward vaginal birth at 39 weeks 4 days. Blood loss 350ml (normal is under 500ml). Baby scored 9/10 on health check at 1 minute old.', fac:'Breaking down discharge letters builds confidence for future appointments.' },
+      { format:'Health Literacy', diff:'Medium', q:'A consent form says: "Episiotomy may be performed if clinically indicated." What are you agreeing to?', a:'Pre-consenting to a small surgical cut to the perineum during birth if the team judges it necessary. You can ask: under what circumstances would this happen?', fac:'Key: "may" and "if indicated" mean it is not guaranteed. Ask for the criteria beforehand.' },
+      { format:'Health Literacy', diff:'Hard', q:'Your blood results show Hb 98 g/L. Normal range is 110–160 g/L. What does this mean and what will likely be recommended?', a:'Your haemoglobin (iron) is low — you have anaemia. In pregnancy this can cause tiredness and affect the baby\'s oxygen supply. Iron supplements or dietary changes are likely.', fac:'Ask: what foods are high in iron? Reinforce that anaemia in pregnancy is common and treatable.' },
+      { format:'Quiz', diff:'Easy', q:'What does EDD stand for on your maternity notes — and is it exact?', a:'Estimated Due Date. Not exact — only around 5% of babies are born on their EDD. It marks the midpoint of a normal range: 37–42 weeks is considered term.', fac:'Reduces anxiety about going overdue. The window is normal.' },
+      { format:'Quiz', diff:'Easy', q:'What does it mean when your waters break and the fluid is green or brown?', a:'Green or brown amniotic fluid means the baby has passed meconium (first stool) in the womb. Call your maternity unit immediately — do not wait. It can indicate fetal distress.', fac:'Reinforce: any colour other than clear or pale straw = call triage now.' },
+      { format:'Taboo', diff:'Medium', q:'Describe PLACENTA without using: organ, baby, nutrients, oxygen, or womb.', a:'No single answer. Good responses: the life-support system grown during pregnancy, the connection between mother and child that feeds and protects.', fac:'Celebrate creative descriptions. Builds confidence naming body parts without clinical anxiety.' },
+      { format:'Quiz', diff:'Medium', q:'What is the difference between an epidural and a spinal block?', a:'An epidural delivers continuous pain relief via a catheter and can be topped up. A spinal block is a single injection that acts faster, typically used for caesareans. A combined spinal-epidural (CSE) uses both.', fac:'Demystifying the procedure reduces fear.' },
+      { format:'Dingbats', diff:'Easy', q:'🏠 + ✉️ + 🤰 = ?', a:'Post Partum Haemorrhage — heavy bleeding after birth.', fac:'Key awareness card. Normal blood loss after birth is under 500ml.' },
+      { format:'Quiz', diff:'Medium', q:"What is Martha's Law and does it matter for pregnant women?", a:"Martha's Law gives patients and families the right to request an urgent review from a senior clinical team if they are worried about a deterioration in their or their baby's condition that isn't being acted on.", fac:"You have the right to escalate. Always." },
+      { format:'True/False', diff:'Easy', q:'TRUE or FALSE: You are legally entitled to a copy of your full maternity notes.', a:'TRUE. Under the Data Protection Act 2018 (UK GDPR), you can request your maternity records at any time. The NHS must respond within one month.', fac:'Tip: request notes during pregnancy, not just after.' },
+      { format:'True/False', diff:'Hard', q:'TRUE or FALSE: If you decline a clinical recommendation during labour, the maternity team can legally withdraw your care.', a:'FALSE. The duty of care continues regardless of whether you accept recommendations. Declining one intervention does not mean other support is withdrawn.', fac:'This fear is sometimes used to pressure patients. Name it directly and challenge it.' },
+      { format:'True/False', diff:'Medium', q:'TRUE or FALSE: You can write a birth plan that includes your wishes in the event of a caesarean section.', a:'TRUE. A caesarean birth plan can include: who is present, music, lowered screen for the birth moment, delayed cord clamping, skin-to-skin in theatre, immediate breastfeeding.', fac:'Caesarean birth plans are underused. Encourage all women to plan for multiple birth scenarios.' },
+      { format:'True/False', diff:'Easy', q:'TRUE or FALSE: Once you are in active labour, you can no longer change your mind about your birth preferences.', a:'FALSE. You retain full decision-making rights at every stage of labour, including the right to change your mind in any direction.', fac:'Common myth. Reinforce that capacity — not pain or progress — determines decision-making rights.' },
+      { format:'Quiz', diff:'Hard', q:'The Birthrights report found certain groups were disproportionately referred to police or social services during pregnancy. Name two factors associated with this.', a:'Any two: being from an ethnic minority background, mental health history, substance use, previous social services involvement, poverty, being a young mother.', fac:'Handle with care. This is about systemic inequality, not individual blame.' },
+      { format:'Scenario', diff:'Medium', q:'You are being asked to consent to a vaginal examination but you don\'t want one right now. What do you say?\nA) Say nothing and let it happen\nB) "I\'d like to wait — can we check again in an hour?"\nC) "Fine, get it over with"', a:'B — You can decline or delay any examination. Asking for a pause is assertive and appropriate. VEs are not always clinically necessary when offered.', fac:'Reinforce: "no" to a vaginal examination is always valid. No justification required.', options:['A) Say nothing and let it happen', 'B) "I\'d like to wait — can we check again in an hour?"', 'C) "Fine, get it over with"'] },
+      { format:'Dingbats', diff:'Medium', q:'📄 + ✍️ + ❓ = ?', a:'Informed Consent — reading, questioning, and only signing when you fully understand what you are agreeing to.', fac:'Ask: what makes people sign things they don\'t understand in hospital?' },
+      { format:'Taboo', diff:'Easy', q:'Describe BIRTH PLAN without using: paper, preferences, wishes, plan, or write.', a:'No single answer. Good responses: your voice before labour starts, a document of your choices, communication with your care team about what matters to you.', fac:'Celebrate any answer that centres the woman\'s agency rather than the document itself.' },
+      { format:'Scenario', diff:'Easy', q:'Your midwife recommends a membrane sweep at 40 weeks. Which response uses BRAIN correctly?\nA) "OK if you think it\'s best"\nB) "What are the benefits, risks and alternatives? What if I wait?"\nC) "No thanks"', a:'B — BRAIN: Benefits, Risks, Alternatives, Intuition, Nothing (do nothing). A is passive, C skips inquiry entirely.', fac:'Ask players to role-play option B with the person next to them.', options:['A) "OK if you think it\'s best"','B) "What are the benefits, risks and alternatives? What if I wait?"','C) "No thanks"'] },
+      { format:'Scenario', diff:'Hard', q:'Your consultant recommends induction at 38 weeks as your baby is measuring large on a scan. What is the most important question?\nA) "How big is too big?"\nB) "How accurate is the scan and what are my options if I wait?"\nC) "Will it hurt?"', a:'B — Scan measurements at late gestation can be ±20% inaccurate. Questioning accuracy and alternatives is the most informed starting point.', fac:'Bukky can share real figures on scan accuracy if in the room.', options:['A) "How big is too big?"','B) "How accurate is the scan and what are my options if I wait?"','C) "Will it hurt?"'] },
+      { format:'Scenario', diff:'Easy', q:'You arrive at triage with reduced fetal movements. You\'ve waited 2 hours and haven\'t been seen. What do you do?\nA) Go home and return tomorrow\nB) Wait quietly — they\'re busy\nC) Speak to staff and explain your concern hasn\'t been assessed', a:'C — Reduced fetal movement is always a priority. You should be assessed within 1 hour. It is appropriate and safe to advocate for yourself.', fac:'Reinforce: you are never being difficult by asking about reduced movement.', options:['A) Go home and return tomorrow','B) Wait quietly — they\'re busy','C) Speak to staff and explain your concern hasn\'t been assessed'] },
+      { format:'Scenario', diff:'Medium', q:'Your birth plan says avoid epidural unless you ask. In active labour a midwife offers one. Best response?\nA) Accept — you\'re in pain\nB) "That\'s in my birth plan — I\'ll ask if I want it. Can you support me with other pain relief now?"\nC) Say nothing and feel guilty', a:'B — Your birth plan is your voice. Calmly referencing it and asking for alternatives is assertive and appropriate.', fac:'Discuss: what makes it hard to say no when you\'re in pain?', options:['A) Accept — you\'re in pain','B) "That\'s in my birth plan — I\'ll ask if I want it."','C) Say nothing and feel guilty'] },
+      { format:'Scenario', diff:'Hard', q:'You are being pressured to accept continuous fetal monitoring but want to stay mobile. Strongest response?\nA) "Fine, I\'ll lie down"\nB) "Is there evidence CTG is better than intermittent monitoring in my situation? Can I see it?"\nC) "I\'ll do whatever you think is safest"', a:'B — For low-risk labours, intermittent monitoring has comparable outcomes to CTG. Asking for evidence is your right.', fac:'Bukky can explain the NICE guideline difference between low and high-risk monitoring.', options:['A) "Fine, I\'ll lie down"','B) "Is there evidence CTG is better? Can I see it?"','C) "I\'ll do whatever you think is safest"'] },
+      { format:'Scenario', diff:'Easy', q:'After a 20-week scan you\'re told there\'s a "minor finding" but "try not to worry". What do you do?\nA) Trust them and go home\nB) Ask: "Can you tell me exactly what was found and what it means?"\nC) Google it immediately', a:'B — You are entitled to a clear explanation. "Try not to worry" is not clinical information. Asking directly is safe and appropriate.', fac:'Minor finding language is common. Empower women to ask for specifics without feeling rude.', options:['A) Trust them and go home','B) Ask for a clear explanation','C) Google it immediately'] },
+      { format:'True/False', diff:'Medium', q:'TRUE or FALSE: Once an induction of labour has started, you cannot change your mind and ask for it to stop.', a:'FALSE. You can withdraw consent at any stage of an induction. The process can be paused or stopped if you have capacity and request it.', fac:'Reinforce that induction starting does not mean rights end.' },
+      { format:'Taboo', diff:'Medium', q:'Describe INFORMED CONSENT without using: permission, agree, sign, form, or allow.', a:'No single answer. Good responses focus on: understanding, choice, knowledge, freedom, decision based on full information.', fac:'Group votes. Listen for language that centres the patient rather than the system.' },
+      { format:'Dingbats', diff:'Medium', q:'🤔 + ⏸️ + 🗺️ = ?', a:'Pause and Plan — taking a moment before making a decision to think through your options rather than reacting under pressure.', fac:'Award bonus token if a player names a real situation where pausing before deciding would matter.' },
+      { format:'Quiz', diff:'Easy', q:'What are the three stages of labour?', a:'Stage 1: Cervix dilates from 0–10cm (latent and active phases). Stage 2: Pushing and birth of the baby. Stage 3: Delivery of the placenta.', fac:'Ask: which stage do most people imagine? Usually Stage 2 — opens discussion about the full journey.' },
+      { format:'Quiz', diff:'Medium', q:'Name three positions that can help progress in labour.', a:'Any three: upright standing, walking, hands and knees, kneeling, sitting on a birth ball, squatting, side-lying, lunging.', fac:'Ask players to demonstrate one if comfortable. Movement in labour is evidence-based and often underused.' },
+      { format:'True/False', diff:'Easy', q:'TRUE or FALSE: The latent phase of labour (early labour) can last several days.', a:'TRUE. The latent phase can last 24–72 hours, especially in a first pregnancy. Contractions may be irregular and the cervix may dilate slowly.', fac:'Many women feel they are failing if early labour is long. Normalise it.' },
+      { format:'True/False', diff:'Medium', q:'TRUE or FALSE: Skin-to-skin contact after birth should only happen after the baby has been weighed and checked.', a:'FALSE. Skin-to-skin should happen immediately after birth, before weighing and routine checks (unless there is a clinical emergency). It regulates temperature, heart rate and supports feeding.', fac:'Reinforce: weighing can wait. Skin-to-skin in the first hour matters enormously.' },
+      { format:'Quiz', diff:'Easy', q:"What does it mean if your baby is in the 'occiput posterior' position?", a:"The baby is head-down but with the back of their head facing your spine rather than your abdomen — known as back-to-back. This can make labour longer and more uncomfortable but birth is still possible.", fac:'Contrast with occiput anterior (ideal position).' },
+      { format:'Quiz', diff:'Hard', q:'What is the purpose of delayed cord clamping and when is it recommended?', a:'Waiting at least 1 minute (ideally 3+) before cutting the umbilical cord allows the baby to receive iron-rich blood from the placenta. NICE recommends it for all births unless there is a clinical emergency.', fac:'Ask: is delayed cord clamping in your birth plan?' },
+      { format:'Taboo', diff:'Medium', q:'Describe CONTRACTION without using: pain, squeeze, tighten, wave, or labour.', a:'No single answer. Good responses: a muscular surge, the womb working to open the cervix, a powerful rhythmic movement, pressure that builds and releases.', fac:'Reframing contractions as "surges" is used in hypnobirthing — worth naming if it comes up.' },
+      { format:'Scenario', diff:'Medium', q:'You are 39 weeks and your baby has been moving less than usual today. What do you do?\nA) Eat something sweet and lie on your left side for an hour\nB) Call your maternity unit now\nC) Wait until tomorrow\'s appointment', a:'B — Any reduction in fetal movement requires immediate contact with your maternity unit, any time of day or night. Do not wait.', fac:'RCOG and NHS guidance is clear: reduced movement = call now. No home tests replace clinical assessment.', options:['A) Eat something sweet and lie down','B) Call your maternity unit now','C) Wait until tomorrow\'s appointment'] },
+      { format:'Dingbats', diff:'Easy', q:'💨 + 😮‍💨 + 🔢 = ?', a:'Breathing Techniques — using counted, rhythmic breathing patterns to manage contractions and stay calm during labour.', fac:'Practise one breathing pattern together: 4 counts in, hold for 2, 6 counts out.' },
+      { format:'Advocacy', diff:'Easy', q:"Your midwife dismisses a concern by saying 'that's completely normal, don't worry.' You're not reassured. Say out loud what you would say next.", a:"Good responses: 'I understand it may be common, but I'd like to understand why it's happening.' / 'Can you explain what's causing it so I feel more informed?'", fac:'The goal is not to argue — it\'s to stay in the conversation and get real information.' },
+      { format:'Advocacy', diff:'Medium', q:'You are the only Black woman in the antenatal clinic. The midwife calls a name — not yours — then looks directly at you. How do you respond?\nA) Stand up anyway\nB) Stay seated and say: "I think you might be looking for someone else — my name is [name]"\nC) Say nothing', a:'B — Calmly correcting a mistaken assumption without shame is self-advocacy. You are not being difficult; you are being accurate.', fac:'Open discussion: how often does this happen? What does it feel like?', options:['A) Stand up anyway','B) Calmly correct the assumption','C) Say nothing'] },
+      { format:'Advocacy', diff:'Hard', q:'After your birth you feel something went wrong but no one has explained it. You want answers. Say out loud how you would begin that conversation.', a:'Good responses: "I\'d like a postnatal debrief to discuss what happened." / "Can I speak to the consultant who was on call?" / "I\'d like to see my notes and have them explained to me."', fac:'Reinforce: you are entitled to a birth debrief. It is not a complaint — it is your right.' },
+      { format:'Quiz', diff:'Easy', q:'Name two professionals who might be part of your maternity care team beyond your midwife.', a:'Any two: obstetrician, consultant, anaesthetist, health visitor, sonographer, perinatal mental health worker, doula, breastfeeding support worker, physiotherapist.', fac:'Many women don\'t know the full team available to them.' },
+      { format:'True/False', diff:'Easy', q:'TRUE or FALSE: You can ask for a different midwife during labour if you feel uncomfortable.', a:'TRUE. You can request a change of midwife. While not always possible due to staffing, you are entitled to ask and your discomfort is a valid reason.', fac:'Many women don\'t know this. It can be life-changing in a difficult birth.' },
+      { format:'Quiz', diff:'Medium', q:'What is a doula and is their support available on the NHS?', a:'A trained non-clinical birth companion providing emotional, physical and informational support before, during and after birth. Not routinely NHS-funded but some charities offer funded programmes.', fac:'Mention any local doula programmes relevant to Brixton/Peckham if known.' },
+      { format:'Advocacy', diff:'Medium', q:'You are in labour and feel your concerns are being ignored. Your birth partner is with you. What can THEY do to advocate for you?', a:'Good responses: ask for a senior midwife, request a pause, repeat your stated preferences clearly, ask "what does my partner need right now?", document what\'s happening.', fac:'Pair exercise: one person plays patient, one the birth partner.' },
+      { format:'Play-Doh', diff:'Medium', q:'Sculpt what it feels like to advocate for yourself in a clinical setting. 90 seconds. Share with the group.', a:'No correct answer. What did you make and what does it represent?', fac:'Watch for models representing fear, silence or being small — important to acknowledge.' },
+      { format:'Dingbats', diff:'Easy', q:'🗣️ + 🏥 + 💪 = ?', a:'Speak Up in Hospital — using your voice to ensure your needs, preferences and concerns are heard and acted on in a clinical setting.', fac:'Ask: what stops women speaking up in hospitals? Collect answers.' },
+      { format:'Quiz', diff:'Medium', q:'What is the main risk of uncontrolled hypertension in pregnancy?', a:'Pre-eclampsia — which can lead to eclampsia (seizures), HELLP syndrome, placental abruption, premature birth, and in severe cases maternal or fetal death.', fac:'Pre-eclampsia is closely linked to maternal death in the UK. Worth naming clearly.' },
+      { format:'Quiz', diff:'Hard', q:'What does HbA1c measure and why is it relevant in gestational diabetes?', a:'HbA1c measures average blood sugar levels over 2–3 months. In gestational diabetes it helps assess how well blood sugar has been controlled and whether medication is needed.', fac:'The difference between HbA1c and a GTT (glucose tolerance test) is worth explaining.' },
+      { format:'Quiz', diff:'Medium', q:'Name two symptoms of a sickle cell crisis in pregnancy.', a:'Any two: severe pain in bones, chest or abdomen, breathlessness, fever, swelling in hands or feet, extreme fatigue. Requires immediate hospital assessment.', fac:'Women with sickle cell disease need specialist consultant-led care throughout pregnancy.' },
+      { format:'True/False', diff:'Medium', q:'TRUE or FALSE: Women with sickle cell trait (not disease) face the same pregnancy risks as women with sickle cell disease.', a:'FALSE. Sickle cell trait (carrying one gene) generally causes fewer complications than sickle cell disease (carrying two genes). However, trait carriers should still be monitored.', fac:'Important distinction — many women don\'t know which they have. Encourage testing.' },
+      { format:'True/False', diff:'Easy', q:'TRUE or FALSE: Pre-eclampsia can develop after birth, not just during pregnancy.', a:'TRUE. Post-partum pre-eclampsia can develop up to 6 weeks after birth. Warning signs include severe headache, visual disturbances and upper abdominal pain.', fac:'Many women (and some clinicians) don\'t know this. It is a serious postnatal risk.' },
+      { format:'Health Literacy', diff:'Hard', q:'"Your BP reading is 148/95 at 34 weeks." What does this mean and what should happen next?', a:'148/95 is above the threshold for gestational hypertension (140/90). You should be assessed for pre-eclampsia — urine dip, bloods, and fetal monitoring. This requires prompt clinical review.', fac:'Explain the difference between gestational hypertension and pre-eclampsia.' },
+      { format:'Health Literacy', diff:'Hard', q:'"Your GTT result is 7.8 mmol/L at 2 hours." Is this within normal range?', a:'No. The NICE threshold for gestational diabetes at the 2-hour GTT reading is 7.8 mmol/L or above. This result meets the diagnostic criteria for gestational diabetes.', fac:'Key: at-the-threshold does not mean "borderline fine" — it meets the diagnostic criteria.' },
+      { format:'Quiz', diff:'Medium', q:'What is Group B Strep (GBS) and how is it usually detected in pregnancy?', a:'GBS is a bacterium carried by around 1 in 4 women. Usually harmless to the mother but can cause serious infection in newborns. Detected via a vaginal/rectal swab — not routinely offered by the NHS but can be done privately.', fac:'GBS+ women are offered IV antibiotics in labour to protect the baby.' },
+      { format:'True/False', diff:'Easy', q:'TRUE or FALSE: GBS always causes illness in newborns when the mother is a carrier.', a:'FALSE. Most babies born to GBS-positive mothers are unaffected. The risk is around 1 in 1,750 births. IV antibiotics in labour reduce this risk significantly.', fac:'Balance: don\'t cause unnecessary panic, but ensure women understand the importance of knowing their GBS status.' },
+    ]
+  },
+
+  // ── MAMA MATTERS ─────────────────────────────────
+  mama: {
+    label: 'Mama Matters', icon: '💚', count: 40, type: 'circuit',
+    cards: [
+      { type:'Give to another', q:'Your birth partner showed up for you this week. Give 1 token to the player of your choice.', fac:'Celebrates support networks. If playing solo-style, give to the player with fewest tokens.' },
+      { type:'Give to another', q:'You shared something vulnerable in this session. Give 1 token to the player who made you feel most heard.', fac:'Builds psychological safety and peer connection within the group.' },
+      { type:'Give to another', q:'The village raises the child. Give 1 token to every other player — you\'re all in this together.', fac:'Cooperative moment. Rewards communal thinking over competition.' },
+      { type:'Give to another', q:'A woman in your community just had her baby. Give 2 tokens to the player to your left as your gift to the new mother.', fac:'Solidarity mechanic.' },
+      { type:'Give to another', q:'Your antenatal group has been your lifeline. Give 1 token to each other player who has answered a Knowledge card correctly this game.', fac:'Rewards collective knowledge.' },
+      { type:'Give to another', q:'Someone in this room is further along than you and has wisdom to share. Give 1 token to the player with the most Knowledge Tokens.', fac:'Rewards the leader. Discuss: what is one thing you wish someone had told you earlier in pregnancy?' },
+      { type:'Give to another', q:'You remembered to drink water and rest today. Give 1 token to the player who has been waiting the longest on the outer circuit.', fac:'Solidarity with players who are behind.' },
+      { type:'Give to another', q:'Your doula checked in on you this week. Give 2 tokens — one to yourself, one to the player on your right.', fac:'Ask: does anyone know what a doula does?' },
+      { type:'Give to another', q:'You attended your first antenatal class. Share what you learned — give 1 token to any player who can name one thing taught in antenatal classes.', fac:'Good prompt for discussion about NHS vs independent antenatal provision.' },
+      { type:'Give to another', q:'You made it to your booking appointment. Give 1 token to the player with the fewest tokens — no one gets left behind.', fac:'Discuss: what happens at a booking appointment? What should you ask?' },
+      { type:'Move forward', q:'Your community midwife knows your name. Move forward 2 spaces.', fac:'Rewards continuity of carer — a key Birth Loop theme.' },
+      { type:'Move forward', q:'You wrote your birth preferences and shared them with your care team. Move forward 3 spaces.', fac:'Directly rewards birth planning — a core game objective.' },
+      { type:'Move forward', q:'You asked a question at your last appointment instead of nodding and leaving. Move forward 2 spaces.', fac:'Rewards self-advocacy.' },
+      { type:'Move forward', q:'Your peer support group met this week. Move forward 2 spaces.', fac:'Celebrates community connection and informal support networks.' },
+      { type:'Move forward', q:'You told someone how you were really feeling and they listened. Move forward 2 spaces.', fac:'Rewards emotional honesty and supportive relationships.' },
+      { type:'Move forward', q:'You packed your hospital bag. Move forward 1 space and tell the group one thing you packed.', fac:'Use as a moment to discuss what should and shouldn\'t be in a hospital bag.' },
+      { type:'Move forward', q:'You practised a breathing technique this week. Move forward 2 spaces and demonstrate it for the group.', fac:'Practise together: 4 in, hold 2, 6 out.' },
+      { type:'Move forward', q:'Your birth partner came to an appointment with you. Move forward 3 spaces.', fac:'Discuss: what is the role of a birth partner? What should they know?' },
+      { type:'Reflection', q:'You are stronger than you know. Read this affirmation aloud: "My body knows how to birth. I trust myself." Stay where you are — some moments are just for breathing.', fac:'Pause card. No mechanical effect. Creates space. Allow silence after this one.' },
+      { type:'Reflection', q:'Name one person who would be in your birth room if you could choose anyone. Tell the group why.', fac:'Community-building. Reveals support networks and gaps. If someone has no one to name, acknowledge it gently and signpost local networks.' },
+      { type:'Reflection', q:'What is one thing you are still unsure about regarding your birth? Share it with the group.', fac:'Surfaces anxiety in a safe way. Opens peer knowledge exchange.' },
+      { type:'Reflection', q:'Name one thing your mum, grandmother or elder told you about birth — true or not. The group decides.', fac:'Cultural knowledge exchange. Celebrates intergenerational wisdom.' },
+      { type:'Reflection', q:'You are 3am awake and anxious. You can\'t call your midwife yet. Name two things you would do.', fac:'Practical coping strategies. Peer exchange of real support tools.' },
+      { type:'Reflection', q:'What does a "good birth" look like to you? You have 30 seconds to describe it.', fac:'Values clarification. No right answer.' },
+      { type:'Reflection', q:'Name one right you now know you have in pregnancy that you didn\'t know before today.', fac:'Consolidates learning. Works best mid-to-late game.' },
+      { type:'Reflection', q:'Your body has been growing a human. Name one thing your body has done in this pregnancy that deserves acknowledgement.', fac:'Affirmation and body respect.' },
+      { type:'Reflection', q:'What is one question you are going to ask at your next midwife appointment because of what you\'ve learned today?', fac:'Transfers learning to real action. Bridges game to real life.' },
+      { type:'Reflection', q:'Someone in your community is pregnant and scared. What is the one thing you would tell her?', fac:'Peer mentorship. Reveals empathy and knowledge consolidated through play.' },
+      { type:'Reflection', q:'If you could change one thing about maternity care in South East London, what would it be?', fac:'Systemic thinking. Connects personal experience to collective advocacy.' },
+      { type:'Reflection', q:'Name one person who doesn\'t look like a typical "birth expert" who has taught you something about pregnancy or birth.', fac:'Celebrates community knowledge and lived experience.' },
+      { type:'Challenge', q:'Your midwife is running 40 minutes late. Role play: what do you say when she finally arrives?', fac:'Advocacy practice in a low-stakes scenario. Reinforce: expressing frustration calmly is valid and appropriate.' },
+      { type:'Challenge', q:'You\'ve been told your birth preferences "aren\'t realistic." Respond out loud — without apologising.', fac:'Assertiveness challenge. No apology is the rule.' },
+      { type:'Challenge', q:'Teach the person to your left one thing you know about labour that they might not. You have 60 seconds.', fac:'Award 1 token to both players if the learner can repeat it back correctly.' },
+      { type:'Challenge', q:'Name the BRAIN framework from memory. Miss your next turn if you can\'t — but the group can help.', fac:'BRAIN: Benefits, Risks, Alternatives, Intuition, Nothing (do nothing).' },
+      { type:'Challenge', q:'You are in active labour and a procedure is being recommended. You have 30 seconds to ask your BRAIN questions out loud.', fac:'Time-pressured advocacy practice. Simulates real labour conditions.' },
+      { type:'Challenge', q:'Describe your ideal postnatal support in one sentence. If the group agrees it\'s realistic, move forward 1 space.', fac:'Discuss: what support is actually available in Brixton/Peckham postnatally?' },
+      { type:'Challenge', q:'You feel your cultural or religious preferences around birth are not being respected. Say out loud exactly what you would do.', fac:'Cultural advocacy. Important for the communities Birth Loop serves.' },
+      { type:'Challenge', q:'Role play: your baby is 2 weeks old and you are struggling. Call an imaginary health visitor. What do you say?', fac:'Postnatal help-seeking. Reduces stigma around asking for support.' },
+      { type:'Challenge', q:'The group must collectively name 5 pain relief options available in labour. 60 seconds. For every one you name, the player to your left moves forward 1 space.', fac:'Options: epidural, gas and air, pethidine, TENS machine, water/birth pool, breathing, hypnobirthing, massage.' },
+      { type:'Challenge', q:'Name one thing you will do differently in your next clinical appointment because of what you\'ve learned today. Commit to it out loud.', fac:'Behavioural commitment. Bridges game learning to real action.' },
+    ]
+  },
+
+  // ── BIRTH RIGHTS ─────────────────────────────────
+  birthRights: {
+    label: 'Birth Rights', icon: '⚖️', count: 40, type: 'circuit',
+    cards: [
+      { type:'Setback', q:'Your named midwife has changed for the third time this pregnancy. Go back 2 spaces.', fac:'Reflects the reality of poor continuity of carer. Discuss: what can you do when continuity breaks down?' },
+      { type:'Setback', q:'Your 28-week appointment was cancelled with no rescheduling date. Miss your next turn.', fac:'Reflects appointment gaps. Who do you call when an appointment is cancelled and not rescheduled?' },
+      { type:'Setback', q:'You were sent home from triage after describing reduced fetal movements. Your concern was not fully assessed. Go back 3 spaces.', fac:'Reflects a known patient safety failure. Reinforce: if sent home and still concerned, go back or call again.' },
+      { type:'Setback', q:'Your interpreter didn\'t show up for your appointment. Go back 1 space.', fac:'Language access is a right. Discuss: what are your rights to an interpreter in NHS maternity settings?' },
+      { type:'Setback', q:'Your birth plan was not read by the midwife on shift. Go back 2 spaces and draw a Mama Matters card.', fac:'Discuss: how do you make sure your birth plan is actually read?' },
+      { type:'Setback', q:'You were referred to social services during pregnancy without being told the reason. Go back 3 spaces.', fac:'Discuss: what are your rights when a referral is made?' },
+      { type:'Setback', q:'Your postnatal check was not offered at 6 weeks. Miss your next turn.', fac:'Discuss: how do you request a postnatal check? Who is responsible for offering it?' },
+      { type:'Setback', q:'You were given incorrect information about your induction options. Go back 2 spaces.', fac:'Reflects the impact of misinformation in clinical settings.' },
+      { type:'Setback', q:'You felt too intimidated to ask questions at your last appointment. Go back 1 space.', fac:'Discuss: what makes clinical settings intimidating? What would help?' },
+      { type:'Setback', q:'Staff shortage meant you laboured without a midwife present for 2 hours. Go back 3 spaces.', fac:'Discuss: what are your rights if left without a midwife? Who do you contact?' },
+      { type:'Setback', q:'Your pain relief request was dismissed as "too early." Go back 1 space.', fac:'Reinforce: you do not have to justify your pain. You are entitled to be heard.' },
+      { type:'Setback', q:'Your cultural preferences for birth were not accommodated. Go back 2 spaces and voice one thing you would have wanted.', fac:'Interactive setback — player must speak before moving. Builds advocacy skills through naming what was missing.' },
+      { type:'Recovery', q:'You requested a birth debrief and it was honoured. Move forward 2 spaces.', fac:'Rewards exercising postnatal rights. Ask: does anyone know how to request a birth debrief?' },
+      { type:'Recovery', q:'You contacted PALS after a concern about your care. Move forward 3 spaces.', fac:'PALS (Patient Advice and Liaison Service) is underused. Explain how it works and when to use it.' },
+      { type:'Recovery', q:'Your midwife apologised and listened when you raised a concern. Move forward 2 spaces.', fac:'Positive system response. Discuss: what makes a good apology in a clinical context?' },
+      { type:'Recovery', q:'Your birth partner successfully advocated for you when you couldn\'t. Move forward 2 spaces.', fac:'Discusses: what do birth partners need to know to advocate effectively?' },
+      { type:'Recovery', q:'You used the BRAIN framework in a real appointment and it changed the outcome. Move forward 3 spaces.', fac:'Ask: has anyone done this? What happened?' },
+      { type:'Recovery', q:'You asked to see your maternity notes and a clinician explained them clearly. Move forward 2 spaces.', fac:'Discuss: what is in your maternity notes that every woman should understand?' },
+      { type:'Recovery', q:'You declined a recommended intervention and your wishes were respected. Move forward 3 spaces.', fac:'Discuss: how did it feel to decline? What made it possible?' },
+      { type:'Recovery', q:'Your GBS result was communicated clearly and a plan was made together. Move forward 2 spaces.', fac:'Positive clinical communication about a complex topic.' },
+      { type:'Recovery', q:'You reported a concern and it was taken seriously. Move forward 2 spaces.', fac:'Reinforces that speaking up can and does work.' },
+      { type:'Recovery', q:'Your perinatal mental health referral was fast-tracked. Move forward 3 spaces.', fac:'Celebrates system working as it should for mental health support.' },
+      { type:'Recovery', q:'You wrote a formal compliment for a midwife who went above and beyond. Move forward 1 space.', fac:'Positive feedback matters too.' },
+      { type:'Recovery', q:'You joined a local birth preparation group and felt seen. Move forward 2 spaces — and give 1 token to the player to your right.', fac:'This is Birth Loop\'s origin story. Name it.' },
+      { type:'Twist', q:'Consultant override: your preferred birth environment has been changed without consultation. Stay where you are and decide — challenge it or accept it? Say your answer out loud.', fac:'Group votes on whether the response was effective.' },
+      { type:'Twist', q:'Emergency category change: you\'ve been moved to consultant-led care without explanation. Ask out loud for three pieces of information you need right now.', fac:'Good responses: reason for change, what it means for my birth plan, who my consultant is.' },
+      { type:'Twist', q:'Your waters have broken but you\'re not having contractions. The unit says come in. You\'re 20 minutes away with no car. Name two things you do right now.', fac:'Discuss: do you have a transport plan for birth? What if it\'s the middle of the night?' },
+      { type:'Twist', q:'You have been in the Waiting Room for 4 hours. A midwife walks past. What do you say — and how do you say it without apologising?', fac:'Assertiveness practice. The no-apology rule applies.' },
+      { type:'Twist', q:'A different midwife to the one you expected walks in. She hasn\'t read your notes. You have 60 seconds — what do you tell her first?', fac:'Triage of birth plan priorities. What matters most?' },
+      { type:'Twist', q:'Your birth has moved to theatre. You have 2 minutes before you go in. What three things do you want your birth partner to know?', fac:'Emergency preparation. High-stakes scenario with a human focus.' },
+      { type:'Twist', q:'You are postnatal and asked to leave the ward after 6 hours. You don\'t feel ready. Say out loud what you would say to the midwife.', fac:'Women can and should feel empowered to ask to stay.' },
+      { type:'Twist', q:'You receive a letter saying your anomaly scan found something unexpected. You open it alone. What do you do next — who do you call and what do you ask?', fac:'Emotional and practical decision-making. This card can bring up real anxieties.' },
+      { type:'Twist', q:"Your midwife says your baby is 'a bit big' and recommends an early induction. You have 5 minutes to decide. What do you do?", fac:'Reinforce: 5 minutes is rarely a real clinical emergency. You can ask for more time.' },
+      { type:'Twist', q:'You are told you need a caesarean. Your birth partner isn\'t allowed in theatre. Challenge this out loud.', fac:'Partners are permitted for planned and most emergency caesareans. In most cases this restriction is incorrect.' },
+      { type:'Information', q:'Did you know: you are entitled to request a C-section even without a medical reason. The decision must be made with you, not for you.', fac:'Rights information. Explain the NICE guideline on maternal request caesarean.' },
+      { type:'Information', q:'Did you know: the Edinburgh Postnatal Depression Scale (EPDS) should be offered to every woman at 6–8 weeks and again at 3–4 months.', fac:'Postnatal health literacy. Explain what the EPDS measures and what a referral looks like.' },
+      { type:'Information', q:'Did you know: you have the right to refuse any vaginal examination at any point in pregnancy or labour.', fac:'Rights information. This right is often not communicated to women.' },
+      { type:'Information', q:'Did you know: delayed cord clamping (waiting 3+ minutes before cutting the cord) is recommended by NICE for all births and significantly benefits your baby.', fac:'Ask: is this in your birth plan? Who will cut the cord?' },
+      { type:'Information', q:'Did you know: Birth Loop was created to close the gap in accessible, culturally competent birth preparation for women in South East London.', fac:'Omar shares the Birth Loop story if time allows. Connects players to the bigger picture.' },
+      { type:'Information', q:'Did you know: you can ask for a birth debrief after any birth experience. It is not a complaint — it is your right.', fac:'Many women don\'t know this. Debriefs help process birth experiences and identify care gaps.' },
+    ]
+  },
+
+  // ── APPOINTMENT ───────────────────────────────────
+  appointment: {
+    label: 'Appointment', icon: '📅', count: 15, type: 'circuit',
+    cards: [
+      { appt:'Booking Appointment', q:'You\'ve made it to your booking appointment. Name one question you should always ask at this visit.', a:'Good answers: what scans will I have, what are my risks, who is my named midwife, how do I contact triage.', fac:'Booking is the foundation. Use it to set expectations for the whole pregnancy.' },
+      { appt:'8-Week Scan', q:'Your dating scan confirms you\'re 8+3 weeks. Name one thing the sonographer is checking for.', a:'Good answers: heartbeat, number of babies, gestational age, early anomalies, position of pregnancy.', fac:'Distinguish dating scan from anomaly scan — different purposes.' },
+      { appt:'12-Week Scan', q:'Your nuchal translucency scan is today. What is it screening for?', a:"Down's syndrome (Trisomy 21), Edwards' syndrome (Trisomy 18) and Patau's syndrome (Trisomy 13). Combines a blood test with the scan measurement.", fac:'Reinforce: screening is not diagnostic. A high-chance result does not mean a confirmed diagnosis.' },
+      { appt:'20-Week Scan', q:'Your anomaly scan is today. Name two things the sonographer checks.', a:'Any two: brain, spine, heart, kidneys, limbs, face, abdominal wall, placenta position, amniotic fluid.', fac:'Distinguish from dating scan. This is the detailed structural check.' },
+      { appt:'28-Week Bloods', q:'Your 28-week blood test checks for gestational diabetes and anaemia. Name one symptom of each.', a:'Gestational diabetes: no symptoms usually, thirst, frequent urination. Anaemia: tiredness, breathlessness, pale skin, dizziness.', fac:'Key point: gestational diabetes is often symptomless — this is why screening matters.' },
+      { appt:'Midwife Appointment', q:'Your community midwife measures your bump. What is she measuring and why?', a:'Fundal height in centimetres — from the pubic bone to the top of the uterus. Should roughly equal the number of weeks gestation. Checks baby\'s growth.', fac:'Introduce the concept of plotting on a centile chart.' },
+      { appt:'Triage Visit', q:'You\'ve called triage and been asked to come in. What three things should you bring?', a:'Any three: maternity notes, birth plan, photo ID, phone charger, snacks and water, hospital bag if late pregnancy.', fac:'Practical preparation. Triage visits can be lengthy and unexpected.' },
+      { appt:'Consultant Appointment', q:'You\'ve been referred to a consultant. This doesn\'t mean something is wrong. Name one reason you might be referred.', a:'Any valid reason: twin pregnancy, previous caesarean, gestational diabetes, high BMI, pre-existing condition, previous pregnancy loss, baby measuring large or small.', fac:'Reframe consultant care as specialist support, not automatic emergency.' },
+      { appt:'Antenatal Class', q:'You\'ve attended an NHS antenatal class. Name one topic that should be covered.', a:'Any: stages of labour, pain relief options, birth preferences, infant feeding, postnatal recovery, newborn care, safe sleep.', fac:'Discuss: did anyone find NHS antenatal classes accessible and relevant? What was missing?' },
+      { appt:'GBS Swab Result', q:'Your private GBS swab has come back positive. Name one thing this means for your birth.', a:'You will be offered IV antibiotics in labour to protect the baby from GBS infection. This does not mean you cannot have a vaginal birth or a water birth in all circumstances.', fac:'Key: GBS+ is manageable with the right preparation.' },
+      { appt:'Group B Strep Discussion', q:'Your midwife tells you GBS is not routinely screened on the NHS. You want a test. What do you say?', a:'Good response: ask for a private test referral or information about where to access one. The test costs around £35 privately. Ask what the protocol would be if you were GBS+.', fac:'Empowers women to access testing the NHS doesn\'t routinely offer.' },
+      { appt:'Birth Preferences Discussion', q:'Your midwife asks to go through your birth plan. Name three things it should cover.', a:'Any three: pain relief preferences, who will be present, positions, interventions you want to avoid, what happens if a caesarean is needed, feeding preferences, cord clamping.', fac:'Use as a birth plan checklist moment.' },
+      { appt:'Postnatal Check', q:'Your 6-week postnatal check is today. Name two things that should be discussed.', a:'Any two: physical recovery, mental health and mood, infant feeding, contraception, return to exercise, any concerns about the birth, baby\'s development check.', fac:'Discuss: many women find the 6-week check rushed or incomplete.' },
+      { appt:'Mental Health Screening', q:'Your midwife asks two questions about your mood using the Whooley questions. What are they?', a:'"During the past month, have you been bothered by feeling down, depressed or hopeless?" and "During the past month, have you had little interest or pleasure in doing things?" A yes to either triggers further assessment.', fac:'Explain what happens after a positive screen.' },
+      { appt:'Induction Consultation', q:'Your consultant is recommending induction at 41 weeks. Name three questions you should ask before agreeing.', a:'Any three: what is the evidence at my gestation, what are the risks of induction vs waiting, what does the process involve, can I wait and be monitored, what happens to my birth preferences if I\'m induced.', fac:'Reinforce: induction consultation is exactly that — a consultation, not a directive.' },
+    ]
+  },
+
+  // ── WAITING ROOM ─────────────────────────────────
+  waiting: {
+    label: 'Waiting Room', icon: '⏳', count: 8, type: 'circuit',
+    cards: [
+      { q:'You\'ve been waiting 45 minutes. A midwife walks past. Say out loud — without apologising — what you would say to her.', fac:'Assertiveness practice. No apology is the rule.' },
+      { q:'While waiting, you overhear another patient being told something worrying. What do you do — if anything?', fac:'Ethical scenario. No single right answer — explores community and confidentiality.' },
+      { q:'You\'ve been waiting for 2 hours. Name two things you can do to advocate for yourself without escalating unnecessarily.', fac:'Practical advocacy in a passive situation.' },
+      { q:'While you wait, read the patient rights poster on the wall. Name one right it mentions (make one up if you have to — group decides if it\'s real).', fac:'Fun/bluff mechanic. Group must agree whether the right is real.' },
+      { q:'You\'ve waited so long you\'ve missed your childcare pickup. You are frustrated and upset. How do you communicate this to the staff calmly?', fac:'Emotional regulation under stress. Important for real-world application.' },
+      { q:'While waiting you meet another pregnant woman. You share something you know about birth. She shares something back. Both players draw 1 Knowledge card — no penalty for a wrong answer this time.', fac:'Cooperative waiting room moment. Peer learning reward.' },
+      { q:'You\'ve been in the Waiting Room but your name is finally called. Collect 1 token for your patience and re-join the outer circuit from wherever you left.', fac:'Exit from Waiting Room with a small reward for persistence.' },
+      { q:'A health professional sits next to you and asks how you\'re feeling. You tell her the truth. She listens for 5 full minutes. Name one thing you would say.', fac:'Reflection prompt. What do women most want to be asked and heard about?' },
+    ]
+  },
+
+  // ── CALL TRIAGE ──────────────────────────────────
+  triage: {
+    label: 'Call Triage', icon: '📞', count: 10, type: 'circuit',
+    cards: [
+      { scenario:'Reduced Fetal Movement', q:'You\'ve noticed your baby moving less than usual for the past 6 hours. Go to the Waiting Room. Miss 1 turn — but when you return, collect 1 token for taking action.', fac:'Reduced fetal movement is always a priority. Taking action is rewarded even when the outcome is a wait.' },
+      { scenario:'Heavy Bleeding', q:'You\'re 32 weeks and have experienced a significant bleed. Go directly to the Waiting Room. Miss 2 turns.', fac:'Antepartum haemorrhage is a medical emergency. No deliberation — call immediately.' },
+      { scenario:'Severe Headache', q:'You have a severe headache, visual disturbances and swelling in your face and hands at 36 weeks. Go to Waiting Room. Miss 1 turn.', fac:'Classic pre-eclampsia warning signs. This is a 999 situation in reality.' },
+      { scenario:'Waters Broken Early', q:'Your waters have broken at 34 weeks. Go to Waiting Room. Miss 1 turn — but collect 2 tokens for knowing to call immediately.', fac:'Preterm prelabour rupture of membranes (PPROM) requires immediate assessment.' },
+      { scenario:'Contractions at 34 Weeks', q:'You\'re having regular contractions at 34 weeks. Go to Waiting Room. Miss 1 turn.', fac:'Preterm labour requires immediate clinical assessment — do not wait and see.' },
+      { scenario:'Decreased Movement Post-Meal', q:'You\'ve eaten, had a cold drink, rested and still feel less movement than usual. Go to Waiting Room. Miss 1 turn — collect 1 token for persisting.', fac:'The eat-drink-lie down test is a myth. If you\'re still concerned after resting, you must call.' },
+      { scenario:'Chest Pain in Pregnancy', q:'You have sudden chest pain and breathlessness at 30 weeks. Go to Waiting Room. Miss 2 turns.', fac:'Chest pain in pregnancy must always be assessed — can indicate pulmonary embolism, cardiac issues or pre-eclampsia.' },
+      { scenario:'Itching All Over', q:'You have intense itching all over your body, especially hands and feet, at 35 weeks. Go to Waiting Room. Miss 1 turn.', fac:'Could be obstetric cholestasis, which carries risks for the baby including stillbirth.' },
+      { scenario:'Baby in Unusual Position', q:'At 37 weeks your baby is still breech. Your midwife refers you for a consultation. Go to Waiting Room. Miss 1 turn — collect 1 token for engaging with the referral.', fac:'Breech at term requires a plan. Options include ECV (turning), planned caesarean, or breech vaginal birth in some units.' },
+      { scenario:'You Called — They Listened', q:'You called triage, described your concern clearly and were assessed promptly. Skip the Waiting Room entirely. Move forward 2 spaces.', fac:'Positive outcome. Rewards clear communication and appropriate help-seeking.' },
+    ]
+  },
+
+  // ── CALL THE MIDWIFE ──────────────────────────────
+  midwife: {
+    label: 'Call the Midwife', icon: '🩺', count: 10, type: 'circuit',
+    cards: [
+      { q:'Your midwife answered on the first ring and talked you through your concern for 20 minutes. Skip forward to the next Advocacy square.', fac:'Celebrates good clinical communication and accessibility.' },
+      { q:'You called at 3am worried about a symptom. The on-call midwife was kind, clear and called you back within 10 minutes. Skip to next Advocacy square.', fac:'Postnatal and out-of-hours access is a known inequality. Positive outcome.' },
+      { q:'You described your concern clearly and the midwife said: "You were right to call." Skip to next Advocacy square.', fac:'Validation of help-seeking. Powerful for women who fear being seen as a burden.' },
+      { q:'Your midwife remembered your birth plan from last week and asked how you were feeling about it. Skip to next Advocacy square.', fac:'Celebrates continuity of carer — a core Birth Loop theme.' },
+      { q:'You called to ask about your test results and the midwife explained everything clearly without rushing you. Skip to next Advocacy square.', fac:'Rewards clear, patient-centred clinical communication.' },
+      { q:'Your community midwife made a home visit and spotted something you hadn\'t mentioned. It turned out to matter. Skip to next Advocacy square.', fac:'Celebrates proactive midwifery. Home visiting can be life-saving.' },
+      { q:'You called triage and the midwife said: "Come in, we want to check you over, we\'d rather see you than not." Skip to next Advocacy square.', fac:'Ideal triage response. Open-door culture saves lives.' },
+      { q:'Your midwife referred you to perinatal mental health support without you having to ask twice. Skip to next Advocacy square.', fac:'Proactive mental health care. Celebrates when the system works.' },
+      { q:'You left a message and the midwife called back within the hour. Skip to next Advocacy square.', fac:'Responsive communication. Simple but impactful.' },
+      { q:'Your midwife said: "Your concerns are valid and I\'m going to escalate this for you." Skip to next Advocacy square.', fac:'Advocacy from within the system. Celebrates midwives who fight for their patients.' },
+    ]
+  },
+
+  // ── BIRTH PLAN ────────────────────────────────────
+  birthPlan: {
+    label: 'Birth Plan', icon: '📋', count: 8, type: 'circuit',
+    cards: [
+      { type:'Pain Relief', q:'This birth plan card states: Natural pain relief only (breathing, TENS, water). When you reach the Labour Loop, your Pain & Comfort square is automatically passed if you can name one breathing technique.', fac:'Pain relief preference shapes the whole Labour Loop experience for this player.' },
+      { type:'Epidural Preferred', q:'This birth plan card states: Epidural as soon as possible in active labour. When you reach the Labour Loop Pain & Comfort square, advance automatically — no challenge required.', fac:'Normalises all pain relief choices. No hierarchy between options.' },
+      { type:'Water Birth', q:'This birth plan card states: Water birth if possible. When you reach the Labour Loop, draw 1 extra Knowledge card at the Your Body Your Signs square.', fac:'Water birth preparation earns a knowledge bonus.' },
+      { type:'Caesarean Birth', q:'This birth plan card states: Planned caesarean. When you enter the Labour Loop, you may skip 2 squares — but must play a Birth Rights card at Change of Plan.', fac:'Caesarean birth plan path through the Labour Loop. Different route, same journey.' },
+      { type:'Partner Present', q:'This birth plan card states: Birth partner present throughout. When you enter the Labour Loop, the player to your left may assist you on one challenge of your choice.', fac:'Cooperative mechanic representing birth partner support.' },
+      { type:'No Epidural Unless Requested', q:'This birth plan card states: No epidural unless I ask. If offered an epidural in the Labour Loop Pain & Comfort square, you must say out loud: "That\'s in my birth plan — I\'ll ask if I want it."', fac:'Advocacy rehearsal built into the card mechanic.' },
+      { type:'Delayed Cord Clamping', q:'This birth plan card states: Delayed cord clamping (3+ minutes). When you pass The Birth square in the Labour Loop, collect 1 bonus token automatically.', fac:'Evidence-based preference built into a game reward.' },
+      { type:'Skin-to-Skin Immediately', q:'This birth plan card states: Skin-to-skin immediately after birth. At First Moments in the Labour Loop, advance automatically and give 1 token to every other player still on the outer circuit.', fac:'Skin-to-skin as community reward — your positive outcome lifts others.' },
+    ]
+  },
+
+  // ── CROSSOVER ─────────────────────────────────────
+  crossover: {
+    label: 'Crossover', icon: '🔀', count: 6, type: 'circuit',
+    cards: [
+      { q:'You have chosen to take the crossover path. Collect 1 token for the courage to change course — then move to the inner Labour Loop ring.', fac:'Crossover A: Circuit sq.9 to Web W8. Crossover B: Web W6 to Circuit sq.13.' },
+      { q:'The crossover path is open. Before you move, name one thing you\'ve learned on the outer circuit that you\'re carrying with you.', fac:'Reflective crossover.' },
+      { q:'Crossover complete. You\'re moving to the inner ring. Give 1 token to the player who has supported you most in this game.', fac:'Community-giving crossover.' },
+      { q:'You\'ve taken the crossover. The journey is changing — and you\'re ready. Collect 1 token and move to the inner ring.', fac:'Simple crossover with reward.' },
+      { q:'Before you cross over, draw 1 Knowledge card. Answer correctly to enter the inner ring immediately. Wrong answer — cross over anyway but without a token.', fac:'Challenge crossover.' },
+      { q:'Crossover. All players on the outer circuit may also move forward 1 space — the crossover lifts everyone.', fac:'Community crossover. Rising tide mechanic.' },
+    ]
+  },
+
+  // ── DEEP KNOWLEDGE (Gold Node) ────────────────────
+  deepKnowledge: {
+    label: 'Deep Knowledge', icon: '✦', count: 5, type: 'gold',
+    reward: '+2 tokens',
+    cards: [
+      { q:'What does BRAIN stand for when you are making a decision in labour?', a:'Benefits, Risks, Alternatives, Instinct, Now (or not yet). It is a tool to help you ask the right questions and make informed choices.' },
+      { q:'What is a birth plan?', a:'A written list of your preferences for labour and birth — covering things like pain relief, who you want in the room, and what happens after birth. It helps your care team understand what matters to you.' },
+      { q:'What does it mean when a midwife talks about your cervix being dilated?', a:'Dilation is how open your cervix is. It is measured in centimetres from 0 to 10. At 10cm you are fully dilated and ready to push.' },
+      { q:'What is a contraction?', a:'A tightening of the womb muscle that helps move your baby down and open the cervix. Contractions get longer, stronger and closer together as labour progresses.' },
+      { q:'What does it mean to have a birth partner?', a:'Someone you choose to be with you during labour — a partner, family member or friend. They can offer support, speak up for you and help you feel safe. You can have more than one if your unit allows it.' },
+    ]
+  },
+
+  // ── CONSENT (Gold Node) ───────────────────────────
+  consent: {
+    label: 'Consent', icon: '✦', count: 5, type: 'gold',
+    reward: '+2 tokens',
+    cards: [
+      { q:'What does consent mean in a maternity setting?', a:'Giving permission for something to happen to your body after being told clearly what it is, why it is being suggested and what your other options are.' },
+      { q:'Can you say no to a vaginal examination during labour?', a:'Yes. Every examination needs your agreement. You can say no or ask to wait, and your care should continue either way.' },
+      { q:'If a midwife describes something as routine, do you still have the right to ask questions?', a:'Absolutely. Routine means it is commonly offered — not that it is compulsory. You can always ask why it is being suggested and what happens if you decline.' },
+      { q:'Can you change your mind about something you already agreed to during labour?', a:'Yes. You can change your mind at any point. Your right to make decisions about your body does not end once labour starts.' },
+      { q:'You are not sure what a procedure is and feel rushed to agree. What can you say?', a:'You can say: can you explain what this is and why you are recommending it, what happens if I wait, and what are my other options. You do not have to agree to anything immediately.' },
+    ]
+  },
+
+  // ── VOICE (Gold Node) ─────────────────────────────
+  voice: {
+    label: 'Voice', icon: '✦', count: 5, type: 'gold',
+    reward: '+2 tokens',
+    cards: [
+      { q:'You feel your pain is not being taken seriously during labour. What can you do?', a:'Say clearly that you are in pain and need help. Ask to speak to a senior midwife. Ask your birth partner to speak up for you. You have the right to be heard.' },
+      { q:'What is one thing you can do before labour to make sure your wishes are known?', a:'Write a birth plan. Share it with your midwife at your next appointment and bring copies to hospital or your home birth.' },
+      { q:'Name one question worth asking your midwife before your due date.', a:'Any one from: what happens if I go overdue, who will be at my birth, what pain relief is available, how do I contact triage, what are the signs of labour.' },
+      { q:'What does it mean to advocate for yourself in a maternity setting?', a:'Speaking up for what you need, asking questions when you are unsure, saying no to things you do not want, and making sure your voice is heard in decisions about your care.' },
+      { q:'Is it okay to ask for a second opinion if you are not happy with the advice you are given?', a:'Yes. You have every right to ask for another clinician\'s view. A good care team will support you in doing this.' },
+    ]
+  },
+
+  // ── COMMUNITY (Gold Node) ─────────────────────────
+  community: {
+    label: 'Community', icon: '✦', count: 5, type: 'gold',
+    reward: '+2 tokens',
+    cards: [
+      { q:'What is a doula?', a:'A trained birth companion who supports you emotionally and practically before, during and after birth. They are not a medical professional but can make a big difference to how supported you feel.' },
+      { q:'Name one way your community or support network can help during pregnancy.', a:'Any one from: attending appointments with you, helping with other children, cooking meals, being a birth partner, helping you understand information, offering emotional support.' },
+      { q:'What is continuity of carer in maternity and why does it matter?', a:'It means seeing the same midwife or small team throughout your pregnancy. It helps build trust, means your midwife knows your story, and research shows it leads to better experiences.' },
+      { q:'What should you do if you feel your culture, language or preferences are not being respected by your care team?', a:'You can ask for an interpreter, request a different midwife, contact the Patient Advice and Liaison Service (PALS), or ask someone you trust to come with you to appointments.' },
+      { q:'Name one thing anyone can do to feel more prepared for birth regardless of their background or experience.', a:'Any one from: attend antenatal classes, join a birth preparation group like Birth Loop, write a birth plan, talk to others who have given birth, ask your midwife questions at every appointment.' },
+    ]
+  },
+
+  // ── LABOUR LOOP ───────────────────────────────────
+  labourLoop: {
+    label: 'Labour Loop', icon: '∞', count: 55, type: 'labour',
+    cards: [
+      // Getting Ready — Induction
+      { square:'Getting Ready', theme:'Induction of Labour', q:'What does it mean to be induced?', a:'It means labour is started for you using medical help, rather than starting on its own.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'Name one reason why a midwife or doctor might suggest induction.', a:'Any one from: pregnancy going past 41–42 weeks, waters breaking without contractions starting, high blood pressure, concerns about baby\'s growth or movements.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'Is a membrane sweep the same as being induced?', a:'No. A sweep is a gentle internal examination that may help labour start naturally. It is offered before formal induction and is less intense.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'Can you ask questions and take time to think before agreeing to induction?', a:'Yes. You have the right to ask what the benefits and risks are, what happens if you wait, and to make the decision that feels right for you.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'If you are induced, does that mean something is wrong with your baby?', a:'Not necessarily. Induction is sometimes recommended as a precaution to keep you and your baby safe, even when everything is going well.' },
+      // Your Body Your Signs — Hypertension
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'What is blood pressure?', a:'The force of blood pushing against the walls of your arteries. During pregnancy, it is checked at every appointment because changes can affect you and your baby.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'Can high blood pressure in pregnancy cause any symptoms?', a:'Sometimes not — it can be completely silent, which is why checks at every appointment matter. Some people get headaches, swelling or blurred vision.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'If your blood pressure is found to be high at an appointment, what is likely to happen next?', a:'You will be monitored more closely — this might mean more appointments, urine tests, and blood tests to make sure you and your baby are well.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'What is pre-eclampsia in simple terms?', a:'A condition in pregnancy where high blood pressure affects how the body works. It is manageable when caught early, which is why regular checks are important.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'Name one symptom that should prompt you to contact your midwife or hospital straight away.', a:'Any one from: severe headache that won\'t go away, blurred vision, sudden swelling of face or hands, pain under your ribs, reduced baby movements.' },
+      // Your Care Team — Home Birth
+      { square:'Your Care Team', theme:'Home Birth', q:'Who comes to your home if you plan a home birth?', a:'Two midwives — one focused on you and one ready to care for your baby when they arrive.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'Name one thing worth having prepared at home before labour starts.', a:'Any one from: old towels or waterproof sheets, good lighting, snacks and drinks, a packed hospital bag just in case, a clear space for the midwives to work.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'Do you have to have a reason to choose a home birth?', a:'No. You can choose a home birth as your preference. Your midwife should support you in exploring what is right for you.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'What happens if things change during a home birth and you need to go to hospital?', a:'Your midwife will arrange a transfer. Having a hospital bag ready means you are prepared just in case, without it changing your plan.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'Can you change your mind about a home birth during pregnancy?', a:'Absolutely. Your birth plan can change at any point — before or during labour. What matters is that you feel informed and supported in whatever you choose.' },
+      // Pain & Comfort — Pain Relief
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Name two ways to manage pain during labour.', a:'Any two from: gas and air, epidural, pethidine injection, TENS machine, warm water (bath or pool), massage, breathing techniques, movement and position changes.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'What is gas and air?', a:'A mix of oxygen and nitrous oxide breathed through a mouthpiece during contractions. It takes the edge off pain and is safe for you and your baby.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'What is an epidural?', a:'An injection into your lower back that numbs pain from the waist down. It is the strongest form of pain relief available in hospital and is put in by an anaesthetist.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Does choosing pain relief mean you have not coped well?', a:'Not at all. Pain relief is a tool available to you. Using it is a valid and informed choice, not a sign of failure.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Can you ask for pain relief at any point during labour?', a:'Yes. You can ask at any stage. Some options like an epidural depend on an anaesthetist being available, so it is worth asking early if you think you might want one.' },
+      // Your Voice — VBAC
+      { square:'Your Voice', theme:'VBAC', q:'What does VBAC stand for?', a:'Vaginal Birth After Caesarean — it means giving birth vaginally when you have had a caesarean before.' },
+      { square:'Your Voice', theme:'VBAC', q:'Is VBAC something most people can try?', a:'For many people yes. Around 3 in 4 planned VBACs result in a vaginal birth. Your midwife or consultant will talk through whether it is a good option for you.' },
+      { square:'Your Voice', theme:'VBAC', q:'Do you have to have a repeat caesarean if you have had one before?', a:'No. You have the right to discuss both options — VBAC and repeat caesarean — and make the choice that is right for you based on clear information.' },
+      { square:'Your Voice', theme:'VBAC', q:'What is one thing you can ask your care team if you are considering VBAC?', a:'Any one from: what are my chances of a successful vaginal birth, what monitoring will I have during labour, what happens if labour slows down, can I have a water birth.' },
+      { square:'Your Voice', theme:'VBAC', q:'If your consultant recommends a repeat caesarean but you want to try VBAC, what can you do?', a:'Ask for their reasons in writing, ask to discuss it further, request a second opinion, and know that the final decision about your birth belongs to you.' },
+      // Transition — Water Birth
+      { square:'Transition', theme:'Water Birth', q:'What is a water birth?', a:'Giving birth in a pool or bath of warm water. You can also just labour in the water and get out to deliver — you are in control of what feels right.' },
+      { square:'Transition', theme:'Water Birth', q:'Name one reason someone might choose to labour in water.', a:'Any one from: warm water can ease pain, it allows easier movement, many people find it calming and private, it can reduce the need for other pain relief.' },
+      { square:'Transition', theme:'Water Birth', q:'What temperature should the pool be kept at during labour?', a:'Warm but not too hot — around 36 to 37.5 degrees Celsius, similar to your body temperature.' },
+      { square:'Transition', theme:'Water Birth', q:'Can you get out of the pool at any time during a water birth?', a:'Yes. You are never committed to staying in. You can get in and out as often as you like and change your mind at any point.' },
+      { square:'Transition', theme:'Water Birth', q:'Is a water birth available if you have had a previous caesarean?', a:'In many places yes, though some units have guidelines. It is worth asking your midwife early in pregnancy so it can be discussed and included in your birth plan.' },
+      // The Birth — C-Section
+      { square:'The Birth', theme:'C-Section', q:'What is a caesarean section?', a:'An operation where your baby is born through a cut made in your lower abdomen and womb. It can be planned in advance or happen during labour.' },
+      { square:'The Birth', theme:'C-Section', q:'What is the difference between a planned and an emergency caesarean?', a:'A planned caesarean is booked ahead of time. An emergency caesarean happens when a quicker birth is needed — though this does not always mean it is a crisis situation.' },
+      { square:'The Birth', theme:'C-Section', q:'Can you be awake during a caesarean?', a:'Yes. Most caesareans are done under a spinal or epidural anaesthetic so you are awake but cannot feel pain. You can often have a birth partner with you.' },
+      { square:'The Birth', theme:'C-Section', q:'Can you ask for skin-to-skin contact during a caesarean?', a:'Yes. If you and your baby are both well, you can ask for your baby to be placed on your chest straight away. Ask for this to be written in your birth plan.' },
+      { square:'The Birth', theme:'C-Section', q:'Can you request a caesarean if you want one?', a:'Yes. If you feel strongly that a caesarean is right for you, you can ask for one and have a full conversation with your care team about your options.' },
+      // Change of Plan — Gestational Diabetes
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'What is gestational diabetes?', a:'A type of diabetes that some people develop during pregnancy. It usually goes away after the baby is born and can be managed with the right support.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'How is gestational diabetes usually found?', a:'Through a glucose tolerance test — a blood test done after a sugary drink, usually offered between 24 and 28 weeks of pregnancy.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Does having gestational diabetes mean something has gone wrong?', a:'No. It is a common condition that the body sometimes develops due to the demands of pregnancy. With the right care it is very manageable.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Name one way gestational diabetes might be managed during pregnancy.', a:'Any one from: changes to diet and eating habits, regular blood sugar monitoring, medication such as metformin, or insulin injections in some cases.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Will your baby be checked after birth if you have gestational diabetes?', a:'Yes. Your baby\'s blood sugar will be tested in the first few hours after birth to make sure they are feeding well and their levels are stable.' },
+      // First Moments
+      { square:'First Moments', theme:'Immediate Postnatal', q:'What happens in the first few minutes after your baby is born?', a:'Your baby is usually placed on your chest, dried and assessed. Their breathing, colour and responses are checked. You will deliver the placenta shortly after.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'What is delayed cord clamping?', a:'Waiting a short time — at least one to three minutes — before cutting the umbilical cord. This allows extra blood and iron to pass from the placenta to your baby.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'Can your birth partner cut the cord?', a:'Yes, if they would like to and conditions allow. Let your midwife know in your birth plan if this is something you would like.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'What is vitamin K and why is it offered to newborns?', a:'Vitamin K helps blood clot properly. Babies are born with low levels so it is offered as an injection or drops shortly after birth to protect them.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'How soon after birth should a baby have their first feed?', a:'Ideally within the first hour. Babies are often very alert in this window and ready to feed, whether by breast or bottle.' },
+      // Golden Hour
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What is the golden hour?', a:'The first hour after birth when you and your baby are kept close together — ideally skin to skin. It is a special time for bonding and feeding.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What does skin to skin mean?', a:'Your bare baby is placed directly on your bare chest. It helps regulate their temperature, heartbeat and breathing, and encourages feeding.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'Can you have skin to skin after a caesarean?', a:'Yes, if you and your baby are both well. Ask for it to be in your birth plan so your team knows it is important to you.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What is colostrum?', a:'The first milk your breasts produce — thick, creamy and full of nutrients and antibodies. It is made in small amounts which is exactly right for a newborn\'s tiny stomach.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'Is it normal for a baby to lose a little weight in the first few days?', a:'Yes. A small weight loss in the first few days is completely normal. Your midwife will monitor this and support you with feeding.' },
+      // Postnatal
+      { square:'Postnatal', theme:'Recovery', q:'How long do midwife visits continue after birth?', a:'Usually for 10 to 14 days, though this can be longer if you or your baby need extra support.' },
+      { square:'Postnatal', theme:'Recovery', q:'What is the baby blues and when does it usually happen?', a:'A period of tearfulness, mood swings and feeling overwhelmed that often happens around day 3 to 5 after birth. It is very common and usually passes within a few days.' },
+      { square:'Postnatal', theme:'Recovery', q:'What is one sign that you should contact your midwife or GP after birth?', a:'Any one from: heavy bleeding, high temperature, wound that looks infected, feeling very low for more than two weeks, thoughts of harming yourself or your baby, difficulty bonding.' },
+      { square:'Postnatal', theme:'Recovery', q:'When is your postnatal GP check and what does it cover?', a:'Usually at 6 to 8 weeks. It should cover how you are feeling physically and emotionally, feeding, contraception and any concerns about you or your baby.' },
+      { square:'Postnatal', theme:'Recovery', q:'You are struggling after birth and don\'t feel like yourself. What should you do?', a:'Talk to your midwife, health visitor or GP. Postnatal depression is common and very treatable. Asking for help is the right thing to do.' },
+    ]
+  }
+};
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let currentDeck = null;
+let shuffled = [];
+let currentIndex = 0;
+let isFlipped = false;
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+function init() {
+  const grid = document.getElementById('deckGrid');
+  const deckOrder = [
+    ['knowledge','mama','birthRights','appointment'],
+    ['waiting','triage','midwife','birthPlan'],
+    ['crossover','deepKnowledge','consent','voice'],
+    ['community','labourLoop']
+  ];
+
+  // Section labels
+  const sections = {
+    knowledge: '— Circuit Decks —',
+    deepKnowledge: '— Gold Nodes —',
+    labourLoop: '— Labour Loop —'
+  };
+
+  Object.keys(DECKS).forEach(key => {
+    const deck = DECKS[key];
+    if (sections[key]) {
+      const label = document.createElement('div');
+      label.style.cssText = 'grid-column:1/-1;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal-dark);padding:8px 2px 2px;font-weight:600;';
+      label.textContent = sections[key];
+      grid.appendChild(label);
+    }
+    const btn = document.createElement('button');
+    btn.className = `deck-btn ${deck.type === 'gold' ? 'gold-node' : deck.type === 'labour' ? 'labour' : ''}`;
+    btn.id = `btn-${key}`;
+    btn.innerHTML = `<span class="icon">${deck.icon}</span>${deck.label}<span class="count">${deck.count}</span>`;
+    btn.onclick = () => selectDeck(key);
+    grid.appendChild(btn);
+  });
+}
+
+function selectDeck(key) {
+  currentDeck = key;
+  document.querySelectorAll('.deck-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`btn-${key}`).classList.add('active');
+
+  const deck = DECKS[key];
+  shuffled = [...deck.cards].sort(() => Math.random() - 0.5);
+  currentIndex = 0;
+  isFlipped = false;
+
+  const label = document.getElementById('deckLabel');
+  label.innerHTML = `Drawing from: <span>${deck.icon} ${deck.label}</span>`;
+
+  document.getElementById('controls').style.display = 'flex';
+  drawCard();
+}
+
+function reshuffleDeck() {
+  if (!currentDeck) return;
+  shuffle();
+  isFlipped = false;
+  drawCard();
+  const counter = document.getElementById('counter');
+  counter.innerHTML += ' · <span style="color:var(--gold)">Reshuffled ✓</span>';
+  setTimeout(() => updateCounter(), 1500);
+}
+  currentIndex = 0;
+}
+
+function drawCard() {
+  if (!currentDeck) return;
+  if (currentIndex >= shuffled.length) shuffle();
+
+  isFlipped = false;
+  const card = shuffled[currentIndex];
+  currentIndex++;
+
+  renderCard(card, DECKS[currentDeck]);
+  updateCounter();
+  document.getElementById('btnReveal').textContent = 'Reveal Answer';
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  const inner = document.querySelector('.card-inner');
+  if (inner) {
+    inner.classList.toggle('flipped', isFlipped);
+    document.getElementById('btnReveal').textContent = isFlipped ? 'Hide Answer' : 'Reveal Answer';
+  }
+}
+
+function updateCounter() {
+  const remaining = shuffled.length - currentIndex;
+  document.getElementById('counter').innerHTML =
+    `<span>${currentIndex}</span> of ${shuffled.length} drawn · ${remaining} remaining`;
+}
+
+function getDiffBadge(diff) {
+  if (!diff) return '';
+  const map = { Easy:'badge-easy', Medium:'badge-medium', Hard:'badge-hard' };
+  return `<span class="card-badge ${map[diff] || 'badge-easy'}">${diff}</span>`;
+}
+
+function renderCard(card, deck) {
+  const stage = document.getElementById('cardStage');
+  const isGold = deck.type === 'gold';
+  const isLabour = deck.type === 'labour';
+  const frontClass = isGold ? 'gold-node' : isLabour ? 'labour-card' : '';
+  const backClass = frontClass;
+
+  // Build question text
+  let qText = card.q || card.question || '';
+  let aText = card.a || card.answer || '';
+  let facText = card.fac || card.facilitator || '';
+  let mechText = card.mechanic || '';
+
+  // Front body
+  let frontBody = '';
+  if (card.square) frontBody += `<div class="labour-square-name">${card.square}</div>`;
+  if (card.theme) frontBody += `<div class="card-theme">${card.theme}</div>`;
+  if (card.format) frontBody += `<div class="card-theme">${card.format}</div>`;
+  if (card.type && !card.q) frontBody += `<div class="card-theme">${card.type}</div>`;
+  if (card.appt) frontBody += `<div class="card-theme">${card.appt}</div>`;
+  if (card.scenario) frontBody += `<div class="card-theme">${card.scenario}</div>`;
+
+  frontBody += `<div class="card-question">${qText.split('\n')[0]}</div>`;
+
+  // Options
+  if (card.options) {
+    frontBody += '<div class="card-options">';
+    card.options.forEach(o => { frontBody += `<div class="card-option">${o}</div>`; });
+    frontBody += '</div>';
+  } else if (qText.includes('\n')) {
+    // Multi-line question — show remaining lines
+    const lines = qText.split('\n').slice(1).filter(l => l.trim());
+    if (lines.length) {
+      frontBody += '<div class="card-options">';
+      lines.forEach(l => { frontBody += `<div class="card-option">${l}</div>`; });
+      frontBody += '</div>';
+    }
+  }
+
+  frontBody += '<div class="card-tap-hint"><span class="tap-star">✦</span> Tap card or Reveal Answer</div>';
+
+  // Badge
+  let badge = '';
+  if (isGold) badge = `<span class="card-badge badge-gold">✦ ${deck.reward}</span>`;
+  else if (isLabour) badge = `<span class="card-badge badge-green">Labour Loop</span>`;
+  else if (card.diff) badge = getDiffBadge(card.diff);
+
+  // Back body
+  let backContent = '';
+  if (aText) {
+    backContent += `<div class="answer-label">Answer</div><div class="answer-text">${aText}</div>`;
+  } else {
+    backContent += `<div class="answer-text">${qText}</div><div class="answer-label" style="margin-top:8px">Group discussion — no single right answer</div>`;
+  }
+
+  if (isGold && deck.reward) {
+    backContent += `<div class="token-reward">✦ Correct = ${deck.reward}</div>`;
+  }
+
+  if (facText) {
+    backContent += `<div class="facilitator-box"><div class="facilitator-label">Facilitator</div><div class="facilitator-text">${facText}</div></div>`;
+  }
+  if (mechText) {
+    backContent += `<div class="mechanic-box"><div class="mechanic-label">Mechanic</div><div class="mechanic-text">${mechText}</div></div>`;
+  }
+
+  stage.innerHTML = `
+    <div class="card-wrap" onclick="flipCard()">
+      <div class="card-inner ${isFlipped ? 'flipped' : ''}">
+        <div class="card-face card-front ${frontClass}">
+          ${isGold ? '<div class="gold-shimmer"></div>' : ''}
+          <div class="card-header">
+            <span class="card-type">${deck.label.toUpperCase()}</span>
+            ${badge}
+          </div>
+          <div class="card-body">${frontBody}</div>
+          <div class="card-footer">birthloop.com · @birthloopgame</div>
+        </div>
+        <div class="card-face card-back ${backClass}">
+          <div class="back-header">
+            <span class="back-header-label">✦ Answer</span>
+          </div>
+          <div class="back-body">${backContent}</div>
+          <div class="card-footer" style="border-top:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3)">Tap to flip back</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+init();
+</script>
+</body>
+</html>
