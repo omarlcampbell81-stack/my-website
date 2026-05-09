@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Birth Loop — Card Draw</title>
+<title>Game Cards</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -406,8 +406,16 @@
     color: var(--teal-deeper);
     border: 1.5px solid var(--teal);
   }
-  .btn-reveal:hover { border-color: var(--gold); color: var(--black); }
-  .btn-reveal:active { transform: scale(0.97); }
+  .btn-shuffle {
+    flex: 0 0 48px;
+    background: #fff;
+    color: var(--teal-deeper);
+    border: 1.5px solid var(--teal);
+    font-size: 1.1rem;
+    padding: 13px 0;
+  }
+  .btn-shuffle:hover { border-color: var(--gold); transform: rotate(180deg); }
+  .btn-shuffle:active { transform: scale(0.95) rotate(180deg); }
 
   .card-counter {
     font-size: 0.72rem;
@@ -493,6 +501,7 @@
   <div class="controls" id="controls" style="display:none">
     <button class="btn btn-reveal" id="btnReveal" onclick="flipCard()">Reveal Answer</button>
     <button class="btn btn-draw" id="btnDraw" onclick="drawCard()">Draw Card</button>
+    <button class="btn btn-shuffle" onclick="reshuffleDeck()" title="Shuffle deck">🔀</button>
   </div>
   <div class="card-counter" id="counter"></div>
 </div>
@@ -516,7 +525,7 @@ const DECKS = {
       { format:'Taboo', diff:'Medium', q:'Describe PLACENTA without using: organ, baby, nutrients, oxygen, or womb.', a:'No single answer. Good responses: the life-support system grown during pregnancy, the connection between mother and child that feeds and protects.', fac:'Celebrate creative descriptions. Builds confidence naming body parts without clinical anxiety.' },
       { format:'Quiz', diff:'Medium', q:'What is the difference between an epidural and a spinal block?', a:'An epidural delivers continuous pain relief via a catheter and can be topped up. A spinal block is a single injection that acts faster, typically used for caesareans. A combined spinal-epidural (CSE) uses both.', fac:'Demystifying the procedure reduces fear.' },
       { format:'Dingbats', diff:'Easy', q:'🏠 + ✉️ + 🤰 = ?', a:'Post Partum Haemorrhage — heavy bleeding after birth.', fac:'Key awareness card. Normal blood loss after birth is under 500ml.' },
-      { format:'Quiz', diff:'Medium', q:"What is Martha's Law and does it matter for pregnant women?", a:"Martha's Law gives patients and families the right to request an urgent review from a senior clinical team if they are worried about a deterioration in their or their baby's condition that isn't being acted on.", fac:"You have the right to escalate. Always." },
+      { format:'Quiz', diff:'Medium', q:"What is Martha's Law and does it matter for pregnant women?", a:"Martha's Law gives patients and families the right to request an urgent review from a senior clinical team if they are worried about a deterioration in their or their baby\'s condition that isn't being acted on.", fac:"You have the right to escalate. Always." },
       { format:'True/False', diff:'Easy', q:'TRUE or FALSE: You are legally entitled to a copy of your full maternity notes.', a:'TRUE. Under the Data Protection Act 2018 (UK GDPR), you can request your maternity records at any time. The NHS must respond within one month.', fac:'Tip: request notes during pregnancy, not just after.' },
       { format:'True/False', diff:'Hard', q:'TRUE or FALSE: If you decline a clinical recommendation during labour, the maternity team can legally withdraw your care.', a:'FALSE. The duty of care continues regardless of whether you accept recommendations. Declining one intervention does not mean other support is withdrawn.', fac:'This fear is sometimes used to pressure patients. Name it directly and challenge it.' },
       { format:'True/False', diff:'Medium', q:'TRUE or FALSE: You can write a birth plan that includes your wishes in the event of a caesarean section.', a:'TRUE. A caesarean birth plan can include: who is present, music, lowered screen for the birth moment, delayed cord clamping, skin-to-skin in theatre, immediate breastfeeding.', fac:'Caesarean birth plans are underused. Encourage all women to plan for multiple birth scenarios.' },
@@ -543,7 +552,7 @@ const DECKS = {
       { format:'Taboo', diff:'Medium', q:'Describe CONTRACTION without using: pain, squeeze, tighten, wave, or labour.', a:'No single answer. Good responses: a muscular surge, the womb working to open the cervix, a powerful rhythmic movement, pressure that builds and releases.', fac:'Reframing contractions as "surges" is used in hypnobirthing — worth naming if it comes up.' },
       { format:'Scenario', diff:'Medium', q:'You are 39 weeks and your baby has been moving less than usual today. What do you do?\nA) Eat something sweet and lie on your left side for an hour\nB) Call your maternity unit now\nC) Wait until tomorrow\'s appointment', a:'B — Any reduction in fetal movement requires immediate contact with your maternity unit, any time of day or night. Do not wait.', fac:'RCOG and NHS guidance is clear: reduced movement = call now. No home tests replace clinical assessment.', options:['A) Eat something sweet and lie down','B) Call your maternity unit now','C) Wait until tomorrow\'s appointment'] },
       { format:'Dingbats', diff:'Easy', q:'💨 + 😮‍💨 + 🔢 = ?', a:'Breathing Techniques — using counted, rhythmic breathing patterns to manage contractions and stay calm during labour.', fac:'Practise one breathing pattern together: 4 counts in, hold for 2, 6 counts out.' },
-      { format:'Advocacy', diff:'Easy', q:"Your midwife dismisses a concern by saying 'that's completely normal, don't worry.' You're not reassured. Say out loud what you would say next.", a:"Good responses: 'I understand it may be common, but I'd like to understand why it's happening.' / 'Can you explain what's causing it so I feel more informed?'", fac:'The goal is not to argue — it\'s to stay in the conversation and get real information.' },
+      { format:'Advocacy', diff:'Easy', q:"Your midwife dismisses a concern by saying 'that\'s completely normal, don't worry.' You're not reassured. Say out loud what you would say next.", a:"Good responses: 'I understand it may be common, but I'd like to understand why it\'s happening.' / 'Can you explain what's causing it so I feel more informed?'", fac:'The goal is not to argue — it\'s to stay in the conversation and get real information.' },
       { format:'Advocacy', diff:'Medium', q:'You are the only Black woman in the antenatal clinic. The midwife calls a name — not yours — then looks directly at you. How do you respond?\nA) Stand up anyway\nB) Stay seated and say: "I think you might be looking for someone else — my name is [name]"\nC) Say nothing', a:'B — Calmly correcting a mistaken assumption without shame is self-advocacy. You are not being difficult; you are being accurate.', fac:'Open discussion: how often does this happen? What does it feel like?', options:['A) Stand up anyway','B) Calmly correct the assumption','C) Say nothing'] },
       { format:'Advocacy', diff:'Hard', q:'After your birth you feel something went wrong but no one has explained it. You want answers. Say out loud how you would begin that conversation.', a:'Good responses: "I\'d like a postnatal debrief to discuss what happened." / "Can I speak to the consultant who was on call?" / "I\'d like to see my notes and have them explained to me."', fac:'Reinforce: you are entitled to a birth debrief. It is not a complaint — it is your right.' },
       { format:'Quiz', diff:'Easy', q:'Name two professionals who might be part of your maternity care team beyond your midwife.', a:'Any two: obstetrician, consultant, anaesthetist, health visitor, sonographer, perinatal mental health worker, doula, breastfeeding support worker, physiotherapist.', fac:'Many women don\'t know the full team available to them.' },
@@ -664,7 +673,7 @@ const DECKS = {
     cards: [
       { appt:'Booking Appointment', q:'You\'ve made it to your booking appointment. Name one question you should always ask at this visit.', a:'Good answers: what scans will I have, what are my risks, who is my named midwife, how do I contact triage.', fac:'Booking is the foundation. Use it to set expectations for the whole pregnancy.' },
       { appt:'8-Week Scan', q:'Your dating scan confirms you\'re 8+3 weeks. Name one thing the sonographer is checking for.', a:'Good answers: heartbeat, number of babies, gestational age, early anomalies, position of pregnancy.', fac:'Distinguish dating scan from anomaly scan — different purposes.' },
-      { appt:'12-Week Scan', q:'Your nuchal translucency scan is today. What is it screening for?', a:"Down's syndrome (Trisomy 21), Edwards' syndrome (Trisomy 18) and Patau's syndrome (Trisomy 13). Combines a blood test with the scan measurement.", fac:'Reinforce: screening is not diagnostic. A high-chance result does not mean a confirmed diagnosis.' },
+      { appt:'12-Week Scan', q:'Your nuchal translucency scan is today. What is it screening for?', a:"Down\'s syndrome (Trisomy 21), Edwards' syndrome (Trisomy 18) and Patau's syndrome (Trisomy 13). Combines a blood test with the scan measurement.", fac:'Reinforce: screening is not diagnostic. A high-chance result does not mean a confirmed diagnosis.' },
       { appt:'20-Week Scan', q:'Your anomaly scan is today. Name two things the sonographer checks.', a:'Any two: brain, spine, heart, kidneys, limbs, face, abdominal wall, placenta position, amniotic fluid.', fac:'Distinguish from dating scan. This is the detailed structural check.' },
       { appt:'28-Week Bloods', q:'Your 28-week blood test checks for gestational diabetes and anaemia. Name one symptom of each.', a:'Gestational diabetes: no symptoms usually, thirst, frequent urination. Anaemia: tiredness, breathlessness, pale skin, dizziness.', fac:'Key point: gestational diabetes is often symptomless — this is why screening matters.' },
       { appt:'Midwife Appointment', q:'Your community midwife measures your bump. What is she measuring and why?', a:'Fundal height in centimetres — from the pubic bone to the top of the uterus. Should roughly equal the number of weeks gestation. Checks baby\'s growth.', fac:'Introduce the concept of plotting on a centile chart.' },
@@ -759,128 +768,243 @@ const DECKS = {
 
   // ── DEEP KNOWLEDGE (Gold Node) ────────────────────
   deepKnowledge: {
-    label: 'Deep Knowledge', icon: '✦', count: 5, type: 'gold',
+    label: 'Deep Knowledge', icon: '✦', count: 10, type: 'gold',
     reward: '+2 tokens',
     cards: [
-      { q:'What does BRAIN stand for when you are making a decision in labour?', a:'Benefits, Risks, Alternatives, Instinct, Now (or not yet). It is a tool to help you ask the right questions and make informed choices.' },
-      { q:'What is a birth plan?', a:'A written list of your preferences for labour and birth — covering things like pain relief, who you want in the room, and what happens after birth. It helps your care team understand what matters to you.' },
-      { q:'What does it mean when a midwife talks about your cervix being dilated?', a:'Dilation is how open your cervix is. It is measured in centimetres from 0 to 10. At 10cm you are fully dilated and ready to push.' },
-      { q:'What is a contraction?', a:'A tightening of the womb muscle that helps move your baby down and open the cervix. Contractions get longer, stronger and closer together as labour progresses.' },
-      { q:'What does it mean to have a birth partner?', a:'Someone you choose to be with you during labour — a partner, family member or friend. They can offer support, speak up for you and help you feel safe. You can have more than one if your unit allows it.' },
+      { q:'A partogram shows your labour has been in the active phase for 4 hours with no progress past 6cm. What should happen next?', a:'Escalate to an obstetrician for review. NICE recommends review if dilation is less than 0.5cm per hour. An assessment of position, contractions or obstruction should be made before any intervention.' },
+      { q:'What is the difference between an ARM and a Syntocinon drip in induction?', a:'ARM (artificial rupture of membranes) is a mechanical procedure that breaks the waters to stimulate contractions. A Syntocinon drip is synthetic oxytocin given intravenously. ARM is usually tried first; the drip may follow if contractions do not establish.' },
+      { q:'What do "late decelerations" on a CTG mean and why do they matter?', a:'Late decelerations — where the dip in fetal heart rate occurs after the peak of a contraction — can indicate reduced oxygen to the baby. Unlike early decelerations (which mirror contractions and are normal), late decelerations require immediate clinical assessment.' },
+      { q:'Under the Montgomery ruling (2015), what must a clinician tell you before you consent to a procedure?', a:'Any risk that a reasonable person in your position would consider significant — not just risks the clinician thinks are important. This shifts the threshold to be patient-centred, not clinician-centred.' },
+      { q:'What is the difference between pre-eclampsia and eclampsia?', a:'Pre-eclampsia is high blood pressure with organ involvement detected via urine protein and blood tests. Eclampsia is when pre-eclampsia progresses to seizures — a medical emergency requiring immediate management.' },
+      { q:'A consultant recommends caesarean at 37 weeks due to a large baby on scan. What is the most important question to ask?', a:'How accurate is the scan measurement at this gestation? Third-trimester scans carry a margin of error of up to 20% for fetal weight. Asking for the confidence interval and what the alternatives are is the most clinically informed starting point.' },
+      { q:'What is the Bishop Score used for and what does a score of 8 or above indicate?', a:'The Bishop Score assesses cervical readiness for labour or induction — scoring dilation, effacement, consistency, position and fetal station. A score of 8 or above suggests the cervix is favourable for induction.' },
+      { q:'What is the difference between Group B Strep colonisation and Group B Strep infection?', a:'Colonisation means GBS is present without causing illness — around 1 in 4 women carry GBS. Infection means GBS has caused active disease. Colonisation carries a small risk to the baby that IV antibiotics in labour can significantly reduce.' },
+      { q:'What does fetal presentation mean and how does breech presentation affect birth options?', a:'Fetal presentation is which part of the baby is closest to the cervix. Breech at term (bottom or feet first) requires a plan — options include ECV (external turning), planned caesarean, or breech vaginal birth in specialist units.' },
+      { q:'What is a Category 1 caesarean and what is the expected timeframe?', a:'A Category 1 caesarean is the most urgent — immediate threat to life of mother or baby. The standard is birth within 30 minutes of the decision. Category 2 is urgent but not immediately life-threatening, usually within 75 minutes.' },
     ]
   },
 
   // ── CONSENT (Gold Node) ───────────────────────────
   consent: {
-    label: 'Consent', icon: '✦', count: 5, type: 'gold',
+    label: 'Consent', icon: '✦', count: 10, type: 'gold',
     reward: '+2 tokens',
     cards: [
-      { q:'What does consent mean in a maternity setting?', a:'Giving permission for something to happen to your body after being told clearly what it is, why it is being suggested and what your other options are.' },
-      { q:'Can you say no to a vaginal examination during labour?', a:'Yes. Every examination needs your agreement. You can say no or ask to wait, and your care should continue either way.' },
-      { q:'If a midwife describes something as routine, do you still have the right to ask questions?', a:'Absolutely. Routine means it is commonly offered — not that it is compulsory. You can always ask why it is being suggested and what happens if you decline.' },
-      { q:'Can you change your mind about something you already agreed to during labour?', a:'Yes. You can change your mind at any point. Your right to make decisions about your body does not end once labour starts.' },
-      { q:'You are not sure what a procedure is and feel rushed to agree. What can you say?', a:'You can say: can you explain what this is and why you are recommending it, what happens if I wait, and what are my other options. You do not have to agree to anything immediately.' },
+      { q:'You are in active labour and a midwife begins a vaginal examination without asking. What are your rights?', a:'Every examination requires prior consent. Beginning a procedure without consent is a potential assault regardless of clinical urgency. You can stop it, ask for an explanation, and request it is documented in your notes.' },
+      { q:'Does pain or distress during labour remove your legal capacity to consent?', a:'No. Under the Mental Capacity Act 2005, capacity is assumed unless there is evidence otherwise. Pain or distress alone does not remove capacity. Clinicians cannot override a capacitous decision even if they disagree with it.' },
+      { q:'Your birth plan states no episiotomy unless essential. In an emergency the midwife performs one without asking. What can you do afterwards?', a:'Request a full written explanation of why it was clinically necessary, access your notes, request a postnatal debrief, and if not satisfied, make a formal complaint via PALS or the Parliamentary and Health Service Ombudsman.' },
+      { q:'A registrar recommends continuous fetal monitoring but you want to remain mobile. What is the evidence-based response?', a:'For low-risk labours, NICE supports intermittent auscultation over continuous CTG. You can ask: "Is there a clinical reason my labour is now high-risk?" and "Can wireless telemetry be used?" You have the right to decline CTG if you understand the implications.' },
+      { q:'What is informed refusal and does it carry the same legal weight as informed consent?', a:'Yes. A capacitous adult has the absolute right to refuse any treatment or procedure, even if refusal carries significant risk. Informed refusal must be respected, documented, and cannot be overridden by clinical staff.' },
+      { q:'You consented to an induction but after the pessary is inserted you want it stopped. Can you do this?', a:'Yes. Consent can be withdrawn at any point. The pessary can be removed if you request it. Your continued care cannot be made conditional on accepting the induction.' },
+      { q:'A doctor says "we need to do this now, there is no time to explain." When is this legally valid?', a:'Only in a genuine emergency where you lack capacity — for example, if you are unconscious. If you are conscious and capacitous, you must be given enough information to make a decision. "No time" is not a valid reason to bypass consent.' },
+      { q:'You signed a consent form for a caesarean. Does signing mean you cannot change your mind?', a:'No. A consent form is evidence of a conversation, not an irrevocable contract. You can withdraw consent at any point before or during the procedure as long as you have capacity. The clinical team must stop and reassess.' },
+      { q:'What is the difference between consent and compliance in a clinical setting?', a:'Compliance means doing what you are told — often driven by pressure, fear or power imbalance. Consent is a voluntary, informed, freely-made decision. Many women comply in clinical settings without genuinely consenting. Recognising the difference is central to birth rights advocacy.' },
+      { q:'What happens if you decline a recommended intervention and the clinical team documents that you were "non-compliant"?', a:'Ask for it to be recorded instead as "informed refusal" or "declined after discussion of risks and benefits." Non-compliant is value-laden language. You are entitled to accurate documentation of your decision-making process.' },
     ]
   },
 
   // ── VOICE (Gold Node) ─────────────────────────────
   voice: {
-    label: 'Voice', icon: '✦', count: 5, type: 'gold',
+    label: 'Voice', icon: '✦', count: 10, type: 'gold',
     reward: '+2 tokens',
     cards: [
-      { q:'You feel your pain is not being taken seriously during labour. What can you do?', a:'Say clearly that you are in pain and need help. Ask to speak to a senior midwife. Ask your birth partner to speak up for you. You have the right to be heard.' },
-      { q:'What is one thing you can do before labour to make sure your wishes are known?', a:'Write a birth plan. Share it with your midwife at your next appointment and bring copies to hospital or your home birth.' },
-      { q:'Name one question worth asking your midwife before your due date.', a:'Any one from: what happens if I go overdue, who will be at my birth, what pain relief is available, how do I contact triage, what are the signs of labour.' },
-      { q:'What does it mean to advocate for yourself in a maternity setting?', a:'Speaking up for what you need, asking questions when you are unsure, saying no to things you do not want, and making sure your voice is heard in decisions about your care.' },
-      { q:'Is it okay to ask for a second opinion if you are not happy with the advice you are given?', a:'Yes. You have every right to ask for another clinician\'s view. A good care team will support you in doing this.' },
+      { q:'You are in labour and a midwife dismisses your pain as "normal." You are not reassured. What is the most effective thing to say?', a:'"I understand this may be common but my pain feels significant and I need it to be assessed. Can you document that I have raised this concern?" Naming the request to document often changes the clinical response.' },
+      { q:'What is obstetric violence and how can it be challenged?', a:'Disrespectful, abusive or non-consensual care during pregnancy and birth. It is not a specific legal term in UK law but incidents can constitute assault, negligence or violations of the Human Rights Act. Challenges can be made via PALS, complaint processes or Birthrights.' },
+      { q:'Your birth partner wants to advocate for you during labour. Name three specific things they can do.', a:'Any three: ask for explanations before agreeing to procedures, request time to decide, ask to speak to a senior midwife, reference the birth plan clearly, ask "what does my partner need right now?", calmly document what is happening.' },
+      { q:'A midwife says your request for a home birth is "not safe." What questions should you ask?', a:'"Can you tell me specifically what the clinical risks are for my individual situation?" "What does the evidence say?" "Can I have an individual risk assessment rather than a blanket policy?" "Can I speak to the supervisor of midwives?"' },
+      { q:'You feel your cultural or religious preferences around birth were ignored. What steps can you take?', a:'Raise it with the midwife first. If unresolved: contact PALS, request a postnatal debrief, ask for a meeting with the Head of Midwifery, make a formal complaint. Under the Equality Act 2010, religion and belief are protected characteristics.' },
+      { q:'What is gaslighting in a clinical context and what does it look like in maternity care?', a:'When a clinician makes you doubt your own experience or symptoms. Examples: "You are being dramatic," "That is not how labour works," "First-time mums always feel this way." Recognising it helps you stay grounded and seek a second opinion.' },
+      { q:'You want a birth debrief after a traumatic experience but your hospital says it does not offer them. What can you do?', a:'All NHS trusts should offer postnatal debriefs. If refused, escalate to PALS or the Head of Midwifery. You can request your full notes under GDPR. Independent support is available via Make Birth Better or Birthrights.org.uk.' },
+      { q:'What is a Maternity Voices Partnership (MVP) and how can you engage with it?', a:'A team of service users, NHS staff and commissioners who review and improve local maternity services. Women can join as service user representatives, attend meetings, or submit feedback. MVPs have genuine influence over local policy.' },
+      { q:'Name one legal right under the Human Rights Act 1998 that applies directly to maternity care.', a:'Any one from: Article 3 (right not to be subjected to degrading treatment), Article 8 (right to private and family life — including bodily autonomy and birth choices), Article 14 (right to not be discriminated against in access to these rights).' },
+      { q:'What does it mean if your concerns during labour are recorded as "reassured" when you did not feel reassured?', a:'You can ask for the record to be corrected. You have the right to add your own account to your notes. If the record is inaccurate, document your version and raise it at a postnatal debrief or via PALS.' },
     ]
   },
 
   // ── COMMUNITY (Gold Node) ─────────────────────────
   community: {
-    label: 'Community', icon: '✦', count: 5, type: 'gold',
+    label: 'Community', icon: '✦', count: 10, type: 'gold',
     reward: '+2 tokens',
     cards: [
-      { q:'What is a doula?', a:'A trained birth companion who supports you emotionally and practically before, during and after birth. They are not a medical professional but can make a big difference to how supported you feel.' },
-      { q:'Name one way your community or support network can help during pregnancy.', a:'Any one from: attending appointments with you, helping with other children, cooking meals, being a birth partner, helping you understand information, offering emotional support.' },
-      { q:'What is continuity of carer in maternity and why does it matter?', a:'It means seeing the same midwife or small team throughout your pregnancy. It helps build trust, means your midwife knows your story, and research shows it leads to better experiences.' },
-      { q:'What should you do if you feel your culture, language or preferences are not being respected by your care team?', a:'You can ask for an interpreter, request a different midwife, contact the Patient Advice and Liaison Service (PALS), or ask someone you trust to come with you to appointments.' },
-      { q:'Name one thing anyone can do to feel more prepared for birth regardless of their background or experience.', a:'Any one from: attend antenatal classes, join a birth preparation group like Birth Loop, write a birth plan, talk to others who have given birth, ask your midwife questions at every appointment.' },
+      { q:'What does the Cochrane evidence on continuity of midwifery carer show?', a:'Women receiving continuity of carer from a known midwife or small team have lower rates of preterm birth and caesarean section, higher satisfaction, and are less likely to lose their baby before 24 weeks. Benefits are greatest for women from disadvantaged communities.' },
+      { q:'What is the MBRRACE-UK report and what does it consistently show about Black women?', a:'MBRRACE-UK produces annual data on maternal deaths in the UK. It consistently shows Black women are approximately 3.7 times more likely to die in childbirth than white women. Understanding this data helps women advocate for equitable, individualised care.' },
+      { q:'What is cultural safety in maternity care and how does it differ from cultural competence?', a:'Cultural safety creates an environment where a woman feels her identity, language and beliefs are respected and not used against her. It goes beyond cultural competence — it requires clinicians to examine how power dynamics affect the care they give.' },
+      { q:'Name two UK organisations that specifically support Black women\'s maternity experiences.', a:'Any two from: Five X More, Birthrights, Cocoon Family Support, Blacq Doulas, Maternity Action, Sistah Space. Five X More campaigns directly on the Black maternal mortality gap.' },
+      { q:'What did the Ockenden Report (2022) find and what did it call for?', a:'An independent review of maternity care at Shrewsbury and Telford NHS Trust found repeated failures over 20 years causing avoidable deaths and injuries. It called for a complete overhaul of maternity safety culture nationally and introduced new mandatory safety standards.' },
+      { q:'A woman in your community does not speak English and is attending a maternity appointment alone. What should happen?', a:'The NHS has a legal obligation to provide professional interpreter services. Staff must not use family members or children for clinical conversations. The woman can request an interpreter — this is her right under the Equality Act and NHS constitutional rights.' },
+      { q:'What is perinatal mental health and why is it particularly important for communities with limited service access?', a:'Mental health conditions arising during pregnancy or the first year after birth — the most common complication of childbearing. Communities with limited access face greater barriers to diagnosis and treatment. Perinatal mental health conditions are treatable but often go unidentified in underserved populations.' },
+      { q:'What is "postcode lottery" in maternity care and what can women do about it?', a:'Significant variation in quality and availability of services depending on where you live. Women can find out what they are entitled to via Birthrights.org.uk, raise concerns via their local MVP, or escalate to NHS England if local services fall below national standards.' },
+      { q:'What is the role of a doula and what does evidence show about the impact of doula support?', a:'A trained non-clinical birth companion providing continuous emotional and practical support. Evidence shows doula support is associated with shorter labours, lower caesarean rates, reduced need for pain relief, and higher satisfaction — particularly for women from marginalised communities.' },
+      { q:'Name one way Birth Loop specifically addresses health inequalities compared to standard NHS antenatal provision.', a:'Any valid answer: free to attend, community-based, peer-learning model, trauma-informed, focused on advocacy and rights not just clinical information, built around real scenarios, facilitated by community members, culturally relevant.' },
     ]
   },
 
-  // ── LABOUR LOOP ───────────────────────────────────
-  labourLoop: {
-    label: 'Labour Loop', icon: '∞', count: 55, type: 'labour',
+  // ── LABOUR LOOP — 11 individual square decks ──────
+  ll_gettingReady: {
+    label: 'Getting Ready', icon: '🌱', count: 10, type: 'labour',
     cards: [
-      // Getting Ready — Induction
       { square:'Getting Ready', theme:'Induction of Labour', q:'What does it mean to be induced?', a:'It means labour is started for you using medical help, rather than starting on its own.' },
-      { square:'Getting Ready', theme:'Induction of Labour', q:'Name one reason why a midwife or doctor might suggest induction.', a:'Any one from: pregnancy going past 41–42 weeks, waters breaking without contractions starting, high blood pressure, concerns about baby\'s growth or movements.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'Name one reason a midwife or doctor might suggest induction.', a:'Any one from: pregnancy past 41–42 weeks, waters breaking without contractions, high blood pressure, concerns about baby\'s growth or movements.' },
       { square:'Getting Ready', theme:'Induction of Labour', q:'Is a membrane sweep the same as being induced?', a:'No. A sweep is a gentle internal examination that may help labour start naturally. It is offered before formal induction and is less intense.' },
-      { square:'Getting Ready', theme:'Induction of Labour', q:'Can you ask questions and take time to think before agreeing to induction?', a:'Yes. You have the right to ask what the benefits and risks are, what happens if you wait, and to make the decision that feels right for you.' },
-      { square:'Getting Ready', theme:'Induction of Labour', q:'If you are induced, does that mean something is wrong with your baby?', a:'Not necessarily. Induction is sometimes recommended as a precaution to keep you and your baby safe, even when everything is going well.' },
-      // Your Body Your Signs — Hypertension
-      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'What is blood pressure?', a:'The force of blood pushing against the walls of your arteries. During pregnancy, it is checked at every appointment because changes can affect you and your baby.' },
-      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'Can high blood pressure in pregnancy cause any symptoms?', a:'Sometimes not — it can be completely silent, which is why checks at every appointment matter. Some people get headaches, swelling or blurred vision.' },
-      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'If your blood pressure is found to be high at an appointment, what is likely to happen next?', a:'You will be monitored more closely — this might mean more appointments, urine tests, and blood tests to make sure you and your baby are well.' },
-      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'What is pre-eclampsia in simple terms?', a:'A condition in pregnancy where high blood pressure affects how the body works. It is manageable when caught early, which is why regular checks are important.' },
-      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'Name one symptom that should prompt you to contact your midwife or hospital straight away.', a:'Any one from: severe headache that won\'t go away, blurred vision, sudden swelling of face or hands, pain under your ribs, reduced baby movements.' },
-      // Your Care Team — Home Birth
-      { square:'Your Care Team', theme:'Home Birth', q:'Who comes to your home if you plan a home birth?', a:'Two midwives — one focused on you and one ready to care for your baby when they arrive.' },
-      { square:'Your Care Team', theme:'Home Birth', q:'Name one thing worth having prepared at home before labour starts.', a:'Any one from: old towels or waterproof sheets, good lighting, snacks and drinks, a packed hospital bag just in case, a clear space for the midwives to work.' },
-      { square:'Your Care Team', theme:'Home Birth', q:'Do you have to have a reason to choose a home birth?', a:'No. You can choose a home birth as your preference. Your midwife should support you in exploring what is right for you.' },
-      { square:'Your Care Team', theme:'Home Birth', q:'What happens if things change during a home birth and you need to go to hospital?', a:'Your midwife will arrange a transfer. Having a hospital bag ready means you are prepared just in case, without it changing your plan.' },
-      { square:'Your Care Team', theme:'Home Birth', q:'Can you change your mind about a home birth during pregnancy?', a:'Absolutely. Your birth plan can change at any point — before or during labour. What matters is that you feel informed and supported in whatever you choose.' },
-      // Pain & Comfort — Pain Relief
-      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Name two ways to manage pain during labour.', a:'Any two from: gas and air, epidural, pethidine injection, TENS machine, warm water (bath or pool), massage, breathing techniques, movement and position changes.' },
-      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'What is gas and air?', a:'A mix of oxygen and nitrous oxide breathed through a mouthpiece during contractions. It takes the edge off pain and is safe for you and your baby.' },
-      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'What is an epidural?', a:'An injection into your lower back that numbs pain from the waist down. It is the strongest form of pain relief available in hospital and is put in by an anaesthetist.' },
-      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Does choosing pain relief mean you have not coped well?', a:'Not at all. Pain relief is a tool available to you. Using it is a valid and informed choice, not a sign of failure.' },
-      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Can you ask for pain relief at any point during labour?', a:'Yes. You can ask at any stage. Some options like an epidural depend on an anaesthetist being available, so it is worth asking early if you think you might want one.' },
-      // Your Voice — VBAC
-      { square:'Your Voice', theme:'VBAC', q:'What does VBAC stand for?', a:'Vaginal Birth After Caesarean — it means giving birth vaginally when you have had a caesarean before.' },
-      { square:'Your Voice', theme:'VBAC', q:'Is VBAC something most people can try?', a:'For many people yes. Around 3 in 4 planned VBACs result in a vaginal birth. Your midwife or consultant will talk through whether it is a good option for you.' },
-      { square:'Your Voice', theme:'VBAC', q:'Do you have to have a repeat caesarean if you have had one before?', a:'No. You have the right to discuss both options — VBAC and repeat caesarean — and make the choice that is right for you based on clear information.' },
-      { square:'Your Voice', theme:'VBAC', q:'What is one thing you can ask your care team if you are considering VBAC?', a:'Any one from: what are my chances of a successful vaginal birth, what monitoring will I have during labour, what happens if labour slows down, can I have a water birth.' },
-      { square:'Your Voice', theme:'VBAC', q:'If your consultant recommends a repeat caesarean but you want to try VBAC, what can you do?', a:'Ask for their reasons in writing, ask to discuss it further, request a second opinion, and know that the final decision about your birth belongs to you.' },
-      // Transition — Water Birth
-      { square:'Transition', theme:'Water Birth', q:'What is a water birth?', a:'Giving birth in a pool or bath of warm water. You can also just labour in the water and get out to deliver — you are in control of what feels right.' },
-      { square:'Transition', theme:'Water Birth', q:'Name one reason someone might choose to labour in water.', a:'Any one from: warm water can ease pain, it allows easier movement, many people find it calming and private, it can reduce the need for other pain relief.' },
-      { square:'Transition', theme:'Water Birth', q:'What temperature should the pool be kept at during labour?', a:'Warm but not too hot — around 36 to 37.5 degrees Celsius, similar to your body temperature.' },
-      { square:'Transition', theme:'Water Birth', q:'Can you get out of the pool at any time during a water birth?', a:'Yes. You are never committed to staying in. You can get in and out as often as you like and change your mind at any point.' },
-      { square:'Transition', theme:'Water Birth', q:'Is a water birth available if you have had a previous caesarean?', a:'In many places yes, though some units have guidelines. It is worth asking your midwife early in pregnancy so it can be discussed and included in your birth plan.' },
-      // The Birth — C-Section
-      { square:'The Birth', theme:'C-Section', q:'What is a caesarean section?', a:'An operation where your baby is born through a cut made in your lower abdomen and womb. It can be planned in advance or happen during labour.' },
-      { square:'The Birth', theme:'C-Section', q:'What is the difference between a planned and an emergency caesarean?', a:'A planned caesarean is booked ahead of time. An emergency caesarean happens when a quicker birth is needed — though this does not always mean it is a crisis situation.' },
-      { square:'The Birth', theme:'C-Section', q:'Can you be awake during a caesarean?', a:'Yes. Most caesareans are done under a spinal or epidural anaesthetic so you are awake but cannot feel pain. You can often have a birth partner with you.' },
-      { square:'The Birth', theme:'C-Section', q:'Can you ask for skin-to-skin contact during a caesarean?', a:'Yes. If you and your baby are both well, you can ask for your baby to be placed on your chest straight away. Ask for this to be written in your birth plan.' },
-      { square:'The Birth', theme:'C-Section', q:'Can you request a caesarean if you want one?', a:'Yes. If you feel strongly that a caesarean is right for you, you can ask for one and have a full conversation with your care team about your options.' },
-      // Change of Plan — Gestational Diabetes
-      { square:'Change of Plan', theme:'Gestational Diabetes', q:'What is gestational diabetes?', a:'A type of diabetes that some people develop during pregnancy. It usually goes away after the baby is born and can be managed with the right support.' },
-      { square:'Change of Plan', theme:'Gestational Diabetes', q:'How is gestational diabetes usually found?', a:'Through a glucose tolerance test — a blood test done after a sugary drink, usually offered between 24 and 28 weeks of pregnancy.' },
-      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Does having gestational diabetes mean something has gone wrong?', a:'No. It is a common condition that the body sometimes develops due to the demands of pregnancy. With the right care it is very manageable.' },
-      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Name one way gestational diabetes might be managed during pregnancy.', a:'Any one from: changes to diet and eating habits, regular blood sugar monitoring, medication such as metformin, or insulin injections in some cases.' },
-      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Will your baby be checked after birth if you have gestational diabetes?', a:'Yes. Your baby\'s blood sugar will be tested in the first few hours after birth to make sure they are feeding well and their levels are stable.' },
-      // First Moments
-      { square:'First Moments', theme:'Immediate Postnatal', q:'What happens in the first few minutes after your baby is born?', a:'Your baby is usually placed on your chest, dried and assessed. Their breathing, colour and responses are checked. You will deliver the placenta shortly after.' },
-      { square:'First Moments', theme:'Immediate Postnatal', q:'What is delayed cord clamping?', a:'Waiting a short time — at least one to three minutes — before cutting the umbilical cord. This allows extra blood and iron to pass from the placenta to your baby.' },
-      { square:'First Moments', theme:'Immediate Postnatal', q:'Can your birth partner cut the cord?', a:'Yes, if they would like to and conditions allow. Let your midwife know in your birth plan if this is something you would like.' },
-      { square:'First Moments', theme:'Immediate Postnatal', q:'What is vitamin K and why is it offered to newborns?', a:'Vitamin K helps blood clot properly. Babies are born with low levels so it is offered as an injection or drops shortly after birth to protect them.' },
-      { square:'First Moments', theme:'Immediate Postnatal', q:'How soon after birth should a baby have their first feed?', a:'Ideally within the first hour. Babies are often very alert in this window and ready to feed, whether by breast or bottle.' },
-      // Golden Hour
-      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What is the golden hour?', a:'The first hour after birth when you and your baby are kept close together — ideally skin to skin. It is a special time for bonding and feeding.' },
-      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What does skin to skin mean?', a:'Your bare baby is placed directly on your bare chest. It helps regulate their temperature, heartbeat and breathing, and encourages feeding.' },
-      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'Can you have skin to skin after a caesarean?', a:'Yes, if you and your baby are both well. Ask for it to be in your birth plan so your team knows it is important to you.' },
-      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What is colostrum?', a:'The first milk your breasts produce — thick, creamy and full of nutrients and antibodies. It is made in small amounts which is exactly right for a newborn\'s tiny stomach.' },
-      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'Is it normal for a baby to lose a little weight in the first few days?', a:'Yes. A small weight loss in the first few days is completely normal. Your midwife will monitor this and support you with feeding.' },
-      // Postnatal
-      { square:'Postnatal', theme:'Recovery', q:'How long do midwife visits continue after birth?', a:'Usually for 10 to 14 days, though this can be longer if you or your baby need extra support.' },
-      { square:'Postnatal', theme:'Recovery', q:'What is the baby blues and when does it usually happen?', a:'A period of tearfulness, mood swings and feeling overwhelmed that often happens around day 3 to 5 after birth. It is very common and usually passes within a few days.' },
-      { square:'Postnatal', theme:'Recovery', q:'What is one sign that you should contact your midwife or GP after birth?', a:'Any one from: heavy bleeding, high temperature, wound that looks infected, feeling very low for more than two weeks, thoughts of harming yourself or your baby, difficulty bonding.' },
-      { square:'Postnatal', theme:'Recovery', q:'When is your postnatal GP check and what does it cover?', a:'Usually at 6 to 8 weeks. It should cover how you are feeling physically and emotionally, feeding, contraception and any concerns about you or your baby.' },
-      { square:'Postnatal', theme:'Recovery', q:'You are struggling after birth and don\'t feel like yourself. What should you do?', a:'Talk to your midwife, health visitor or GP. Postnatal depression is common and very treatable. Asking for help is the right thing to do.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'Can you say no to induction?', a:'Yes. You can decline or delay induction after being given full information. The decision belongs to you.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'Name one method used to start contractions during induction.', a:'Any one from: prostaglandin gel or pessary, balloon catheter, breaking the waters (ARM), Syntocinon drip.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'If you are induced, does that mean something is wrong with your baby?', a:'Not necessarily. Induction is sometimes recommended as a precaution even when everything is going well.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'What does it mean if your cervix is described as unfavourable before induction?', a:'The cervix is not yet soft, short or open enough. A pessary, gel or balloon may be used first to ripen it.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'Once an induction has started, can you change your mind?', a:'Yes. You can withdraw consent at any stage. The process can be paused or stopped if you request it.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'What is a Syntocinon drip?', a:'A drip containing synthetic oxytocin — a hormone that causes contractions. It is used to start or strengthen labour and requires continuous fetal monitoring.' },
+      { square:'Getting Ready', theme:'Induction of Labour', q:'How long can an induction take?', a:'It varies widely — from a few hours to several days depending on how your body responds. Your care team should keep you informed throughout.' },
+    ]
+  },
+  ll_bodysigns: {
+    label: 'Your Body Your Signs', icon: '💓', count: 10, type: 'labour',
+    cards: [
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'What is blood pressure and why is it checked at every appointment?', a:'The force of blood pushing against your artery walls. Changes can affect you and your baby, so it is monitored regularly.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'Can high blood pressure in pregnancy have no symptoms?', a:'Yes — it is often completely silent. This is why checks at every appointment matter even when you feel well.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'What is pre-eclampsia in simple terms?', a:'A condition in pregnancy where high blood pressure affects how the body works. Manageable when caught early, which is why regular checks are essential.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'Name one warning sign of pre-eclampsia to act on immediately.', a:'Any one from: severe headache, blurred vision, pain under your ribs, sudden swelling of face or hands, feeling very unwell.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'What blood pressure reading is considered high in pregnancy?', a:'140/90 mmHg or above is the threshold for hypertension in pregnancy.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'What happens if high blood pressure is found at your appointment?', a:'You will be monitored more closely — more appointments, urine and blood tests to make sure you and your baby are well.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'Can pre-eclampsia develop after birth?', a:'Yes — post-partum pre-eclampsia can develop up to 6 weeks after birth. Know the signs and contact triage if concerned.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'What is HELLP syndrome?', a:'A severe complication of pre-eclampsia — haemolysis, elevated liver enzymes and low platelets. It is a medical emergency requiring immediate hospital care.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'Can you still have a vaginal birth if you have hypertension?', a:'Often yes, depending on severity and how well controlled it is. Your care team will advise based on your individual situation.' },
+      { square:'Your Body Your Signs', theme:'Hypertension in Pregnancy', q:'Name one thing that can help manage blood pressure in pregnancy.', a:'Any one from: rest, reducing stress where possible, staying hydrated, eating a balanced diet, attending all monitoring appointments.' },
+    ]
+  },
+  ll_careTeam: {
+    label: 'Your Care Team', icon: '👩‍⚕️', count: 10, type: 'labour',
+    cards: [
+      { square:'Your Care Team', theme:'Home Birth', q:'Who attends a planned home birth?', a:'Two midwives — one focused on you and one ready to care for your baby when they arrive.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'Do you need a medical reason to choose a home birth?', a:'No. It is your choice. Your midwife should support you in exploring what is right for your individual circumstances.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'Name one thing to have ready at home before labour starts.', a:'Any one from: old towels or waterproof sheets, good lighting, snacks and drinks, a packed hospital bag just in case.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'What if your community midwife team cannot attend on the day?', a:'The trust must still provide care. A midwife must be dispatched. You cannot be refused a home birth due to staffing alone.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'What happens if you need to transfer to hospital during a home birth?', a:'Your midwife arranges the transfer. Having a hospital bag packed means you are prepared without it changing your plan.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'Can you change your mind about a home birth during labour?', a:'Absolutely. You can request a transfer to hospital at any point. Your preferences can change and your care team should support that.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'Is a water birth possible at home?', a:'Yes — you can hire a birth pool for home use. Your midwife team needs to know in advance to bring appropriate equipment.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'What is the role of the second midwife at a home birth?', a:'The second midwife is primarily there for the baby — to assess and care for them at birth. They usually arrive when birth is imminent.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'Can you have a home birth if your pregnancy is higher risk?', a:'It depends on the specific risk. Some higher-risk women choose home birth after individual risk assessment and full information. The decision is yours.' },
+      { square:'Your Care Team', theme:'Home Birth', q:'Name one advantage of a home birth environment.', a:'Any one from: familiar surroundings, privacy, no travel during labour, more control over the environment, generally lower intervention rates for low-risk births.' },
+    ]
+  },
+  ll_painComfort: {
+    label: 'Pain & Comfort', icon: '🌊', count: 10, type: 'labour',
+    cards: [
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Name two ways to manage pain during labour.', a:'Any two from: gas and air, epidural, pethidine, TENS machine, warm water, massage, breathing techniques, movement and position changes.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'What is gas and air?', a:'A mix of oxygen and nitrous oxide breathed through a mouthpiece. It takes the edge off pain and is safe for you and your baby.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'What is an epidural?', a:'An injection into the lower back that numbs pain from the waist down. The strongest pain relief available in hospital, administered by an anaesthetist.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Does choosing pain relief mean you have not coped well?', a:'Not at all. Pain relief is a tool. Using it is a valid, informed choice — not a sign of failure.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'What does TENS stand for and how does it help?', a:'Transcutaneous Electrical Nerve Stimulation. Small electrical pulses through pads on your back may block pain signals and stimulate endorphin release.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Can you have an epidural at any stage of labour?', a:'Generally yes, as long as an anaesthetist is available. It is worth requesting early if you think you might want one.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Name one non-medical way to manage labour pain.', a:'Any one from: warm water, massage, movement and position changes, breathing techniques, hypnobirthing, birth partner support.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'If your birth plan says no epidural but you change your mind, can you ask for one?', a:'Yes. Your birth plan is a guide, not a contract. You can ask for any available pain relief at any point.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Name one possible side effect of an epidural.', a:'Any one from: drop in blood pressure (monitored closely), difficulty pushing, itching, headache in rare cases, temporary numbness after birth.' },
+      { square:'Pain & Comfort', theme:'Pain Relief Options', q:'Which positions during labour can help with pain and progress?', a:'Upright positions — standing, kneeling, hands and knees — use gravity to help the baby descend and can reduce back pain. Movement is evidence-based and underused.' },
+    ]
+  },
+  ll_yourVoice: {
+    label: 'Your Voice', icon: '🗣️', count: 10, type: 'labour',
+    cards: [
+      { square:'Your Voice', theme:'VBAC', q:'What does VBAC stand for?', a:'Vaginal Birth After Caesarean — giving birth vaginally when you have had a caesarean before.' },
+      { square:'Your Voice', theme:'VBAC', q:'What is the approximate success rate of a planned VBAC?', a:'Around 72–75% of planned VBACs result in a vaginal birth.' },
+      { square:'Your Voice', theme:'VBAC', q:'Do you have to have a repeat caesarean after a previous one?', a:'No. You have the right to discuss both options and make the informed choice that is right for you.' },
+      { square:'Your Voice', theme:'VBAC', q:'Name one factor that increases the chances of a successful VBAC.', a:'Any one from: previous vaginal birth, spontaneous labour, one previous caesarean only, 18+ months since caesarean, no other complications.' },
+      { square:'Your Voice', theme:'VBAC', q:'What is uterine rupture and how common is it during VBAC?', a:'When the scar from a previous caesarean tears during labour. It occurs in approximately 0.5% of VBAC labours — less than 1 in 200.' },
+      { square:'Your Voice', theme:'VBAC', q:'Can you have a water birth if you are attempting VBAC?', a:'In many units yes. Ask early and request an individual risk assessment rather than a blanket policy.' },
+      { square:'Your Voice', theme:'VBAC', q:'What monitoring is typically recommended during VBAC labour?', a:'Continuous fetal monitoring (CTG) is usually recommended because of the small risk of uterine rupture. Discuss this with your consultant in advance.' },
+      { square:'Your Voice', theme:'VBAC', q:'If your consultant recommends a repeat caesarean but you want VBAC, what can you do?', a:'Ask for their reasons in writing, request a second opinion, and know that the final decision about your birth belongs to you.' },
+      { square:'Your Voice', theme:'VBAC', q:'What is an ERCS?', a:'Elective Repeat Caesarean Section — a planned caesarean chosen rather than attempting VBAC. Both VBAC and ERCS are valid options to discuss with full information.' },
+      { square:'Your Voice', theme:'VBAC', q:'Name one question to ask at your VBAC planning appointment.', a:'Any one from: what are my individual chances of success, what monitoring will I have, what is the plan if labour slows, what are the risks of ERCS compared to VBAC for me specifically.' },
+    ]
+  },
+  ll_transition: {
+    label: 'Transition', icon: '💧', count: 10, type: 'labour',
+    cards: [
+      { square:'Transition', theme:'Water Birth', q:'What is a water birth?', a:'Giving birth in a pool or bath of warm water. You can labour in water and get out to deliver — you are in control of what feels right.' },
+      { square:'Transition', theme:'Water Birth', q:'Name one benefit of labouring in water.', a:'Any one from: pain relief through buoyancy, easier movement, calming effect, privacy, reduced need for other pain relief, reduced perineal tearing.' },
+      { square:'Transition', theme:'Water Birth', q:'What temperature should the birth pool be kept at?', a:'Between 36 and 37.5 degrees Celsius — warm but not so hot it raises the baby\'s temperature.' },
+      { square:'Transition', theme:'Water Birth', q:'Can you get out of the pool at any time?', a:'Yes. You are never committed to staying in. Get in and out as often as you like and change your mind at any point.' },
+      { square:'Transition', theme:'Water Birth', q:'Is a water birth available after a previous caesarean?', a:'In many places yes. Ask your midwife early and request an individual assessment rather than a blanket policy.' },
+      { square:'Transition', theme:'Water Birth', q:'Can you be monitored during a water birth?', a:'Yes — waterproof (telemetry) monitoring is available in many units. Ask in advance if continuous monitoring is recommended for you.' },
+      { square:'Transition', theme:'Water Birth', q:'What happens if the baby needs help immediately after a water birth?', a:'The midwife lifts the baby from the water. The baby does not breathe until its face meets air, so water birth is considered safe when managed correctly.' },
+      { square:'Transition', theme:'Water Birth', q:'Can you use gas and air during a water birth?', a:'Yes. Gas and air is compatible with water birth. Epidurals are not.' },
+      { square:'Transition', theme:'Water Birth', q:'What should your birth plan say about a water birth?', a:'State that you want access to a pool, your preference to labour or birth in water, and ask what happens if the pool is unavailable on the day.' },
+      { square:'Transition', theme:'Water Birth', q:'Name one reason a water birth might not go ahead on the day.', a:'Any one from: pool unavailable or in use, meconium in the waters, fetal heart rate concerns, clinical need for continuous monitoring incompatible with the pool.' },
+    ]
+  },
+  ll_theBirth: {
+    label: 'The Birth', icon: '✨', count: 10, type: 'labour',
+    cards: [
+      { square:'The Birth', theme:'C-Section', q:'What is a caesarean section?', a:'An operation where your baby is born through a cut in your lower abdomen and womb. It can be planned in advance or happen during labour.' },
+      { square:'The Birth', theme:'C-Section', q:'What is the difference between a planned and emergency caesarean?', a:'A planned caesarean is booked in advance. An emergency caesarean happens when a quicker birth is needed — though this does not always mean it is a crisis.' },
+      { square:'The Birth', theme:'C-Section', q:'Can you be awake during a caesarean?', a:'Yes. Most caesareans use a spinal or epidural anaesthetic — you are awake but cannot feel pain. You can usually have a birth partner with you.' },
+      { square:'The Birth', theme:'C-Section', q:'Can you request skin-to-skin during a caesarean?', a:'Yes. If you and your baby are well, ask for your baby to be placed on your chest immediately. Include this in your birth plan.' },
+      { square:'The Birth', theme:'C-Section', q:'Can you request a caesarean without a medical reason?', a:'Yes. NICE guidelines state that if you request one and there is no clinical reason against it, your request should be supported after discussion.' },
+      { square:'The Birth', theme:'C-Section', q:'How long does a caesarean typically take?', a:'Around 40–50 minutes in total, with the baby usually delivered in the first 10–15 minutes.' },
+      { square:'The Birth', theme:'C-Section', q:'What is a gentle or natural caesarean?', a:'An approach making the caesarean more birth-like — lowered screen to see the birth, delayed cord clamping, immediate skin-to-skin in theatre, calm atmosphere.' },
+      { square:'The Birth', theme:'C-Section', q:'What is the typical recovery time after a caesarean?', a:'Hospital stay of 2–4 days. Full recovery around 6 weeks. Driving and heavy lifting are restricted during this time.' },
+      { square:'The Birth', theme:'C-Section', q:'Can you have a birth partner with you during an emergency caesarean?', a:'Usually yes for a spinal anaesthetic. Under general anaesthetic, birth partners are generally not permitted in theatre. Ask your team in advance.' },
+      { square:'The Birth', theme:'C-Section', q:'Name one thing to include in a caesarean birth plan.', a:'Any one from: skin-to-skin immediately, delayed cord clamping, birth partner present, lowered screen to see the birth, music, who cuts the cord.' },
+    ]
+  },
+  ll_changeOfPlan: {
+    label: 'Change of Plan', icon: '🔄', count: 10, type: 'labour',
+    cards: [
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'What is gestational diabetes?', a:'A type of diabetes some people develop during pregnancy. It usually resolves after birth and can be managed with the right support.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'How is gestational diabetes usually detected?', a:'Through a glucose tolerance test — a blood test after a sugary drink, usually offered between 24 and 28 weeks.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Does having gestational diabetes mean something has gone wrong?', a:'No. It is a common condition the body sometimes develops due to the demands of pregnancy. With the right care it is very manageable.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Name one way gestational diabetes is managed.', a:'Any one from: dietary changes, regular blood sugar monitoring, metformin medication, insulin injections in some cases.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Will your baby be checked after birth if you have gestational diabetes?', a:'Yes. Blood sugar will be tested in the first few hours to make sure they are feeding well and their levels are stable.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'How might gestational diabetes affect your birth plan?', a:'You may be advised to birth in hospital, offered induction around 38–40 weeks, and your baby will need extra monitoring after birth.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Name two risk factors for developing gestational diabetes.', a:'Any two from: BMI over 30, previous gestational diabetes, family history of type 2 diabetes, previous large baby, South Asian, Black, Middle Eastern or Caribbean heritage.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Can diet alone manage gestational diabetes?', a:'For some people yes — dietary changes are the first line. Others need metformin or insulin. Your team will monitor and adjust your care.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Does gestational diabetes disappear after birth?', a:'Usually yes, though women who have had it are at higher risk of type 2 diabetes later in life. A postnatal glucose test is recommended.' },
+      { square:'Change of Plan', theme:'Gestational Diabetes', q:'Can you still have a vaginal birth with gestational diabetes?', a:'Yes in many cases, depending on how well controlled it is and your baby\'s size. Discuss your birth options with your consultant.' },
+    ]
+  },
+  ll_firstMoments: {
+    label: 'First Moments', icon: '👶', count: 10, type: 'labour',
+    cards: [
+      { square:'First Moments', theme:'Immediate Postnatal', q:'What happens in the first minutes after your baby is born?', a:'Your baby is placed on your chest, dried and assessed. Breathing, colour and responses are checked. You deliver the placenta shortly after.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'What is delayed cord clamping?', a:'Waiting at least 1–3 minutes before cutting the cord, allowing iron-rich blood to pass from the placenta to your baby.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'Can your birth partner cut the cord?', a:'Yes, if they would like to and conditions allow. Include it in your birth plan.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'What is vitamin K and why is it offered?', a:'Vitamin K helps blood clot properly. Babies are born with low levels so it is offered as an injection or drops to protect them.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'How soon should a baby have their first feed?', a:'Ideally within the first hour — babies are very alert in this window and ready to feed whether by breast or bottle.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'What is the Apgar score?', a:'A quick health check at 1 and 5 minutes after birth — measuring appearance, pulse, grimace, activity and respiration. A score of 7–10 is normal.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'What is physiological third stage of labour?', a:'Allowing the placenta to deliver naturally without drugs, which can take up to an hour. Managed third stage uses a hormone injection to speed delivery.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'Can you have delayed cord clamping after a caesarean?', a:'Yes — it is increasingly offered after caesareans. Ask for it to be in your birth plan.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'Name one thing that can wait until after the golden hour.', a:'Any one from: weighing the baby, routine checks, visitors, phone calls. The first hour is protected time for you and your baby.' },
+      { square:'First Moments', theme:'Immediate Postnatal', q:'What can you say if a midwife moves to take your baby for routine checks before you are ready?', a:'"I would like to keep skin-to-skin for now — can the checks happen while my baby is on my chest, or wait until after the first hour?"' },
+    ]
+  },
+  ll_goldenHour: {
+    label: 'Golden Hour', icon: '🌟', count: 10, type: 'labour',
+    cards: [
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What is the golden hour?', a:'The first hour after birth when you and your baby are kept close — ideally skin to skin. A special time for bonding and feeding.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What does skin to skin mean?', a:'Your bare baby placed directly on your bare chest. Regulates their temperature, heartbeat and breathing, and encourages feeding.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'Can you have skin to skin after a caesarean?', a:'Yes, if you and your baby are well. Ask for it in your birth plan so your team knows it matters to you.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What is colostrum?', a:'The first milk your breasts produce — thick, creamy, full of antibodies. Made in small amounts, exactly right for a newborn\'s tiny stomach.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'Is it normal for a baby to lose weight in the first few days?', a:'Yes. A loss of up to 7–10% of birth weight in the first 3–5 days is normal. It should return to birth weight by around 2 weeks.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'Name two benefits of skin to skin for the baby.', a:'Any two from: regulates temperature, stabilises heart rate and breathing, reduces stress, encourages feeding instinct, promotes bonding.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'Can a birth partner do skin to skin if the mother is unable to?', a:'Yes. If you are unable to hold your baby immediately, your birth partner can do skin to skin — still providing warmth, comfort and bonding.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What is the difference between breastfeeding and expressing?', a:'Breastfeeding is feeding directly from the breast. Expressing removes milk by hand or pump to feed later by bottle. Both are valid choices.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'Name one sign that a newborn is ready to feed.', a:'Any one from: rooting (turning head and opening mouth), sucking on hands or fingers, small sounds, wriggling and showing alertness.' },
+      { square:'Golden Hour', theme:'Skin to Skin & Feeding', q:'What support is available if breastfeeding is difficult?', a:'Any one from: midwife, health visitor, infant feeding team, La Leche League, NCT helpline, local breastfeeding group.' },
+    ]
+  },
+  ll_postnatal: {
+    label: 'Postnatal', icon: '🌸', count: 10, type: 'labour',
+    cards: [
+      { square:'Postnatal', theme:'Recovery', q:'How long do midwife visits continue after birth?', a:'Usually 10 to 14 days, though longer if you or your baby need extra support.' },
+      { square:'Postnatal', theme:'Recovery', q:'What is the baby blues?', a:'A period of tearfulness and mood swings around day 3 to 5 after birth. Very common and usually passes within a few days.' },
+      { square:'Postnatal', theme:'Recovery', q:'Name one sign that you should contact your midwife or GP after birth.', a:'Any one from: heavy bleeding, high temperature, infected wound, feeling very low for more than two weeks, difficulty bonding.' },
+      { square:'Postnatal', theme:'Recovery', q:'When is your postnatal GP check and what should it cover?', a:'Usually at 6 to 8 weeks. It should cover physical recovery, mental health, feeding, contraception and any birth concerns.' },
+      { square:'Postnatal', theme:'Recovery', q:'You are struggling after birth and do not feel like yourself. What should you do?', a:'Talk to your midwife, health visitor or GP. Postnatal depression is common and very treatable. Asking for help is the right thing to do.' },
+      { square:'Postnatal', theme:'Recovery', q:'What is postnatal depression and how is it different from the baby blues?', a:'Postnatal depression is a clinical condition lasting weeks or months — persistent low mood, difficulty bonding, anxiety. Baby blues is a brief, normal hormonal adjustment.' },
+      { square:'Postnatal', theme:'Recovery', q:'Name one physical sign needing urgent attention after birth.', a:'Any one from: heavy soaking bleeding (more than a pad per hour), temperature above 38 degrees, severe headache with visual changes, wound opening or infected.' },
+      { square:'Postnatal', theme:'Recovery', q:'What is a perineal tear and how common is it?', a:'A tear in the tissue between the vagina and anus during birth. Around 9 in 10 first-time mothers experience some degree of tearing. Most heal well with the right care.' },
+      { square:'Postnatal', theme:'Recovery', q:'How long after birth before returning to exercise?', a:'At least 6 weeks for low-impact activity, longer for high-impact — especially after caesarean or significant tear. Always check with your GP or physiotherapist first.' },
+      { square:'Postnatal', theme:'Recovery', q:'What is a postnatal debrief and how do you request one?', a:'A meeting to discuss your birth experience — what happened, why, and how you feel about it. You are entitled to request one via your midwife or GP.' },
     ]
   }
+
 };
 
 // ══════════════════════════════════════════════════════
@@ -900,14 +1024,17 @@ function init() {
     ['knowledge','mama','birthRights','appointment'],
     ['waiting','triage','midwife','birthPlan'],
     ['crossover','deepKnowledge','consent','voice'],
-    ['community','labourLoop']
+    ['community'],
+    ['ll_gettingReady','ll_bodysigns','ll_careTeam','ll_painComfort'],
+    ['ll_yourVoice','ll_transition','ll_theBirth','ll_changeOfPlan'],
+    ['ll_firstMoments','ll_goldenHour','ll_postnatal']
   ];
 
   // Section labels
   const sections = {
     knowledge: '— Circuit Decks —',
     deepKnowledge: '— Gold Nodes —',
-    labourLoop: '— Labour Loop —'
+    ll_gettingReady: '— Labour Loop Squares —',
   };
 
   Object.keys(DECKS).forEach(key => {
@@ -942,6 +1069,16 @@ function selectDeck(key) {
 
   document.getElementById('controls').style.display = 'flex';
   drawCard();
+}
+
+function reshuffleDeck() {
+  if (!currentDeck) return;
+  shuffle();
+  isFlipped = false;
+  drawCard();
+  const counter = document.getElementById('counter');
+  counter.innerHTML += ' · <span style="color:var(--gold)">Reshuffled ✓</span>';
+  setTimeout(() => updateCounter(), 1500);
 }
 
 function shuffle() {
