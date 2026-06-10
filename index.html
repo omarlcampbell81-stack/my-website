@@ -31,6 +31,8 @@
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(184,151,42,0.15);
   }
+  .burger { display: none; }
+  .nav-book-mobile { display: none; }
   .nav-logo img { height: 80px; width: auto; }
   .nav-logo-text { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; color: var(--black); letter-spacing: 0.08em; line-height: 1.1; }
   .nav-logo-text small { display: block; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; font-family: 'Jost', sans-serif; }
@@ -543,6 +545,7 @@ display:block;
   @media (max-width: 900px) {
     nav { padding: 14px 20px; }
     .burger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+    .nav-book-mobile { display: inline-flex; align-items: center; background: var(--gold); color: white !important; padding: 9px 18px; font-family: 'Jost', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; }
     .burger span { display: block; width: 24px; height: 2px; background: var(--black); transition: all 0.3s; }
     .mobile-menu { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--black); z-index: 200; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
     .mobile-menu.open { display: flex; }
@@ -641,9 +644,12 @@ display:block;
       </li>
     <li><a href="#booking" class="nav-cta">Book Now</a></li>
   </ul>
-<button class="burger" onclick="toggleMenu()" id="burger">
+<div style="display:flex;align-items:center;gap:12px;">
+  <a href="#booking" class="nav-book-mobile">Book Now</a>
+  <button class="burger" onclick="toggleMenu()" id="burger">
     <span></span><span></span><span></span>
   </button>
+</div>
 </nav>
 
 <!-- MOBILE MENU -->
