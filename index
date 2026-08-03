@@ -1102,7 +1102,7 @@ No cost. No catch. Childcare, travel expenses and food are covered.
     </p>
 
     <h3 style="font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:6px;">
-      Saturday · 11 July · Peckham
+      Saturday · 12 September · Peckham
     </h3>
 
     <p style="color:rgba(255,255,255,0.7);font-size:0.9rem;">
@@ -1136,7 +1136,7 @@ No cost. No catch. Childcare, travel expenses and food are covered.
 
 
 <h3>Reserve your place</h3>
-<p class="sub">Saturday 11 July · Peckham · 12:00pm – 4:00pm</p>
+<p class="sub">Saturday 12 September · Peckham · 12:00pm – 4:00pm</p>
 
 
 <form id="booking-form" action="https://api.web3forms.com/submit" method="POST">
