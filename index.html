@@ -1100,16 +1100,18 @@ No cost. No catch. Childcare, travel expenses and food are covered.
 
 <!-- CALENDAR AT TOP -->
 <div class="calendar-section">
-  <h4>Upcoming Session</h4>
+  <h4>Upcoming Sessions</h4>
 
-  <div style="background:#1f1f1f;border:1px solid rgba(255,255,255,0.1);padding:20px;border-radius:6px;margin-bottom:20px;">
+  <div style="display:flex;flex-wrap:wrap;gap:16px;">
+
+  <div style="flex:1 1 260px;background:#1f1f1f;border:1px solid rgba(255,255,255,0.1);padding:20px;border-radius:6px;">
 
     <p style="font-size:0.8rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">
       Next Event
     </p>
 
-    <h3 style="font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:6px;">
-      Saturday · 12 September · Peckham
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:6px;">
+      Saturday · 17 October · Peckham
     </h3>
 
     <p style="color:rgba(255,255,255,0.7);font-size:0.9rem;">
@@ -1121,34 +1123,70 @@ No cost. No catch. Childcare, travel expenses and food are covered.
     </p>
 
     <p style="color:var(--gold);font-size:0.9rem;margin-top:6px;">
-      Open to Women &amp; Birth Partners
+      Dads &amp; Birth Partners Only
     </p>
 
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
-      <p style="color:rgba(255,255,255,0.85);font-size:0.88rem;line-height:1.6;margin-bottom:10px;">
-        This is a mixed session — women are welcome to attend on their own, or alongside their birth partner. Birth partners can be a partner, dad, parent, friend, or anyone you'd like by your side on the day.
-      </p>
       <p style="color:rgba(255,255,255,0.85);font-size:0.88rem;line-height:1.6;">
-        Please indicate on the form below whether you're attending solo or as a couple, and provide your birth partner's details if they'll be joining you.
+        A dedicated session built for dads and birth partners — the same immersive game and trauma-informed facilitation, tailored around your role in labour, supporting your partner, and preparing for life with a newborn.
       </p>
     </div>
 
-    <div style="margin-top:14px;padding:12px 14px;background:rgba(184,151,42,0.1);border:1px solid rgba(184,151,42,0.3);border-radius:4px;">
-      <p style="color:var(--gold);font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">Coming Soon</p>
-      <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;line-height:1.5;">A dedicated <strong style="color:white;">Dads &amp; Birth Partners-Only</strong> session is coming in <strong style="color:white;">October 2026</strong> — date to be confirmed. Register your interest below and we'll be in touch.</p>
+  </div>
+
+  <div style="flex:1 1 260px;background:#1f1f1f;border:1px solid rgba(255,255,255,0.1);padding:20px;border-radius:6px;">
+
+    <p style="font-size:0.8rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">
+      Next Event
+    </p>
+
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:6px;">
+      Saturday · 14 November · Brixton
+    </h3>
+
+    <p style="color:rgba(255,255,255,0.7);font-size:0.9rem;">
+      Location: <strong>Brixton</strong>
+    </p>
+
+    <p style="color:rgba(255,255,255,0.7);font-size:0.9rem;margin-top:4px;">
+      Time: <strong>12:00pm – 4:00pm</strong>
+    </p>
+
+    <p style="color:var(--gold);font-size:0.9rem;margin-top:6px;">
+      Open to Women Only
+    </p>
+
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+      <p style="color:rgba(255,255,255,0.85);font-size:0.88rem;line-height:1.6;">
+        A women-only session in Brixton — a safe, supportive space to prepare for birth alongside other women, with a qualified midwife and BACP-accredited counsellor on hand throughout.
+      </p>
     </div>
+
+  </div>
 
   </div>
 </div>
 
 
 <h3>Reserve your place</h3>
-<p class="sub">Saturday 12 September · Peckham · 12:00pm – 4:00pm</p>
+<p class="sub" id="booking-sub">Select a session below to get started</p>
 
 
 <form id="booking-form" action="https://api.web3forms.com/submit" method="POST">
   <input type="hidden" name="access_key" value="1981bbed-fe49-40c4-b29d-8d80b4320a2a">
   <input type="hidden" name="redirect" value="https://www.birthloop.com/thank-you">
+  <input type="hidden" name="location" id="location-field" value="">
+  <input type="hidden" name="format" id="format-field" value="">
+
+<div class="form-group">
+<label>Which Session Would You Like to Book? *</label>
+<select name="event_date" id="event-select" required onchange="toggleEvent(this.value)">
+<option value="">Select a session</option>
+<option value="dads-oct17">Saturday 17 October — Dads &amp; Birth Partners Only — Peckham</option>
+<option value="women-nov14">Saturday 14 November — Women-Only — Brixton</option>
+</select>
+</div>
+
 <div class="form-row">
 
 <div class="form-group">
@@ -1177,15 +1215,6 @@ No cost. No catch. Childcare, travel expenses and food are covered.
 
 
 <div class="form-group">
-<label>Preferred Location *</label>
-<select name="location" required>
-<option value="">Select a location</option>
-<option selected>Peckham</option>
-</select>
-</div>
-
-
-<div class="form-group">
 <label>Which Borough Do You Live In?</label>
 <select name="borough">
 <option value="">Select your borough</option>
@@ -1199,41 +1228,76 @@ No cost. No catch. Childcare, travel expenses and food are covered.
 
 
 <div class="form-group">
-<label>Session Format *</label>
-<select name="format" id="format-select" required onchange="toggleBirthPartner(this.value)">
-<option value="">Select a format</option>
-<option value="Women-Only">Women-Only — attending on my own</option>
-<option value="Couples">Couples — attending with my birth partner</option>
+<label>Participant Age *</label>
+<input type="number" name="participant_age" min="16" max="99" placeholder="Your age" required>
+</div>
+
+
+<!-- ============ DADS & BIRTH PARTNERS FIELDS — Sat 17 Oct, Peckham ============ -->
+<div id="dads-fields" class="conditional-fields" style="display:none;">
+
+<div class="form-group">
+<label>Your Partner's Due Date *</label>
+<input type="date" name="partner_due_date">
+</div>
+
+<div class="form-group">
+<label>Which Trimester Is Your Partner In? *</label>
+<select name="partner_trimester">
+<option value="">Select trimester</option>
+<option>1st Trimester (Weeks 1–12)</option>
+<option>2nd Trimester (Weeks 13–26)</option>
+<option>3rd Trimester (Weeks 27–40)</option>
+<option>Already given birth — attending for future support</option>
 </select>
 </div>
 
-
-
 <div class="form-group">
-<label>Birth Partner's Name</label>
-<input type="text" name="birth_partner_name" placeholder="Birth partner's name">
+<label>How Would You Describe Your Role? *</label>
+<select name="partner_role">
+<option value="">Select an option</option>
+<option>Dad / Co-Parent</option>
+<option>Partner</option>
+<option>Other Birth Partner</option>
+</select>
 </div>
 
 <div class="form-group">
-<label>Birth Partner's Phone Number</label>
-<input type="tel" name="birth_partner_phone" placeholder="+44 ...">
-</div>
-
-<div class="form-group">
-<label>Birth Partner's Email Address</label>
-<input type="email" name="birth_partner_email" placeholder="their@email.com">
-</div>
-
-
-
-
-<div class="form-group">
-<label>Areas of the Game You'd Like to Focus On</label>
-
+<label>Areas You'd Like to Focus On</label>
 <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);margin-bottom:8px;">
 You may select more than one by holding <strong>Ctrl</strong> (Windows) or <strong>Command</strong> (Mac).
 </p>
+<select name="focus_area_dads" multiple style="min-height:200px;">
+<option>How to Support Your Partner During Labour</option>
+<option>Being a Birth Partner — Roles &amp; Responsibilities</option>
+<option>Partner Mental Health &amp; Emotional Wellbeing</option>
+<option>Bonding with Baby as a Birth Partner</option>
+<option>Managing Labour Pain — How Partners Can Help</option>
+<option>Communication with Midwives &amp; Hospital Staff</option>
+<option>Birth Preferences &amp; Birth Plans</option>
+<option>Newborn Care &amp; First Days at Home</option>
+<option>Paternity Leave &amp; Rights</option>
+<option>Postnatal Recovery &amp; Support</option>
+<option>C-Section</option>
+<option>Water Birth</option>
+<option>Pain Relief Options</option>
+<option>Induction of Labour</option>
+<option>Home Birth</option>
+<option>NICU / Premature Baby</option>
+</select>
+</div>
 
+</div>
+
+
+<!-- ============ WOMEN-ONLY FIELDS — Sat 14 Nov, Brixton ============ -->
+<div id="women-fields" class="conditional-fields" style="display:none;">
+
+<div class="form-group">
+<label>Areas of the Game You'd Like to Focus On</label>
+<p style="font-size:0.8rem;color:rgba(255,255,255,0.6);margin-bottom:8px;">
+You may select more than one by holding <strong>Ctrl</strong> (Windows) or <strong>Command</strong> (Mac).
+</p>
 <select name="focus_area" multiple style="min-height:200px;">
 <option>C-Section</option>
 <option>Water Birth</option>
@@ -1261,13 +1325,13 @@ You may select more than one by holding <strong>Ctrl</strong> (Windows) or <stro
 
 <div class="form-group">
 <label>Due Date *</label>
-<input type="date" name="due_date" required>
+<input type="date" name="due_date">
 </div>
 
 
 <div class="form-group">
 <label>Which Trimester Are You In? *</label>
-<select name="trimester" required>
+<select name="trimester">
 <option value="">Select your trimester</option>
 <option>1st Trimester (Weeks 1–12)</option>
 <option>2nd Trimester (Weeks 13–26)</option>
@@ -1275,13 +1339,6 @@ You may select more than one by holding <strong>Ctrl</strong> (Windows) or <stro
 <option>Not currently pregnant — supporting someone</option>
 </select>
 </div>
-
-
-<div class="form-group">
-<label>Participant Age *</label>
-<input type="number" name="participant_age" min="16" max="99" placeholder="Your age" required>
-</div>
-
 
 <div class="form-group">
 <label>Do You Require Childcare During the Session?</label>
@@ -1292,6 +1349,9 @@ You may select more than one by holding <strong>Ctrl</strong> (Windows) or <stro
 <option>Maybe / Would like more information</option>
 </select>
 </div>
+
+</div>
+<!-- ============ END CONDITIONAL FIELDS ============ -->
 
 
 <div class="form-group">
@@ -1324,7 +1384,10 @@ You may select more than one by holding <strong>Ctrl</strong> (Windows) or <stro
 
 <div class="form-group">
 <label>Additional Needs or Accessibility Requirements</label>
-<textarea name="additional_needs" rows="3" placeholder="Let us know if you need any support or accommodations"></textarea>
+<p style="font-size:0.8rem;color:rgba(255,255,255,0.6);margin-bottom:8px;">
+If you selected "Yes" or "Maybe" for childcare above, please include your child(ren)'s ages here.
+</p>
+<textarea name="additional_needs" rows="3" placeholder="Let us know if you need any support or accommodations, and include ages of any children needing childcare"></textarea>
 </div>
 
 
@@ -1669,9 +1732,42 @@ Midwife, Health Visitor, Academic and Public Health Specialist with a passion fo
 
   renderCalendar();
 
-function toggleBirthPartner(val) {
-  const section = document.getElementById('birth-partner-section');
-  if (section) section.style.display = (val === 'Couples') ? 'block' : 'none';
+function setFieldsDisabled(container, disabled) {
+  if (!container) return;
+  container.querySelectorAll('input, select, textarea').forEach(function(el) {
+    el.disabled = disabled;
+  });
+}
+
+function toggleEvent(val) {
+  const dadsFields = document.getElementById('dads-fields');
+  const womenFields = document.getElementById('women-fields');
+  const locationField = document.getElementById('location-field');
+  const formatField = document.getElementById('format-field');
+  const sub = document.getElementById('booking-sub');
+
+  // Hide + disable both blocks first
+  [dadsFields, womenFields].forEach(function(block) {
+    if (block) { block.style.display = 'none'; setFieldsDisabled(block, true); }
+  });
+
+  if (val === 'dads-oct17') {
+    dadsFields.style.display = 'block';
+    setFieldsDisabled(dadsFields, false);
+    locationField.value = 'Peckham';
+    formatField.value = 'Men-Only';
+    if (sub) sub.textContent = 'Saturday 17 October · Peckham · 12:00pm – 4:00pm · Dads & Birth Partners Only';
+  } else if (val === 'women-nov14') {
+    womenFields.style.display = 'block';
+    setFieldsDisabled(womenFields, false);
+    locationField.value = 'Brixton';
+    formatField.value = 'Women-Only';
+    if (sub) sub.textContent = 'Saturday 14 November · Brixton · 12:00pm – 4:00pm · Women-Only';
+  } else {
+    locationField.value = '';
+    formatField.value = '';
+    if (sub) sub.textContent = 'Select a session below to get started';
+  }
 }
 
 function toggleMenu() {
