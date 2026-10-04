@@ -1,0 +1,775 @@
+<title>Gas Reassessment Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout concept: phone-first trainer with a fixed bottom tab bar; one task per screen, big tap targets, readings set in a mono face like a gauge display. */
+:root {
+  --bg: #EEF3F4;
+  --surface: #FFFFFF;
+  --ink: #0F2A33;
+  --muted: #52676F;
+  --line: #D3DFE2;
+  --accent: #0B5563;
+  --accent-ink: #FFFFFF;
+  --tint: #E1EFF2;
+  --flame: #C9560A;
+  --good: #1B7A4B;
+  --good-bg: #E1F3E9;
+  --bad: #B3261E;
+  --bad-bg: #FBE5E3;
+  --warn: #7A4F00;
+  --warn-bg: #FFF1CF;
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C181D; --surface: #13242B; --ink: #E5EEF0; --muted: #9AB0B7; --line: #27414A;
+    --accent: #62C6D6; --accent-ink: #07242B; --tint: #16323A; --flame: #FF8A3D;
+    --good: #55C98A; --good-bg: #12301F; --bad: #FF8C84; --bad-bg: #3A1815; --warn: #F2C35B; --warn-bg: #3A2D0E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C181D; --surface: #13242B; --ink: #E5EEF0; --muted: #9AB0B7; --line: #27414A;
+  --accent: #62C6D6; --accent-ink: #07242B; --tint: #16323A; --flame: #FF8A3D;
+  --good: #55C98A; --good-bg: #12301F; --bad: #FF8C84; --bad-bg: #3A1815; --warn: #F2C35B; --warn-bg: #3A2D0E;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.45;
+  padding-inline: 16px; padding-block: 0 96px;
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 720px; margin-inline: auto; }
+.top { display: flex; align-items: center; gap: 10px; padding-block: 14px 10px; }
+.top svg { flex: none; }
+.brandbar { background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 12px; margin-top:14px; display:flex; justify-content:center; }
+.brandbar img { display:block; width:100%; max-width:300px; height:auto; }
+.top { padding-block: 12px 10px; }
+
+.top .name { font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: .01em; line-height: 1; }
+.top .sub { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.1; margin: 0; text-wrap: balance; }
+h2 { font-size: 26px; }
+h3 { font-size: 19px; }
+p { margin: 0; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.between { justify-content: space-between; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.eyebrow { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+.panel.flat { border-radius: 6px; }
+
+/* buttons */
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.btn {
+  appearance: none; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+  border-radius: 8px; padding: 12px 16px; font-weight: 600; min-height: 46px; text-align: center;
+}
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn.quiet { background: transparent; border-color: var(--line); color: var(--ink); }
+.btn.small { min-height: 38px; padding: 8px 12px; font-size: 14px; }
+.btn[disabled] { opacity: .5; cursor: default; }
+.btn.block { width: 100%; }
+button:focus-visible, input:focus-visible, summary:focus-visible, .tab:focus-visible {
+  outline: 3px solid var(--flame); outline-offset: 2px;
+}
+
+/* tab bar */
+.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  background: var(--surface); border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.tab {
+  appearance: none; background: none; border: 0; border-top: 3px solid transparent;
+  padding: 10px 2px 11px; font-family: var(--font-display); font-weight: 600; font-size: 15px;
+  letter-spacing: .02em; color: var(--muted); min-height: 52px;
+}
+.tab[aria-current="page"] { color: var(--accent); border-top-color: var(--flame); }
+
+/* stats */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+.stat b { display: block; font-family: var(--font-mono); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--muted); }
+
+/* topic bars */
+.topic { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding-block: 9px; border-top: 1px solid var(--line); }
+.topic:first-child { border-top: 0; }
+.bar { grid-column: 1 / -1; height: 8px; border-radius: 2px; background: var(--tint); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); }
+.bar i.low { background: var(--bad); }
+.bar i.mid { background: var(--flame); }
+.bar i.high { background: var(--good); }
+
+/* quiz */
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.chip { display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--tint); color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+.chk { display: inline-block; padding: 0 5px; margin-inline: 2px; border-radius: 3px; background: var(--warn-bg); color: var(--warn); font-size: 11px; font-weight: 700; letter-spacing: .06em; vertical-align: 1px; }
+.timer { font-family: var(--font-mono); font-weight: 600; font-size: 18px; font-variant-numeric: tabular-nums; }
+.timer.low { color: var(--bad); }
+.progress { height: 6px; background: var(--tint); border-radius: 3px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--flame); }
+.qtext { font-size: 19px; font-weight: 600; line-height: 1.3; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  appearance: none; display: grid; grid-template-columns: 28px 1fr; gap: 10px; text-align: left; align-items: start;
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; padding: 12px; min-height: 50px;
+}
+.opt .l { font-family: var(--font-mono); font-weight: 600; color: var(--muted); }
+.opt[aria-pressed="true"] { border-color: var(--accent); background: var(--tint); }
+.opt.right { border-color: var(--good); background: var(--good-bg); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.opt[disabled] { cursor: default; }
+.feedback { border-radius: 8px; padding: 12px 14px; }
+.feedback.good { background: var(--good-bg); color: var(--ink); border-left: 4px solid var(--good); }
+.feedback.bad { background: var(--bad-bg); color: var(--ink); border-left: 4px solid var(--bad); }
+.feedback b { font-family: var(--font-display); font-size: 18px; }
+.scoreline { font-family: var(--font-mono); font-size: 44px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+.review { border-top: 1px solid var(--line); padding-block: 10px; }
+.review summary { cursor: pointer; font-weight: 600; }
+.menu-item {
+  appearance: none; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 52px; width: 100%;
+}
+.menu-item:hover { border-color: var(--accent); }
+.menu-item .mono { color: var(--muted); font-size: 13px; }
+
+/* flashcard */
+.card {
+  appearance: none; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; padding: 22px 18px; min-height: 190px; display: flex; flex-direction: column; justify-content: center; gap: 10px;
+}
+.card .side { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.card .txt { font-size: 21px; font-weight: 600; line-height: 1.3; }
+.card.back { background: var(--tint); border-color: var(--accent); }
+
+/* scenarios */
+.cls { display: grid; gap: 8px; }
+.cls .opt { grid-template-columns: 58px 1fr; }
+.cls .opt .l { font-family: var(--font-display); font-size: 22px; font-weight: 700; }
+.tag { display: inline-block; font-family: var(--font-display); font-weight: 700; font-size: 20px; padding: 0 8px; border-radius: 4px; }
+.tag.ID { background: var(--bad-bg); color: var(--bad); }
+.tag.AR { background: var(--warn-bg); color: var(--warn); }
+.tag.NCS { background: var(--tint); color: var(--accent); }
+
+/* drills */
+.seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { appearance: none; border: 0; background: var(--surface); padding: 10px; font-weight: 600; min-height: 44px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 13px; color: var(--muted); font-weight: 600; }
+.input {
+  width: 100%; border: 1.5px solid var(--line); background: var(--surface); border-radius: 8px; padding: 10px 12px; min-height: 46px;
+  font-family: var(--font-mono); font-size: 18px;
+}
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.readout { background: var(--ink); color: var(--bg); border-radius: 8px; padding: 14px; display: grid; gap: 6px; }
+.readout div { display: flex; justify-content: space-between; gap: 12px; }
+.readout .mono { font-size: 20px; }
+.work { font-family: var(--font-mono); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* tasks */
+.check { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; padding-block: 8px; border-top: 1px solid var(--line); }
+.check:first-of-type { border-top: 0; }
+.check input { width: 22px; height: 22px; margin: 1px 0 0; accent-color: var(--accent); }
+.list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; }
+.note { background: var(--warn-bg); color: var(--ink); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+@media (prefers-reduced-motion: no-preference) { .progress i, .bar i { transition: width .3s ease; } }
+</style>
+
+<div class="wrap">
+  <div class="brandbar"><img src="data:image/jpeg;base64,/9j/4QDKRXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAITAAMAAAABAAEAAIdpAAQAAAABAAAAZgAAAAAAAABIAAAAAQAAAEgAAAABAAeQAAAHAAAABDAyMjGRAQAHAAAABAECAwCgAAAHAAAABDAxMDCgAQADAAAAAQABAACgAgAEAAAAAQAAAyCgAwAEAAAAAQAAAIykBgADAAAAAQAAAAAAAAAAAAD/4gIoSUNDX1BST0ZJTEUAAQEAAAIYYXBwbAQAAABtbnRyUkdCIFhZWiAH5gABAAEAAAAAAABhY3NwQVBQTAAAAABBUFBMAAAAAAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWFwcGwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAApkZXNjAAAA/AAAADBjcHJ0AAABLAAAAFB3dHB0AAABfAAAABRyWFlaAAABkAAAABRnWFlaAAABpAAAABRiWFlaAAABuAAAABRyVFJDAAABzAAAACBjaGFkAAAB7AAAACxiVFJDAAABzAAAACBnVFJDAAABzAAAACBtbHVjAAAAAAAAAAEAAAAMZW5VUwAAABQAAAAcAEQAaQBzAHAAbABhAHkAIABQADNtbHVjAAAAAAAAAAEAAAAMZW5VUwAAADQAAAAcAEMAbwBwAHkAcgBpAGcAaAB0ACAAQQBwAHAAbABlACAASQBuAGMALgAsACAAMgAwADIAMlhZWiAAAAAAAAD21QABAAAAANMsWFlaIAAAAAAAAIPfAAA9v////7tYWVogAAAAAAAASr8AALE3AAAKuVhZWiAAAAAAAAAoOAAAEQsAAMi5cGFyYQAAAAAAAwAAAAJmZgAA8qcAAA1ZAAAT0AAACltzZjMyAAAAAAABDEIAAAXe///zJgAAB5MAAP2Q///7ov///aMAAAPcAADAbv/bAIQAAQEBAQEBAgEBAgMCAgIDBAMDAwMEBQQEBAQEBQYFBQUFBQUGBgYGBgYGBgcHBwcHBwgICAgICQkJCQkJCQkJCQEBAQECAgIEAgIECQYFBgkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJ/90ABAAa/8AAEQgAiwGUAwEiAAIRAQMRAf/EAaIAAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKCxAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6AQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgsRAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A/v4pOlLUcpxGT6UAOLKOpxRuX1Ffwh/tzf8ABYT/AIKRfthftq+OP2YP+CeHiGD4c+Cvhzez6dd6uqRi5u5rWUwS3E1xLFKY0eZXSCGJAxVd7k9Bq/sMf8FUf+CpP7Jf7afw2/Z2/bw8S23xO8CfFLVIdDt9RKRG5s7q6dYo5IriKKFz5cjJ5kMqENGWKbSBXzz4qy5Y9ZW60fbWvyX1ta+3pr6dLH0EOFcxeA/tRUX7Hbmtp2/4Ha+h/dLIfkr+Uv8A4Kp/8HK3hX9lH4nz/szfsUaDYfEjxrYSG11XULiSV9KsboHZ9jhS2xJd3Kn74R0SM/KSzZUfPf8AwXq/4Lt61oWr6j/wT1/4J/ak934svJDpfiXxFph3yWkknyNpmmsvW7b7s8qf6gfIh8zOz8v/ANhH9gfRf2btIi+InxHghv8Ax5drkn78emI45ihPRpiOJZf+Arx1+a8SPErBcN4P21f3qkvggt3/AJRXV/Jan0/hx4a4ziLF+xo+7Tj8UraRX6vsvyR9a/Bf/g7F/aq+Gfjiz0P9ub4O2TaJcOBNNosV3pmoxRnrJHbXrSxXAQc7A8ZOMBs4Ff2pfs4/tF/Bz9q/4PaJ8evgLrcGv+GNehEttdQnnP8AHFIh+aOWNvleNgGQgjFfxpfGH4P/AA/+PXgW6+HfxQsRf6fcj5W6S28naWB8ExupxyvXHIxxX5bfsd/th/tSf8EDf2oTperC48V/CDxXOHv9PX5Yb2EED7XZg/JBqUC/6xOkoG08FWX5Xwq8bMJxFJ4WrD2VdfZvdSXeO23WPRa7Xt9P4o+C2K4fisTRl7Si+trOL7Na6Po9umjtf/TqyO1LXhH7N/7RXwc/au+D+i/Hv4Da3Br/AIZ1+ETWtzCfun+KKVPvRzRHKvGwDKRgjivdsjtX7gfiNhaKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//0P7+Ka2NvNOqNmBTIoA/zR/+Cd7SH9pv9pRb4h7j/hLLrce5/wCJje5OfrVT/grnJ4mh8FfDWfwObldcTxI/2B7Hct0tz5AMfkNH8wfcAVK4II9q1/2DLWO0/bA/ads4x8sfi69UfT+0ryv0+1TwxoGs6tpuvaxZxXN5o7yS2MsihjbyTLsd4+ylkyM9hxX8B+InEqybxCqZny83s+V22/5cpL5a/cf3r4ecPf2xwDSy1S5efmV+y9q3t6LQ/PD9gr9hCw/Z10pfif8AFGKK88e6ghJ3YkTTI5eWjRuczvz5snOPuqepP6WKRu4qpeX1lpdhNqmqTR2trboZZZ5XEaIgGdzO2AB6k1+dnxP/AOCqP7J/w6vJNM0i8vfFM0JKs2lwr9nDDsJpmRG+q5FfluIp59xZmE8XCnKrUe/KtIrou0Uuiv8AifpuHlkXCuAhhZVI0oLa7V5Pq+7fey8lpZH6RZ4yOK8t+L/wf8AfHPwBe/Df4kWS3mnXfIxxJbyj/VzQvjKSJ2P4EEV+bXhz/gsp+zjq1+LTW9B1zTYyQPMQW1xjPcrG+78ADX6KfB749/B/4+6Q2ufCHX7fWI4gDLEmUuIc9PNgfDr7ZGKwzTgnP8jccXiKE6XK01K2ia295XSfzN8s4zyLOlLCYavCpdWce6/wuza+Vj8yP2O/2wv2of8AggT+1CdL1hbjxV8IPFk4a/09TthvYV+X7XaZ+SDUrdfvp0lA2n5drL/o6fs4ftFfB39q/wCEGi/Hz4Da5Br/AIY1+Hzra5hPKno0UqdY5om+SSNgGQjBHFfxp/F34QfD/wCO3w/vPhv8SLJbzTb0fKRxJBKB8k0DjlHTsR24IIr8uP2O/wBsH9qL/ggZ+1EdL1cT+KvhB4suA+oaehCw3sK4X7XaZ+SDUrdfvp0lA2n5drL/AGx4M+MtLPqSwOOajiYr0U0uq8+8fmtNF/GXjD4O1MjqfXcCr4Z/+SPs/L+V/J62v/p05Halrwj9nD9or4N/tW/CDRfj18Btbg1/wzr8ImtrmE8qf44pU+9HNEflkjYBlIwRxXu2RX76fgdhaK4Txf8AFL4ZfD2SCLx94j0vQ2us+SuoXcNsZNvB2CVl3Y6cVxf/AA0z+zf/ANFB8Nf+DWz/APjtAHt9FcJ4O+KXwy+Ick0Pw/8AEel641sAZV0+7huTGG6FhEzbQe2a3V8U+GH8QHwmmo2p1VYvPNkJk+0CLpv8rO/Z0+bGKAN6ikJA61h6X4o8M63fXml6LqNrd3OnOIrqGCVJHgcjhZVUkoSBwGAoA3aK88174ufCjwpqb6J4o8T6Tpt5GFLW91ewQyqGGVJR3BAI6cVjf8NAfAb/AKHbQP8AwZWv/wAcoA9corO0rV9J13TodX0O6hvLS4XfFNA6yRuvqrKSpH0rQJAGTQAtFcvceN/BdnM9td6vZRSRnayvcRqVI7EFuMVpWOvaFqZI029guNvXypFfH/fJrCGKpSfLGSubSw1SK5pRsvQ1qKq3V7ZWMDXV7MkMSfed2CqPqTwKlingnRZIHV1YAqVIIII4xj2rbmV7GXK7X6EtFJwOtVLTULC/QyWE8cyqxUmNgwDDqOO49KOZbBbS5coqGWeCCNpZnVFQZYkgAAdz6Co7e9srqBbq1lSSJhlXRgVI9iOKXMr2C2ly1RWTZ69oeoyNDp95BO6DLLHIrEDpyAeK1N6dMilGpFq8WOUHF2aHUVlNruiJejTGvIBcnAEXmLv56fLnPT2qzdahYWEXn308cKZxudgoz6ZNJVoWbT2H7OWisXKKw08TeG5GEceoWxJ6ASp/jWyHQ9CKcKsZfCwnTlH4lYfRVQ31itwto0yCVwSqbhuIHXA9BRPf2FqUW5mjjLnaoZgMn0GaHUit2JQfRFuim70xnIqA3lmJ1tTKglcZVNw3EDrge1U2kSlfYs0Uzeg6kVyOqfET4f6HfDTNa1zT7O5PSKa5ijf/AL5Zgf0rKviKdJXqSSXnoa0aE6j5acb+h2NFVre7tLuBbm1lSSNxlWQgqR7EcYqfcucZrVSXQzatoOoorzLxt8avg38M7y3034j+LdF8P3F1xBFqV/b2jyf7izOhb8BTFY9NoqrZXtlqNrHfadMk8Eqh45I2DIynoVI4IPbFWqACiiigAooooA//0f79HK425x0r+R3/AIL3f8F4bn4APf8A7Cv7Dmp/a/idff6Dr2uWP746GJflFpa7Ad+pyZxhc/Zwf+eu0L2f/Bwx/wAFnPiN+yHPZfsN/sjOY/iZ4ssUn1PVoF8ybSLO8cxW8Vmg6310VbyyR+6jw4yzJt/BL9gv9gX/AIUoV+NXxwjXUPHV9umhhmbzhpxmJaRnclvMu5M/vH/hyQOTmvz7xF8RsDw5gvrGJd5v4ILeT/RLq+nrZH6F4d+HeM4gxioYdWgvil0iv8+y/JJs7r/gnZ+yb4t/Zu8Ear4q+JV08nibxiYbi8tWYSfZVTc6rJL1kuHZ2aVskA8dcmv0PuLm1tLd7u8lWGGJS7yOdqoijLMT2Cjk+1OOeWJ98n9c18If8FKPiNqHw4/ZD8QtpUhhuNdlt9HR1OCqXRzMB9YkZfxr/OqpiMbxRn0ZYiX7yvOK0WivZaLtFfgj/QiOHwfDORyjh4/u6EG7dXbX8X8vkfEmmaL+0/8A8Fsv2sU/ZR/ZazYeCNOcz3l3PuWygskfY+p6jt5fe3Frb554AAO4r/ZZ+yT/AMG7f/BMz9kvwlbXfjrwnb/EvxFBDvvdd8VqLhNyjLtDZn/RbeMHkDaWA4Ltya86/wCDY39k7wt8A/8AgmpoXxkS1jHiP4sXE2vXtwVxJ9kSR7bT7fP9xIY/MA/vyt7V4L/wXB/4KSfEDxb8R3/4JP8A7GWp/YfE2t2PmePvEsZ/5AmjzoN9rEw6XdxEw3Ecojqow0nyf6WZbl2W8P5Z7KklTo0ldv03b7vv1/I/zhzHH5lxBmnNK9StUdkl+CXZLotj7M/Zj/ZT/wCCSv8AwVN/ZRsfjBB8EvBj6bf3ep6YRp1hDZywSadezWmUmtRFKjMsayqQwO1lI4Ir+br/AIKx/wDBBL4mf8E2I5/24v8Agn3rep3ngzQD5+qafNJ52p6LAT80qyAD7Zp4485JBvjX5mLqC6+tfAH45/Ff/ggb8VrXXrGyutd/Z28XfYD4m0TaWu9FuXhjgGs2QHBDhV+0RjhiNnBEZr+4Xw34h+HXxw+GFp4n8NXNr4i8K+LNNWeCZNs1teWN5ECDjoySRtyMYwSDXTk2cYXNsG5xj7r92UZLVPrGUX+WzVntY5s3ynF5Ri1CT1VnGUXo10lFrpp0223R/CB+xn+1Npf7VvwnXxeUSz1/THW11i0j+6k5GUljzz5MwBZM9CCp9/afi/8AB/wB8dPAF58NviVZLeabdj5T0kt5B9yaF8ZR07EduCMV+Ufw3+Fo/YL/AOCyHxK/Y+0Jmj8Otfahp1lE3/PmUGpab/wKOFgmRX7V85yDz/hX+ePi7wr/AKtcROGXvkjpOFt4+Sfk00vKx/oH4T8Uf6xcPqeOSlLWE7rR2S6ecWr9L7WPxm/Y7/bD/ai/4IF/tQnStXW48VfCDxXOHv8AT1O2G9hX5ftdnn5LfUrdfvx/dlA2njaV/wBHP9nT9oj4OftX/BzRfj38CNah1/wz4hg861uYTgjs8UqdY5omykkbAMpGCOK/jX+L3we8AfHXwDefDb4lWK3mm3YyMfLLBKP9XNA/8Eidj+BBFflL+y9+1h+2B/wQK/aMD2sj+K/hJ4oug9/puSLXUYE2h5rf/n11OGP/AIDLgA5TBX+sfBrxno57SWBxzUcTFeimu8fPvH5rTRfyv4weDVXJKjxuBXNhn/5J5Py6KXyeu/8ASp/wWX/4N6fit/wUt/astP2l/hz8TNP0SMaJb6TLpWt2s9zFAbVnIe1aJsIs2/8AeIU+8MjOSK/hnuf2DPi9bftzn/gnmbbS38fjxOPCYdX/ANBN0WAEwlZd3kFMSfd3Y4xur/X5+E3xL8HfGj4ZeHvi78PbsX+heJtPt9U0+4HSW3u4xLG2OxKMMjseK/zpL/8A5Ws/+6wxf+iUr9+PwaEmfvL/AMEdP+Dd74wf8E2/2th+1B8Qvibp2rxW+j3enJpWh2s9ul094FU/a3lYb44tu5FCZ8wK/GMV+G/gjxN4o/4ivrjU/wC0ro3L/FPUNOaXzXDmyW3kiW1zn/UrGoQR/dwBxwK/0gv4a/yX/wDgo/4l+Jvg/wD4LNfF7xR8FLm+tPGFj8SryXQ5dLDG9W/E6iAW6oCzSF8AKFO7pgg0BDU/1hdckkh0S8lgO14oJGUjsyqSMe9f52v/AAav+JvEt1/wVd8ZtdahcytrnhTW7jUS8jN9rmXUbNlknyf3jqWOGbkZODzzyXxU/a//AODohvhZrq/EnS/iDpvhxtPlGo3ieFYLZorTZ+9fz4rXzIgqdXXBAycjsf8ABp5tP/BT/UGT5lPgTVsN1J/0qw5z3z+NARjZM/PL4gfsufEr/goZ/wAFkfiD+zt4Du7ebxH4w+IHiOJdR1Vmkigt7S7uXkllbBdlhghwsa9QoVcZr9nz/wAGcv7RJOf+Fw+Fef8AqE3Xpx/H/n8K/BL4pfGT4z/s+f8ABUXx38Yv2d76407xtovxE19tIktIRcSNNJqFxF5IgKuJhMrFDHtO8EjFfswf+C0v/ByB1Pg7VBnr/wAUBc+np5P+fpxQW0+h/Yv/AMEjP+CfWu/8E0f2OtN/Zm8R+Lm8Y3kGoXmpS3KxtDbQm7YH7PaxMzlIUxkDP3mY4Ga/R7xfcSWnhTUrqFtjxWsrKw4wVQnOe2K+Tf8Agnj8Uv2jvjT+xr4A+KH7W3hv/hEviHrGmiXWdM8lrfypA7rG5t3JaBpYgkrRE5jLFeMYH078S3MXw51+Qfw6ddf+imrnxX8KXoXg481eEX3R/Jd+y/8AAvxV+1n8TZ/A3h2/hs3gtZL+7vLoF8IHVThRy7tI47gY57V7P+0t+yV8X/2JbHSviVY+IUntZrsW0d7p3mWlxBPtMkYZcnhgjYwTgjB618RfsX/tuS/shfE24+Ia6UutWt9YNYT23miBtrukiuj7XAIaLByOh4xXvH7V3/BRvx7+3rFonwg8AeEnsrdLwXMVjaSG/u7q52GOP7kagKoZsAAjux4r+Bsr4XyD+w5upzfXb+7bm7q23u/r+B/rfnvBHGcOK6cKNKKypRXO3yJWs+b+9p/4DbfS596ftQftC658af8AgnB4J+IGtzEX97rcdhqOz5UnltUnUkqOCGKK+DwD06A1+if/AATL1e71v9j7wxd3krzFHvIULknaiXDhVBPYAAAdsV+UH7a3wi139mT/AIJj/Dr4eeMCF1ZPEMVzfKrBlS4uYbuV4ww4Plg7CRxwccV+lv8AwSPv1vv2GfC9yT1uNQ6+13KK/deCMDi48VRqYz+J9Wgn6+4fyf4n5NgYcASxmWW9j9dmoNbcvv2t5WSt5WPsz9orULvSfgD421SwkaGe20LUJI5EO1kZbdyCD2IxxX45f8EaPEV3qGv+OdNWZ2gS1sJTHuO3eWlG/HTdjjPU1+uP7V1wtv8AswfEWUEZTw1qrflaSV+Gn/BCXWhqvjP4iIpzs07TT+ck3+H6V73F+FcuMcsqdFGf5M+T8O8nVXw3zzFW+GVL/wBKifqJ/wAFN9YvdB/Y68R3NnK0Akls4nMZKZjedFZSR2I4I7jivgj9l/xhrEP/AAS7+J2o2d3LG1hPfxQsHOYUaG33BP7oO5uBjqfWvsX/AIK76hHp37DHiS5Y4xdaf/6VJX5p/sna35//AASC+M+o9o72+H5Q2leBxtg5y4pnUX/QNNfhM+u8L+Ho1uAqWIcd8dSj9/s1+TPjL9n74x3/AMHPi94X+Jlq8ttaWuoxJcFCVWSDcq3ERPRv3T5I7ZHtX9cXxT8faZ8N/hhrvxIu2U2ujabcXucjDeXGXUA/7WABj1r+PvQvC58X/wDBPLxH8TLJd03hLxrAZXHUW17ZRW789gH8s+xr9M/2of2vLfX/APgkf4M1dLn/AImPjAWeiXGPvE2BP2onvg/Z+f8Aer5LwmxVXIstxdKWzp+1h66x/Oy+R+l+OHhc8+zfLvq0NfrH1ap5aRqL7oczPyk1Hx/4j1XXx471e6mfUby5a4+2sW8wz7gzlX45Vj26cfSv2D/4K/eKr+zf4cWNzO4t5bO7uHjz8pkHkDeV6FgCQM+tfk/+1J4af4R/CD4H6RfJ5V3q/hy41mfsS1/e+aufpGUA+lfoD/wW31pNO1L4Uq5wJdLvePbNrxXxGXcL1cLkWaYee8lQb+bu/wAz9EzTJKGO4nyCph4Lkm8ZFW7U1yq3l7t15Fn4c/8ABMb4x/EX4T6Z8TtN8QaZaTarZpfW1i6SE7JE3RqZVwFZl2/wlQa9N/4JWftIfEG8+Kt/+z14qvZ7/Tfsc9xbxzuZWtJ7V1WREZufKYEjb0BAxjNfnv4A/b7/AOCgWg/Bez8O+Aobybw3YWZtINRj0d5ykEY2AC6EbL8g4Dfw49q+rv8Agij4p+A158TNdXUtQuG+It3ayLawXCKLdrEMHmNu4JLzFsNIG2kLjaMZr6Pg7Ksuo5zl8sljOjK37zmdlLRaLXW+ttltpofI+I/BWe0uGM4r8Rezrwh/CVKN3T1esrJcqirXbvonqbH7X3jHVtN/4KZ6db295NG1rqGgxwFZCPLWRYNypyMBtxz29eK1v+CvPijUdN+PXhjSRcuIYtDE8ce4hUke5lVnGMYb5V7ZwPavnH9uXX47b/grDbafuxjV/Da4+q21dh/wWz16PTf2pvCsD/xeHrfK+xvZwf0rPiTKqksBnMF9rEJ/+TP/AIH4D4O4RjLNuG1y/Hg5S/8AJIf5n6of8E0P2oG+O3wik8DeKbw3XiPwnthkeVsyXFm3+omJOSWH+rc+qg/xV8KftKeNdY0//gqtolnb3kqi31PQreHbIQI4p44TIijsj7zvUcHNeFfE26uv+CYv7d2ifELQYXg8B+J4lnSBMlP7Pn2Ld249WtZMSRjrt2epqn+07400vVf+Cu3h280mdLizvdX8KzQyRkMssU0Fq6OpHVWUggjjFe9nmKxVbJcPleNf77D14Rfmkpcsvu6+Vz57hnwww64gxGdZbG+ExeEq1YaL3ZJwU4W2Ti3t0vZbH6E/8FPv2zfEHwne0+BXw1vTp2pX1t9q1O8hOJYLVyVjijI+40mGJxztAAxmvl74Y/8ABLn42/E/wVB458U6vZaDdanH9ohs7uKS4uNsgypnbjaxB5HJHQ18wfth65F4r/4Kpz+FfErZtZfEWh2BVugg22y4/wB05J/Gv6Y/2h/jn4Y/Zq+CuufGfxXbT3enaDCsj29ooMrl5EijVQcKo3OAScBRyelenR4TwnEmbY/HZ826VBuMY3aUUr3enkr/AH+SPjc/qZhwdkeS5bw5SX1jGwjNy5U3Jy5eWKvpvKy7JK1tT8Cfg78YvjT+wB+0pa/B74szuNEu7iGC7tDIZLRoLhgsd5ZlsbdrHJxjurDNf0zof3wJ6Hv/ACr+e27/AOC2X7M/jTU7H/hO/hjdXEEcqqLmc2d2bdWIDSIrLuyOuBjp9K/oA024h1C0t76z5hmjWROMDa4yOPp/Ovv/AAjweEwlKvhMBiva0U04pppwT6a9PRJH5j9IXJs3pVMHjM7y36rWnFqTvFxqONtUo3s1fW7fTXQ80/aO+Imq/CP9nzxz8VPD8H2q/wDDWgajqltDjO+W0tpJkXHoWQZ9q/zY/wDgmL/wT/0H/gtJ/wAL9/aQ/a9+KGp23ifwnp0WrC8doZ2lnvIric3FybkMBYwCHy1ii8sBejKAM/6Bn/BRf9uf9n//AIJ+/sy6t8bf2h1e/wBNuf8AiWWej26q9zq13cIwSzhRsL86hmkdjtjjDMemK/yW9Y+IPiPQdU8Uan8JYtU8D+EfHElzbHS7a5m8iXTDcecNOlnAjW8jt/lBGOSoyAMg/sR/O9OJ/ZP/AMGgH7Sfxj8VL8VP2Y/Euo3GqeDfDdpp2saQkztLHp811LNDNDbs/KQzCNZViACqQxAGef7dQQelfyt/8E6fjr/wRz/4I4fsifDW4sviSb1vj0P7Uk8U3NlK0l9cW2yF47mO3ST7BDZtJ5PkyH922/cxO5q/qUsbu3vYoru0cSwzIGjkQ5VlIyCD0xjHTr+FBE9zRooooJCiiigD/9L57/4K+wv8Jv8Ag4pm8Z/FXjR9VfQb6ymn/wBUttLpy2cUgzxtiuY3HHAIPpX6VsrxuY5fvKcH6+lfqT/wXe/4I23H/BT34XaP46+DdxaaV8VvBMcsemS3pMdtqVjL88mn3EigmP8AefPBJgiNyc/KzY/jr+KfgD/gu9+zD8KdXsfir4K8RaB4b8GWm698Qy2dpMkFpCQgP9pqzJKvIVSuW7H0H85+Nng3jOIsVQxeBqRi4rlaldK17pqyfd3Xp2P6K8F/F7BcPYWthMbTbTfMuW29krO7Wmis+h+5WQfun0Nfmx/wVe8M3uvfsiXN/ZAsNH1axu5sdoiWhJ9gGkWu3/4J1/G74jfHv9nZfFnxSnF9qdjqVzYC82qjXEUSxsruqgLvG/aSAM4Br7A8e+CPDvxM8Eat8PfFkQl03WrWW0nXuFkXbuHupwwPYgV/HWA9pwzxJD6zZvD1Fe23uvW23T0P67xypcR8PT+raKvTfLfS11pf0fY/cr/g39+MGg/E/wD4JBfCi48OMtxdeFdNuPD97Ah5ju9NmePyz6F08tx7OD0Ir+RT/gkN45tvjB+2r8T/AIi/GuQ3PiPXvEd/q2pefzI/2c3VwIjn+FXTG3oNgGOgqP8A4JO/8FE/G/8AwRC/au8Q/s4/tMRXV38LPFk8ct5Nbo0htZVAjt9ZtYxkyRSR7Uuo0+YAKQC0YU/e37fP/BKv4nQfGJ/+CsH/AARS1Wx8f+GvFE7azqegaLPHPIs8h8y4lsUU7Z4pXy0trxNE5barL+7X/TDGU8PmeDp1KVp024TXaSjKMrfO3+Z/n5wljv7GzapDHJ03yVabfWnKdOUFK39xtOy1aWmtjiL39oq1/aq/ZL+Ml38ZEV7fRdWa5sJJsHy7DWfN3We49REE8xP7uPSv1l/4NP8A4ueOPH//AATd1PwF4reW507wP4qvtL0eaUk4s5oobzyVz/DHLNJj0DbegFfzYfC39nT/AIKCf8FQrxv2av2afhTcfCjwV/aRn8V6pq0V1bWMF6flm8x7hVlfy+RFZw7mVTj5FLGv2b/bH/4KG/sn/wDBC/8AYUg/4Ju/sE67F4p+K62s1veapbtHINMvLzm91S/ki/di8Zj/AKPaqxZMRh8JGN32HE9bCYzPcVmmX0vZ06nIlF7+7Gzk7XSbvb0S9D5xf7Jw9gcjq1VWq0XUlKavypTcbU48yi2ocvNeyXNOSSaXM/x9+PnjzTP2lv8Ag4d+IfxD8GutxpmjaxdwmaLBR00bTo9NZwRwQ0yYBHWv1lXr+lflj/wS+/Zc134O+Ar34x/EeF4/EnjBFMUdxnz4LHcZA0m7kS3Eh8x8842571+ot7LPFp9xLZKrzRxSNGrfdLqhKg+xIANf5oeP/FVDNeIpfVneFOKgn00u38k218ux/fPgRwxWyvh+KxKtKo3O3ZNJL8En87Fx1Ij3sPlPT0OK/I7/AILC+MvC+l/s/aJ4N1NkbU9S1hLq1Q43pDaxuJpPZTvVPQ5/2a+Nv2Rp/wDgrd+2D468X3/7Jt7qvi/WNCVLrV9OW5sgIIriV44vKtr10QorIVxHnbgZr9q/2F/+Ddz9uP8Aae/aH0z9oL/gqvMNI8MaRNDO+hz3cN3qGpiBt8doyWpa3tLMkDzQHZ2GVCjOR+yeHv0c8flecUMwxdeLhT973b3v0WyVr9b6pbH4/wAffSEwGZZRWwGFoyU56e9y2S77722VtO5/VR/wRn8AeMPhh/wS1+Bfg3x8rxapb+E7KWWOXIeNLkGeKMg8jZFIi47YxX8SV+R/xFaD/ssUY/8AIKV/pI21tbWNolpZosUUSqscagKqKuAAAOBgcDAwOnavzgb/AIJJ/sJTftw/8PDpvCH/ABcsS/avtH2qb7H9sEXkfbfse7yftPlfL5mP9rG75q/ru5/JUZWP0wUrsz2r/Ne8EpBN/wAHV0yTAMh+MOo8EZGQkv8AI1/pNMyj5QP8/jX5paf/AMEjP2EdK/bhn/4KGWfhJh8Sp5nuzObqc2QvpIvIe9W0L+ULkx5UvjHJbbv+ai4oux+iniVEk8NagkoDobaUEHBBGw9jwc9MHiv85r/g1VVF/wCCrevIuBjwdrgGOP8Al/ssfpX+j46RyRtDMMowIYHkEeh9eK/Nn9j7/gkj+wv+wx8aPFPx8/Zw8KPpHiPxYktvPJJdz3MVrbzSieW3so5WKwRPIqsVX+6oGFAFMIuyP89v4F/tT/DP9iz/AILoa7+0x8YtNm1Pw14c+IPin7altGJp4Vuri7txcxREje0DOJNoIOB8vOK/svH/AAdEf8EkACf+En18+n/EiveeM/3P06e1egfHP/g3C/4Jd/tA/GHxF8bPGPhrWbDVvFF7JqN/Hpmr3FraNdTsXmlSBcrGZHJZguBuJ4FePXX/AAat/wDBJyVQIdP8VwkH/lnr8+T7fMD/AEoLbT3P18/Yk/bv/Zn/AOCg3wsm+Mf7L2ttrOj2d5Jp92JoJLa4tbmNVYxTQygMpKMrKR8rKQRX0Z8WP+SW+JB0/wCJXdj/AMgtXzL+wt+wN+zN/wAE7PhHN8G/2Y9Jm07S769fUr24vLh7u6u7qRFj82aaTk4REVVAVVUYAHNfZmoWtrqNjNp93Gk0UyFHjcAqysMFSPQjg+1Z1Y3i4o0wldUq0altmn9x/HD/AMES/hR8OPi5+1Rq0fxI0e212HSNAnvbW3vEWaFJ2uLeLzDE4KsQjsBkYGc9cV/XN4a+Fnw38DO9x4H8PaZo7yffaytIbYsPcxotfN/7M/7Bf7OH7JHi/WfGvwb0iazvteXyZZLi4knEMG7zPIhDnCR7wDjknavzYAFfZ8zJ5ZGR0r43gjhh5bgVRrqPPd6r/hl0P6C+kt4y0eMOJKmYZXKosO4wioy02Wvuptb3Pwo/4L3mRP2UfDAiOM+KLcemP9EusflXzH/wTX/4Kkfsy/s4fsy6Z8Fvi/JqVhqWkXN2yyQWpuIZoriVplYFDuGN20qR2zX7y/tK/swfCX9rH4eJ8MfjDZyXWnRzpdwvbyGGaCeMELJG69DtYqeMEEivz+/4ccfsOBN4XxCeM4/tLr/5Drxc64ezaObPMsu5NYqPvf15I/SvDnxU4BrcBU+D+L1WThVdROko+dtW+zaacfQ9z8Gftffs6/8ABQL4ZePvhB8C9Wkn1WfQry3kt7y2e2cJdwvAko38FFdgGwflOM4r+cL/AIJeftceGf2Ifj7r1h8coLqz0nWLY6XfvHGzy2V5azZUyRAbiAQ6NtGVyDjiv6dv2WP2AP2dP2PNW1TxF8H7K7Go6vEtvPd39ybiQQq2/wApOFVFLAMcLklRk8CvPv2lP+CWf7JH7UHi248d+LNMu9F1+75udQ0acWz3DdmljZJIXbA5cx7j3JpZtw/m2IWHx3NBYilfT7LT/r8S+BvFrgDKZ5rwxKnXllOMjC0ny+1hKK1dlpa+27XKtGmz8nf+Cq//AAUx+AXx/wDgVF8CPgJfy63JqF/b3V/e/Z5beCGC2JcIonVHZ3k29FwFBzzXX/s//DrW/h//AMENfH+q65G0EviiG/1eCN+G8iR4YImx/tiHcvqpBHBr7P8Ahr/wRG/Yq8Ba/B4j1tdY8U+Q4eO11W7T7LuB43RW8UO/3DMVPdccV+oPjf4X+BPiH8O9Q+E/izTo5/D2p2R0+ezUeVH9nZdgRPL27NowF2424G3FZYLhXMcRiK2OzFxU5QcIqOyv/XmbcS+OHB2UZRl/DPCFOrLD0sRDEVZ1EuaXK1pFK3RLpFLlS6tr+cf/AIJT/Ctfjr/wT4+OPwnkXfLrVy8Ft/18CxjeBh6YkCGvxb+GbfEn45a14C/ZRe6ZtPfxA0NnbbQPIn1R4I7pyeuAse7B+7humTX9xP7MP7KXwg/ZH8BTfDz4N2k8Fpd3LXtxLczGe4nlZVUF3IHCoqqoAAAHrmvJ/AP/AATg/ZT+Gn7QM/7SnhTQHi8QzSy3EUbTubO1nnz5s1vAeI3fccdkydgXivNxXhviKuGwlLmScFyz/wAN+bTTW3yPtOH/AKYGTZfnGe472E5QryVTDXjH3aip+yu1f3eZW1V7RTVtT8Kf+C8WmWnh341fDbQdHi8mzsvDXkQIv8KRXOxVH0UCup/4L1Mxv/hBHH30e/8Aun/r1r90v2lv2FP2eP2sfEvh7xX8ZtLnu7vw4cW7W87wiWFmDm3nC8PEXAOOGHOCASC/9qv9hb4Aftj6fotp8XrW6V9A8z7Fc6dP9mljjlCh487WUo2xeCvBUYxzXoZzwPiq6x3s7fvfZ8v/AG7vfTTysfL+Hv0lciy2fDP1yFR/UI4lVWop/wAVWjy6+953tbzPz6/Zs/4KzfsQfDb9mPwb4R8S6vdafquh6La2V1psVhO7LNbRCN9rInlMHYFg27nOWr8jf+Caw1L4vf8ABUaw+IPgSxey0oajrGtywIMLaWM0c6pG23Cgbpkj9M4wPT9ql/4IXfsPxsJPM8SPgj5f7SUZx2yIQR+BH4V9/fs8fsj/AAA/ZU0G40T4H+HYtJ+2bTdXJZ5rm4K/d8yaUs5UZ4XIUdgKzpcL5xi6+GeYOChRaa5b3drf5f8AAOrH+NPh7kOWZvHhOGIqYjHxlB+15VCClzXta23M7XTei1Wt/wCYH9vK6lm/4LEqC+duveGEA9vKs/8AGu8/4LzSuP2vPCW1uP8AhGLYgD/r+ua/fX4h/wDBPf8AZo+K37Rmn/tQeMdKuJvE+nNbS4S4ZbSeWz/495Joh95osLjBCnaMg1f/AGkP2B/2df2rPHGgfEX4v6Xc3Oo+HlEcRguGgW4gD+aILhVHzRh8njaeSM44rPHcBYurQxdJOP72opL0v6Hdwv8ASk4cwWZ5Bi6tOpy4LCyo1LRj8fJGK5fe1Xu76b7aHkX/AAUc/ZRb9qz9kabS9BtxJ4o8OwLq2jkD5pJYov3tsD6Tx5QDpv2ntX8kv7KGsaxqf7W/wwl1e6muJIfEujQKZmZmVIrmJEjG4kgIoChewAHav9AGK3EUXl46DAGAOnTj6fyr890/4JdfsiWn7Q1t+0ppui3FnrdvejUltIbgrp320EuJ/s+OGD/PtVgm7+GvQ4w4DqY3GUcZhrJq3N0uls/lsfJfR6+k9hOG8hx/D+cwlKnOM3ScUnyynFpxd2rRbs1bZ301PxE/4LcfA/xh8Lf2mdL/AGofDSvDpviSO1H2tB8tvqmnKFRWx0LxJG0f97a47V+nnwd/4LBfsW/FX4Rw/wDC9NVTw1q72wh1bSr6zmuIJH2gSeUY4pUkib+FW5wcEAiv1T+I3wy8CfFrwhe/D74laRb61o2oLtuLW6QPG4Hf1Vh1VlwVOMEGvyC8Uf8ABBz9kfV9aOqaBq3iTR7Z2ybOC5gljQeiNNA8gwOBuZqMVw5meCx1XFZVyyjV+KMtNQyDxZ4I4l4awOQ8dKrSrYJctKrRs7w0tF6OzSUV8L+FNSV2j+ej9vr4s/s6/GT9oG48WfsweHv+Ed8OrbQwOEhW2S7uUZi1zHbJxCrKUQDgtt3FQTX91PgeRT4L0UZ5Nlb/APota/MhP+CMn7C48EWfg2PQb0y2t0l02pfbGN7MVHMbuRt8ph1RUUemK/VOwtLewtobS0QJDAgjjVc4VUGAB9AMYrq4J4YxmBr18RjOW9S3w7LfpZdz5/6SPjJw7xHlWVZVw8qvLhPaRvV1k0+TlfNd3vyvtbRWWx/Gh/weKeDvHN98Kvgj46sVlfw3p2s6rZ3hUExRXl3bxG2MnYF1jkVM9OQOtZvwA+Pf/BG/9tD/AIIZeFf2Of2jfH/h/wCHOueDdDS2ZdRdLfUtK1213H+07KMgPcrPITI/khvNSRo3AYkD+vH48/AL4P8A7TXwp1f4KfHnw/aeJfC+txeTeWF4m6NgpyrKRgo6H5kdSrKcEEYr+cTXv+DSH/gndqXihtX0PxZ450vTHfd/Z0d9ZzKi/wBxJprN5do4A3sxA7mv0Y/k5SVrH8CPwY8M/DjWv2gvCHgf4teIRaeCpPEtlZ6nq8MUskK6cbtEmuYoHAcJJGM7SqsN2WHFf7PGi2unWemWlto6qtpFCiQhOUEarhAvsB09q/DXR/8Ag25/4JIaLp/ha3j+Hc8s/ha7jvftcupXjXGoyRsGCag3mBbiPcAdm1V4xjHFfurZwxQQxwwqqIgAVVAAUAYwAOMDoPagJyTLtFFFBmFFFFAH/9P+/cjjAr8IP+Dk7x7/AMIT/wAEfviXaK2x/EE2k6SvbIn1C3Zh/wB8RsPpX7vnpX8rP/B3H48Ggf8ABO3wp4GRtreIvG1gDjulnbXMxGPTO0/hQOO5+Fv/AATRKeGv2PvD6n5Wv7m/vD9JLhlH/jqL+Ffef/CSIeN386/PH9ljUF8Lfs4eCtDB2tHpcLkHjmXMh/8AQq97/wCEw/2hX+Z/GmTyxWcYrEW+KpN/+TOx/tR4eeHE6WQYGnKOvsqf/pKOg+PnwX+Ev7SfhNfCfxS0/wC0eRlrO7hYR3VpIwxuhlxxn+JT8rdxXyN/wSV+H3jj9kH/AILefCn4DeCvGepT+H9flubm8t4JZLS3u4pNMvmRLu2R/JkdGiDZ24yAeOlfTP8AwmHqwryL9ia9Oo/8HBvwMu8ggwyj/vnTNSr9o+j1i8fh8xeXuo/YcrfL0T027fK1z+e/pa+GGCwmQLOfYpVlOMebZ2aej6PZWvt0P3c/4Ow/iL8UPhr+wf4Oufht4j1Pw6mo+L4bG/8A7Mu5bNrm2ezuW8mVoWUtEWUEp046HpX85v7KH/BPP4PfCKTTPib47uP+Es1wxxXlus0eyytnkUSBhESWlkUn78hIzghRiv6Cf+DvrDf8E+/AwH/Q82v/AKQ3lfkL4Q8Xxjwdo6lhxp9qP/IKV+ifSDzTMKGDoYfBVHCNTmUraXSUbK+6Xpa/U/Ifog+HeCzzG4utiqSnKioON9lfm6bPZWutOh9bf8JMv3mbk9f89Of0qWHxTFHMj56MPyr5kHi+P+8KD4uQD5W/Kv4t/wBWH2P9FI8Ay/lMn/g2w8UL8G/+CzvxH+DMjeXD4k0XW7ONOgL6few3cXH/AFyMuPav9C+TBjI9q/zJ/wBhfx4fgv8A8HA3w08WQP5MHiTWorKRuilda0+SzYemDIQfrX+mvxjA/Kv9OeGMW6+WYes/tQi//JUf4qeIWSPLc8xmXtW9nUnH5KTS/BH43f8ABRT9sr4w/s8fFHw94R+HN1BaWpsP7QnEkCTeeRKU8ti4+VAEP3cHmv1s8P6k2raDZanIAjXVvFMVHRdyhiBnsCeK/ml/4LZ61/Zv7SPhq1DYz4cDf+TMv0r2HwH/AMFx/BWh+CNM0PxV4GvZ9Qs7aO3mktbuEQu0ShNyBxuUHGcHpX41k/G8MBxDmNPNsQ1TvHkTu0rLWySduh/Sea/R/wAyzbg/J8fw7guepKMvaOPKm7v3b3avs/TyR718XP24fjN4K/bztPghpFxbL4cj1LTtNks2hQtKLyONnkaXG8PmT5dpA4wVNekf8FJP2rviz+ztceFdF+GN7Fpr6uLmaedoUmfEOxVRRIGUD58k4yfYV+Edh+0VP+0F+3z4e+LM1ounHW/E+lbLVW3+VGkkMUYLYGSVQEnGM9K/Q/8A4LmawNM8VfDlM432uo/o0FfFVeJMyr5Jm2JoYif8Vcju04xclpHrFW6Kx+gf8QVweE4pyDKMXhYqU6EvaRsmnOMG3fo2pddfyMTwt+1l/wAFK/HGiReIvBtvq2q6dPnyrm20SKSJ8cfK6wEMMjHFfaH7GHxY/b08Y/GaLSfjppF7D4YNrM88+oaclj5bhf3IiYJGWLNwV+YYye1fK37Pv/BZb4MfDb4LeHPh94z8L6r9v0KwgsHex8l4ZBAgjWQb5EYFlUFhjg5x2r9GP2Rv+Ch3wY/bC8W6l4N8C2eo6dqel2ovDFqEaL5lvuEbMjRu4+V2UFTj1Fe3wNlmGlicNV/tqrOej5HJ2btdxs+nkfG+KPDud4HA4v2nDlOlRjde1UY+7G9lJctvJp/ofcfjLxPpfgzwlqXi7WJAlppdtLdTHOPkhUu36Cv52PBP/BVX42SfFu01jxfPZt4XuruNbjTkgRfItJXC7klA83fGvOWYhsdBmv0A/wCCtvxqi+FH7J134ctphFfeMLqLSowDhvJ/11yR7bE2eg3D1r8k/ih+zr/wjX/BL3wV8c/s4XUm1Z9RvXCAP9h1QmCLc2M7V8uEr2G412+Leb5xUzBUMoquCw8PaSs7X1WjtvZa22OPwH8O8nqZRDHZ5SUvrlb6vSvbT3X70e15e7dbNI/ph+LGt+NtM+Fmva98K7VNT12Gwll02A8iWbblAOmc9h36V/PV4u/bj/4KA+AViu/HM99oiTsUja+0eK3RnxyqmSADgDpnt+NfsH/wTs+Ni/Hf9kfwt4muJfO1DToTpN76+dY/usn3aPY3415B/wAFeZ4bH9i7Vb+ZQTHqenbT6ZnUcenFe14hZZiszylZ1l+MqUeWnzcsG0npza2a16fofG+F1ChlXE74SzXAU60pVlScpK7jry6XTVuvT/L82PCP7dv7fvj7zv8AhBrq81sW2BN9i0iG4CE9A3lwHHavsD9p79sf9pf4KfAn4aahqEMGg+LfEMNzPqizW6O6/Zinlr5TZSMyK6s4Ayh+X5a7j/gjPNBqH7I9zfxou+TX79WYDrsWLAJ9s8V8uf8ABc3WhpWofDgE43xap09jbV8D/Y2b4LhOpm/9oVZVKkYWTk7RvOO2rd7aXVtGz9Ww+AyjM/EOnwnHLaUIUp1E2oq8uSnLRpJK19ba7I+0P2mf2t/iX8O/2NPB3xp8Hm3tNc8UfYFkmaMSpD59u80hjR8ryUwN2QAfpWh/wT6/bV1X9pO11PwN8RHtx4o0hRcLJAvlrdWrHaX8voGjfAbbwQynA5r4O/bl1r7J/wAEuPgzfA4819J56dbCbp+Vfnv4E1z4gfsg3Pwo/bB0l2u9H8SpcSlUUouLeZ4Luxfk5LwgPGfXp90105hxfm2A4go4l1JSoRpU+eN9LNJOVu/M76emx0cO+BmWZvwtWo0qcYYmVatCk7WblT5moX7OMGrbLfdH70f8FI/2p/if+zTpnhWL4X3MNpNrMl080s0STfJaiLEYDDADGT5iOwwMda+nvEn7Snhb4Zfsz6f+0H8QiES60u0uhbw/emubuJXSCIHuzH/gIyegr8b/APgs58SvDXjDwP8ACPxz4UulutL1u11K7tpl/jikjtGB46EZxjtyK8//AOClfxUurD9nT4B+AkkKW9z4dh1SZQcb2S1t4Yie3yhn/PivdzjjHHYDMc2xFOo5RjCl7NbxTairpbdbvufNcLeB9DN8pyChOlyTrVK6qNK0mqbk2n8o8q7HZTftx/tv/tFeJrqL4I2lzBBb4f7Folms/kIfu+dO6MSSMc/KD/CMV0vw9/4KQftIfAzx3H4P/adsJ7q0BUXUV5a/ZL+3jb/lqm1UEgA5wVOQMA9BX6jf8E+Phjofw2/ZO8HppsKLdazYRareSr96ae8US7mPU7VYIo7AAV4Z+1brn/BOn9pBIPCnxb+Imj2WqaHNIkV1Z6nbxXMLZxJCWO9CpI5VlIBHGCK8mHA2e0MHTzb+1ZLEySlyzlam+vLZ6beVuiS6YR4n4fxWb18ihkqlhKbcOelByqRt7vPor2bWmqfm7Wf6aeHdc0rxNpFl4h0SZLizvoUuIJE+68cqhkZfYrivhz/gqn+074+/Yz/4J7fFL9pf4WRW0viLwtpKy6f9rXfAk89xFbLI6AjeI/N3hTwxUA8V9Kfs8eE/Bfgb4O+G/CXw61c69oNhZJFYX7Sx3Bmg52N5sQCMMccAdMV+bv8AwcFf8ocvjljj/iU2eP8AwZWlf0vl9Sc6EJ1UlJpXtte3TyP5IzLD06WKqUaN+WMmldWdk9Lro/Lpsfx5fBT/AILj/wDBwh+0tqF/on7PM1x47utKiWa9j0TwhZ3hgjfhWm8q3YIHIIAOCccZr6D+BX/BzD/wUj/Za/aAt/hz/wAFIvC8WoaMlxFHrNpc6M2ha5p8EpA+0woPLjlCL82x4hvVSEcHBHpP/Br3+3z+xj+yT8Hviz4G/aU8faP4E1XVddsdQtDq8othdWwtBD+7kbhzG6NlM/LuBxg18Ff8HKv7bP7M37d/7VXgxP2S9Sj8XReGfD8ukXer2UT+VeXd7dB4La3ZlVp1i5wwXbvlIUk12GFle1j97P8Ag4P/AOCxv7V37D/in4R+Fv2L9Y0rTdO8a6Jc6/Nqs1jFfPcwh4o7eOJbgGNIyr+ZkLuPAyB1/GXwN/wWU/4OSvif4UtPHPw10nWtf0TUBvtb/T/AkVxbTKOMxyx2pR14xlTisj/g5P8Ah74j+G+ifsn/AAv8X701bRfhSmm3gk+8lxD9midSf9llI/Cv1e/ZL/4Oo/2JvhX+zL4F+FnxM8C+LNP1rwvolhpFzHpVta3FmWsYEg3wu08R2Ps3AFQRnHbNBMdI7Huv/BEj9tb/AILc/tFftQav4L/b28GX1t8PIdEluDqeqeHf7Ae2v0kjEEcDCOH7QZlZg8e1tgXOQKi/4Lf/APBw1f8A7Dnj+4/ZK/ZBtLDVfiDYwpJrmtaivn2WjGVA0dvHArL9ouyhDsGPlxKV3B2O1f07/wCCen/Bab9kf/gpXP4x0T4FQazpms+C7FdSvLDW7Vbd5LRyyrNE0UkqsodSjDIYZHGK/iY/4If/AAx0n/goV/wWsb4l/HaBdbgt7vXPH97b3QEiXF1FcD7GkitkMsU06PtPGI1GMcUArb2PQ9U/4Kkf8HJfwl8Iw/tR+PH8WWvgyXZc/btV8J26aOYpOVLj7JH5ULjo2UGOjd6/qs/4Imf8Fs/DX/BUTwxqvw3+JWl23hf4r+FrZbq+sbVmNlqNkWEf22y8wl1CuQssLFjESh3MrAj93tb0XRvFGjXfhzxDZxX2nX0D21zbzoskU0MqlZI3jYYZWU4ZSMEcYr/M9/ZO0Ef8E9P+DkLS/g/8M52tdF0/4jXHhWGPPB0nWswxwv6iNZosc9YwfoBo0fff/BWb/gv3/wAFIvgJ/wAFDfiB+zj+zdrGmeH/AA74RvrfSLK1Gk29/cXUrQRSNI7zq7l5JJdqogUYAGCeT4V41/4LY/8ABxn+zxotp8SPjx4YutI8PBo83GveCTZWUnmY2K86LB5e/IA/eIemK+dP2yfiN4C+D3/Byrq/xW+KcyWvhrw58UdF1DVJpE8xIbWCOzaSVlwcqgG88dBX9Uv/AAVb/wCCwv8AwTI1X9gH4o/Dbw18SvD3j3XfF3hy90fTNF0idNQlmu7yIwwO4jDLGkMjCRpHK7Qvy/PtFBVkraGz+xF/wXJH7ZP/AATW+Ln7UVj4cs9H+JXwd0W+utW0TzHksJZ4bOS5tLmBjiX7NcFCCjfOpVlLfdY+Uf8ABuN/wVe/aq/4KQ2fxP8ADf7VUumalqHhF9NurG/060WyPk6gswe3kiQlGEbRAo3DYbBzjNfz6f8ABC74deL4v+CeH7dHxZkjlXQJPAEmixysMRzXsFjezy7fVo45E3Y+7vANfbf/AAZr/wDI1fHn/r08Pf8At3QS4pJ2P7q3+7xxX+en+3p/wcRf8FRfh/8At1/En4GfAPU9I0jQ/DXie78O6RpsWiw6hcSizm+zIxeQPJJNMy7iqgDJ2qvHP+hcelf5WfjL9pnw9+xr/wAF8/GX7UHi7RX8QaX4N+KWvXd1YQ7fOeN57iAtFv8Al82LzPMjzgb1HI6gFTR99D/gr/8A8HM+P+RQ18/909kHX/t1/Kv66f8AgjF8fP26P2kP2OLf4if8FAPCx8MeMf7Vu7e182wbS57zTkCeTcy2L4MLFi6DCqGVAwUZr81v+ItP/gmmF+Xw7473Y7aVb9/+3z/Cv34/ZB/at+Dv7bX7P3h79pb4D3U134Z8RRyNb/aYjBPE8EjQTQyxH7kkUiMjDkccEjFAS22PpuiiigzCiiigD//U/v2b7tfydf8AB3f8Ndb8S/sH+BfiNp8TSWfhbxhCLwr0SO+tJrdHPsJNq59WFf1it93pXgH7Tv7N/wALv2t/gL4n/Z1+NGn/ANoeHPFdk1ldxqdkic7o5YW/hlhkCyRt2ZRnjigEf5vn7P3itfFvwY8N6lpj7hFYxW0irzslgXy2U46fdzj3r2PzL/0b8jXvXjr/AINTv+Cjvw98cajof7O/xL8Pan4VllZ7a7vLq80u7ePPyfabeGGWPzMYBKOQT0Arno/+DXr/AIK+Tfup/iJ4VRe3/E41M/yta/Bsw8Gp1a86lOslFu6VtvxP9Q+FP2gmX4PK8PhMZlspVIQjFtTik3FJXS5dL2vbpseTebfnjDflWd+wLc3Vv/wXo+BEoOC0jJk/3W0/UFP6V7d/xC3f8Fbh/wA1J8Kf+DXVP/kWv0L/AOCWP/BuL+1t+zD+234U/a1/am+IOi3kHgiSW5s7PSWury4u5pLeW3VJJrmOJYYUEpb5QxJA6DkfQcG+G08rxv1qVRNWaslbex+V/SE+l5l/GnDryXDYGVKXPGXM5Ra92+lkl3PeP+DvIF/+Cfvgbb/0PNr097C8x/KvwA8LNe/8IvpZTeQbK37ekSV/aD/wWp/4JseK/wDgp/8Asiw/A34feIrbw3r2jaxb67YS30LSWs8sEc0Rgm2fOiusxw6AlWAyMV/JvH/wa3f8FbIo0ii+I3hNFQBVVdV1MKABwB/ovQdO30r2+O+C55xGlGE1Hkvur72/yPzn6MX0hMJwDVxlTFYV1vbKCVmo25Obun/MeR5v/R/ypAdQ/wBv8q9gP/Brj/wVx/6KR4U/8Guqf/I1Pk/4Na/+CtSjC/Enwowfhh/auqAc+v8Ao1fnP/EE63/P+P8A4D/wT+t/+Ki2Uf8AQqn/AODI/wDyJ8Hfsf8Ahy8/aF/4Ld/Bzwp4SBuxpPiXTZrh4vm2w6OrXt0+V7IqEZ6A8V/qUqTt6YzX89f/AARZ/wCCEnhb/gmNqGo/Gv4r65B41+KWs2hsReW8LR2Ol2bkPJDZiT52eZlXzZmCsQAiqq7t39C8i7lIAzX7nlGXRweFp4WG0El9yP8AM3j7i2pn2dYrOaseV1pynZbLmd7dNtj+SL/gvleTwftTeGRbN08Lp9M/apsV+5Hwo/4J7fsXWnww8OQ3Pw70i/mOm2zSXV5AJ55naJSzyyOSWLHOcnA7YGK+Y/8AgpX/AMExfiR+2t8XvDPxI+H+v2OkxWNkNMv4r5JNyRCZpPOh8tWDt87Ao20fd+bHFfsV4f0VdA8PWOgQ73FhbxW4cjBYRKEB9AcDpXwuS8L/APCvjMRiqKcZcvK2k+nT8D+j/Enxeo/6h8P5VkWNlGtSjU9rGDlFrVcvNa1+tt/xP4zPi38N/CXwV/4Kz2Pwy+HFv9g0Sw8Y6I1taqSyxC4NtMyITyFDOQo6AcCvt/8A4ODbuSLxl8MDbtlTZan06H54K+sfjJ/wSr+I3xK/4KH2H7Vtn4isIfDH9oadqtzbMkn21ZdPSJPJjAXy2STyl+cspUE8HAz6L/wVI/4J4/E79tmXwjrnwu1awsL3w4LmGWDUfMSOSK42MGWSNXIZWT7pXGD1GMV8nX4Qxay7H4elRtzTvFaK6T6fI/d8u8cuG63FfCuY4vGpqhhnGtJ83u1JUuW0nbfm3+/qcZ+xj/wT3/YN+IP7Lvgjxx4g8O2XifVdW0u3ub6+lu5ixu5EVp48RyqieW52BAo24weck/o18Cf2Vf2af2dtRvtQ+Bfhmy0K51BFjupYGaWR0XlU3yM7Bc87QQCcV/Nhb/8ABCP9tGyQw2fiXw7AhOdsV3eIpz1+VYAB6V9i/sM/8Env2q/2cv2ktE+L3j7xnYrpGlLN9pttNuLqZ7xZIyggdJERPLJYMxOfu8DOCPY4fnWo1KUP7LUGrLm93To3sfBeK2S5PjcLjsXDjR1oy5pxoNTal9qNP+I12S9yy0dlY+SP+C5fxrvfHH7UOi/BXw87TQeENOQSRR5YtfaiRIVCrnLeUIgBjOTivmvxhoX/AAVZu/2el+EHjHw/4ub4faZaxN9jfT8JHbW22RFdljExiiwCFJwAF4wtftP4D/4JW/Eub/goRq37W/xj8Q2GpaHHrNxrGmWtuJDcyO2RaJMHUJGtqNmMF87AOAa/cAQ7l2spOOf859q5qPAWIzDEYnGYucqXO2klbWK2v5eR7WZfScyPhPKMnyDIcJRxioU4TlOafu1Xq+S60km2+bpdLofzFf8ABAn46Pa+NfGn7PmsT5TU7ePXNPVjjEsGILlVHqyPE2B2Q+lfor/wWvmZP2CdYeE4P9raYOP+vgV4T8Mf+CUvxQ+B3/BQS2/aQ+GOv6fb+CRqF3ftaFZVvI4bxJBLZLGEMTJl8K+9cKB8uRX6F/t//syeI/2uP2ZdX+DXhK/h03VLia2urWS5VvIaS2lD+XIUBZVcAjIBxwcYr0smybHQ4fr5dXh70VKMfNW0t+h8b4h8c8LV/FPK+K8txC+r1HQqVdH+7kmlJSVukYpu3mfHP/BCiZpf2Kbt5WzjxLqOPp5cFfGv/BwldSQav8LhA2AYNW6fW1r9bP8AgnR+yj4u/Y5/Zyh+FPjfULfUtUn1C51G5ezDeTG0+xVjQuqltqoMttHOeK8B/wCCpX/BPz4m/tuWfg+++F2qWGn33ht7uOWLUPMSJ4rryvmVo0c7ozF93GGB7VWZZFip8LRwSp++ox930a/yMeDfEnIqHjVU4hrV4rCOrWtOz5bSpzjF7bNtdPwPz8/4KB3U8X/BIr4ESKxBL6PnH/YNnNfTXwJ/ZgtP2sP+CNfhf4YRhF1o2d5f6RO+P3WoQXlwYuf4Vcfum/2GPtXt/wC1n/wTt8cfGf8AYX8FfsxeBNZs01nwT/Z7Rz3ivHbXRtLZ7eQEortFuDllO1sYA4zkfZ37HHwF1f8AZn/Zo8I/A3W7yPUr3QLR47i4hUrE8kszzN5YbB2qz4XIBwM8dKvA8MTnmc/rNP8AdyoqD7dLr5W/Ijirxjy/D8G4eOTYhfW6WYVK8VZ3UPfcZPRLlfNFW9VbR2/hn8ffGb4n6x8LfD/wC8aDbbeArvUhaJKpFxAb1o/PtnyfuxSwnavYsw6Yr9e/+Cp/gDXJv2PP2dvjDZoz2lr4ctNIvXA4Rriyt5bfPpu8uUfXFfVX7e3/AARn8Z/Hz46X3xm+Amr6ZpieInWXVbHUPMjVLjG2S4haKOQHzcbnXCnfk5+bj9db39l3wN4z/Zfsf2XPihD/AGvo9votnpE0gHlSFrSJESeI8+XIrIHU8hSBwRkV8nlXh7jJRxmExK0aioy6Plfu/gkvI/cePPpR8L0p8PZ5lFrwqVJ1qUVrD2sbVd0lfmlJrpJ67Hzd/wAEtf2gPB/x+/Y68N+H7W8jl1nwxZR6Nq1luAliNuPKjcqDu8uWJVKt06gcqa/Bb/gqH+wb8Gf2NLbSNd+Ffiye4udbvJEfQb9o5bmK32s4mjMaq3koQEPmKdxIw3Br1H4gf8ERP2vfhf4xm1P9nLxLa6nYnK284u5dKvxGeiS7R5ZwOpV8HrtHSrfhj/ghT+1N430zVfE3xg8YadZa40DNZRmSbUXnuBjYt1cMF8uPHBZBIQccUs4w+ZY7Awy/EYC9SCsp30Vrarprba5rwFieCeGuI63FOWcTQjg8RLmlh+T3ne9oyWskouTs+RNLS/U/YD/gjjIX/wCCf/gne2SH1AY9MXkwx9BjAx2FeZ/8HBYz/wAEcfjmB/0CbP8A9OVp6V9j/sFfs7eKP2Wf2XvC/wAFPGl3b3uqaUlw9zJaBvIElxNJMURnCllXfjJVc46Vj/8ABSn9lDXv24v2F/iR+yn4V1SDRdT8Y6YttaXl0jPBHPDPFcRiUJ83ls0QRioyoOQCRiv2XhzDzo5fQpVFZxjFW9Ej/PbxazbDY7ivMsdgpKVKdapKLWzi5tprytsfwGf8EQ/+CJHgX/gqp4L8efEf4l+ONR8K6Z4T1C20u2ttJhhkmnmmh895JHmBVUVCqqqrljkkgAA/1w/sR/8ABuZ/wT7/AGK/iNp3xmtrbVfHvizSJBPp954lmjmgspx92a3tIIooBKv8LyLIVPK7SBW//wAEGv8Agl38X/8Agl9+z34r8FfHPW9N1fxF4w1z+1JYtI8x7W1hht0t4kEsyRs7vtLthFAyAAeTX7qPwnAz7V7J+fymf5+f/B4deXEH7U/wiSIB/J8Hai6jHVjfL/8AEjiv2u/Yg/4IHf8ABH/4g/sg/Dn4ga14Gt/HN/rvh+w1C61ubVL0vdXNzAkszYguEiTbISojVQE27W5BrD/4L6/8EVP2jv8Agpr8Rvh78XP2dNf0SzvfC+m3ekX1jrbzQI8U0yzxzQywxS8hgUZCo4wQeK/B/Sv+DWj/AIK36DZLpegePfC1hapnbDba7q0ES564jjtlVfwoKurWP7av2VP+CbP7En7Eun+I7L9lLwLY+EX8UxLDqU8DzXE80aKVjQy3MkriNdxIQELnnHSv8/D/AIJHfFvR/wDgln/wWwuPBX7QUq6JpdrqOteBNWurj5I7QXE4+xXEjHAWEyxQ5Y4AR95+UZr+gL/gjt/wQ9/4KUfsP/tr6d+0D8fvihYzeErLTb22vdK07VNRv21NrmPZFHLHcxxxIkT4l38sGQBetfVP/BaD/g318J/8FGvFB/aK+Aus2vgz4o/Z1t7/AO2RM+mazFCu2H7SI8yRTxp8izKrblAV0IVSASfQ/oY8b/ErwD8OvAOofFHxxrNppfh3SrRr671G4lVLaK2Rd5kaQ/Ls288deAOor/Ni/YO1PUv+Ckv/AAcT6d8dfBlpJ/ZF345vPG53qf3Gk6T89s0n93eUt0GQDucCvWR/wbe/8FvPGNna/Bnxdr2mp4OtHUQx3viq6utKhCHho7EIzYXqq+WMdsdv62/+CP3/AARr+Ff/AASt8B6lex6j/wAJZ8RfFMcSa3r7QiBFhj+ZbOyi5MVurkscndI2GYjCqoPRI/h6/wCClXwQ1P8Aaa/4L++PP2ddGvo9LufHPj/TdDjvZVLx25u4LWIylBgsEGTjvjFf0l/D3/g0K/Yx0TV7e9+IvxL8YeILRceZawfYtPEoA+6XSGRwp/2SGx/EMZrf+Iv/AAQR/aH8W/8ABcix/wCCiWl+KtET4ef8JLp/i24hlE39qJPYwxIbJYQnlMJJIVxN5o2ofu7hX9Xig7wcEUClPsfkj+2H+zl8Df2Pf+CPHxj+CX7P3h238NeFtG8Ba8ILS2H3nks5N8srsS8ssjcvI5LHucAV/Nz/AMGcWueGrLxz8cfDl1eQxardWehTQWrOFkkt4jcq7ohOWCMyhiBgZAPUV/Zd+1/8C7n9p39lf4h/s7WV+ulz+NvD2oaLFduu9IHvLd4kkZRyVUsCQOcdK/gC0z/g1Q/4Kt6DereaJr/gyzuYhsW4tNYv7d9vQ7XS0DgH+7nHqOlAR2sf6QvmRuMKQfpX+Wpc/Aj4TftO/wDBwn4n+AXx1u3s/Cfib4ra7a6iY5hbNIizXMqQCXjZ58iLFlcN83y/Niv22/4Jpf8ABAn/AIKt/sv/ALbvgH49/Fj4m6fYeGPDV99q1WKw1vUr+W+thGyvZG3mjSJknyFZnOEXJAyBXi/7d3/Bsh+358aP2y/iT8cfg1rvhK78P+L/ABDea9YPfXl1Z3cH22Uz+U6JbSANE7FQ6OcgBhg8UFRSXU/oZX/g3K/4I5BRH/wqGP0/5C+rn2/5/ep/p+FfrL8BvgT8J/2afhVonwP+Bmh2/hvwp4ehMFhp9qD5cSsxdjlizMzOzMzMSzE5Jzmv8/5v+DbL/gt99w+N9J24wP8AisNV59sfZ+nHtX9Vn/BDD9hH9sj9gf8AZw8QfDn9sfxsnirUtW1pr/TbOG9uNRi0y28pEaNbm5VXYzOC5QKEXtkk0EyXmftzRRRQZhRRRQB//9X+/ikyK5Tx74ifwh4G1nxZHEJ20uxuLsRE7Q/kRtJtzjgHbj2rz3V/jFp/hz4Gw/GnXLRysunWt59kg+Z3lu1QRW6E45eSRUBPHOaAPbSVHWk3L2NfLtp8VPiv4Q8S6Jp/xl0TT7DT/Elz9it7jTbp5zaXbRtJFDcrJHGCJAhVZI8rvABABzWRoHxp+MXi/SE+J/hHwpbXvhKaci2hFyw1W4tBJ5f2uOLy/JAI/eLEZNxTvk7aAPrrIoBB6V81+OPjv/whnxe0X4d/YFm0u8eG21LUDJg2d1fCQafGUwd3ntE6scjaSnXdXe+D/iJP4n+I/izwNLaiJPDMlkizb8mb7XbifJXA27c7aAPWKTK4zXCfE3x9pHwv8A6p4+1uN5rfTIfMMUQzJIxIWONB03O5VV7ZNeZeHPGPx5t9f0uLx/4YsFsNWco7aXeNPNpx2Fl+0LKkayISu1mhPysR8pHNAH0RkUZHavmqw+O7XPx7b4UyWCrpMkctra6n5mfN1O1jS4uLXywuAEt5FYHPLK6/wmuH0/8AaF+IHiLxnq1h4R0XTLy10TVpNLuNMa+8vWykUgjku1t2Ty/LwfNRS2Xj5U5IUgH2aCD0oyOlcJ8Q/G+j/DTwNqvj3Xw5tNJtnuZEjALuEHCIOBlzhQPU15n4R8Z/Hdtc0s+PfC1nb6Zq4Kk6ddNPPpzeWZEW7Ekcaupxs3wkhXIGCPmoA+h8jtSbl6Zr40+Dnx8+I/xVt9F114PDVnYaq5zbjU5H1BIwzKQIfKwZPlztzWLpf7Ya6l8M/GXi6fRPsureE57gR2Ms3yXlpHdtax3UUgX7hZGVuPkdcH+GgD7myKTcvr0r5N8a/E747eHvifpXw80PRNDuI/EAvZbCea8uI2EdksbHzUW3OGIkAG09qwNZ+P3xTTxB4vtNA0zQPsvg+ZYJRf6lJbTTEWkV1IU/clFX95tRmxnHOMUAfaWRQCD0r5I+IP7TEvhT4ZeGfiLoGhyXv9t2iaxdWcjGOW00pI0lvZz8py8CyKAmBuYgcV61D8SxL8XtP+G1pCk1rf6HPrK3iv8A88p4YQirjBDLNuznjGKAPXqTIHBqOZ9kTN6DPpXx7p37WXh/UPg/4a+IVuLCTVteudNtn0tLxDJCb25SB8AfOTErFiNo6YoA+xsgdaBg9K+MtP8Aj98SfEnirXdI0KDw1Z2ukaxPpKJqOpSQ3cvkFR5nlLEwAbPyjJzXcfEn47N8PviZoPg5dPFxplzJbx6tfB9osTfu0Fh8uMETTRlWyV2jB6GgD6VyKMjOBXyt8TPiX8bPB/xF0Xwb4e0fRbu08SXMtrYTXF3PE6mC2e4cyokLAcRso2HPSud+IH7SnivwDpfi5D4cj1PU/C/9hxC1t5you5tWYI0cRZBjaxITI+bjOKAPsvIxntRx2r5evv2mfClteabqkA83Qbvw5qPiGW8ziSJNOeFJITDj7481gwypV028UeHPiJ8fbhtH8QeIfCNnHpOsSRA21rdmTUbGOfGyWdHjjicJkecsb/Jk43baAPqHI6UZXpWRqGpWej6dPrGpSLFb2sTTTSNwqJGu5ifoBn2FfK3g/wDaW1HWfhP408c6xoi2GreEoJr0ac0v+stHt/tljIX2/L58RG/g7HDr/DQB9g03cvrXyp4b/aRh8U6d4HvbbTGgn8UajJpWoWk7bZdNuobSW4kjYAYYgxgDoGVgw4NcX4b/AGkviafh7pnxp8YeG7GLwlqEiLLJaXjyXdnFLcfZ0lkjkiVJEVsFwj5VTkZxQB9wZFIGU/dIryf40fEGb4U/CjX/AIjW1qt6+i2cl0sDt5auYx0L4OB7449OK8U8M/tK3FprWsaV8QYtKa20jRZddlvtBvft0MUMBAeKYFIzHK2SY+vmANjG2gD7EJAGTxSbl9elfIifG34t+HdO0rx/8S/DVnp3hfVri2gbyLp5L/TxeOsdvJdIYliZd7osgjcmMt/EFbGhYftD3t34ntPD50pFF14tvPDBfzclUtbR7kT42jlim3Z2zQB9WZFGQOtfNvxl+MHifwB4z8N+C/DEGlmXXo72VrjVbtrWGJbNYztBWN8s+/ge3tXKeI/jf8StE0/wtp8Vp4futU8S6hcWiSx6hIdPijt7d5s+d5W5nPllcbQAaAPr3IoyBXz78HPin4h8ca/4h8E+LbC0tdQ8OG13zabcG5tJY7uMvHscqjLIgUh0I4BUg4IrO+M/xm1n4eeKNA8D6BFp0N3r63LJfazcG1sIxa7P3O9VJed9/wAkfHyqxzxQB9Jbl9RS5Ar5H1r42/FWzj8JaFB4bsbPXvEV1e20iXt7/oka2UbSCaKaJGMkcyrmLKqwBwwBBFclqf7UPjCw09tJk0nS4tdtvEsPhyd5L8jTAZ7M3yzC4EW4DYAjRlAyvgUAfcuRSblAzmvlS6+OPjPw54MbV9Zs9I1bVb/UbfStItdGvTNFPc3PRZpXjHlKgBdjg4jUnGcCrWrfFL4w/D/w14l1f4keG7Jv7G0a41e2u9NuXezma3Uk2snmxpJHLwNpCsrLnkEYoA+osgcUZXpXyr8Uf2in+HVn4b1GLTBdxX8cN9q7eYR/Z+mSPFE9x9079kkyccDart/DXp1n8Q7i5+M138KhaqsVrotvqoud3J86eSHZsxwAI89fagD1zIoyAM18o/EP9o248By+OkOkrOPCI0kRu0uxHOqkpvnbYfKhgOGkcBsICccVseDvH3xl8S6ZqVvBpmh3d1FHDLp2pWN+0ulXO5sSxMwQzRyRD5sbWVgy4I5FAH0tkdKK+I9E/aM+KMXwr8RfF/xd4d08aZopvbdLaxu5ZJnuLO7NoS++BVSElWdn5Kp82D0r1r4RfEPx/wCL9Ue38TWOk3Wny2wuLfV9CvvtdmWyAbdw4R1kAO5WAKMv90jFAH0HRRRQAUUUUAf/1v7yfiB4euPF3gPW/Clo6xS6nYXNojuCVVpomjBIHOBntXzXYfCH4v8Air4Q/wDClviQ+k2Fnb6baW9pf6XJPLOl3ZGNoJjHNGibVeJXwG5xivsOigD5WT4dfGn4heJNBn+MkukW+k+G7oagIdKMzvf3kaMkTSecFEMSby/lguS2AWwOcPwx8K/2gPAvh23+EngvVtLtvDlpMFtNVZJG1K3sfN8zyPs7IYHlCny1lLBdvJjLV9i0UAfEvib9kePx5ofi7UfFmqXKeJfEN7JeW1xbXVylratbbRpebcMscv2dYombcmS271GOg0TwF+0L4R8f65410caBe/8ACSx6a12JpLmIxz2dssE3lhY2BRmBZN2CBgGvrqigDzX4pfDyz+Knw71TwFqE72Y1CIKk8Qy0MqMJIpFDcHy5FVgDjOMHivmTX/gn8bfiH418L+KvG0Xh21vPDF9bXLahZ/ajcXkUG4tCFYKtvG5bcyZkBPHbNfctFAHwoP2Q7208H6ZrGn6tM3jzTtUTXvt0t1dGwfUHmMl1/o24oI5o3kh4QMFOfq34jfs8fFX4g3l1oesPoV3byX4ubHxFLEya1p8AmEqRReUiozxDMUcnmKNuN6tzu+7aKAPO/iZ4A0/4ofD7Vvh9q0jwQ6tbPAZUALRkj5ZFB43I2Gx04xXm/hLR/wBpG717SYPiBqGkWml6Vua5fTRK82pt5ZjQOsygW6AnzGCszFgACFzX0ZRQB8K/Bb4C/Ej4VWmiaJe+HvCF0NMl/earGko1AozkmVSYP9btJGN+Pes/xn+x/wCIfE3wbj8H6Zq1vY+Ire/1GSO8CM0MlhqOoPdTWcy9SjIy4x9yVAy199UUAeO+Kfh5qmufFXwj4+tpo47bw7BqMU0TAl3N7HCibO3y+Wck+2K8f1P9knwb4y1Lx7qHj6xsb248VXguLG78kNc2araQQIRIwyHSSLzF28Dj6V9hUUAfIUH7OOseN/EX/CSfG7UXvpY9DtdHjTS7m5skb5S188nkvFuW4k24RsqFQVynhP4G/Hb4b6l4Z1Lwze6Rq0nh/Rbvw+DqD3EZazN3HLZvmONvnjgiSN/U5Ir7oooA5/Sf7cl0SH/hI0hjv2iHnrblmhEmPm2FgrFfTIzXyHpn7Jtpp3wR8KeBYbbSk8QaDdaXcz6gtsqmT7FcxzyhXCh8uqFQfevtyigD4Z074CfEfw34q8Qatp/h/wAIa1Hq2uXGrQXepJKLuNZyjKhIgk+aPbwQ35VqeKf2SbL4j2/jTUPH2o3P9reJ5ybeSyu7mGC2ht0C2AaBHSOV4WUSHepBYntivtKigD58v/ht438Qax8O/E3iS7tmvvCzyzan5StsnklsZLZjCMDA8x9+GA+XjtXD+PP2fPE/i3XfF2p2l9bxJ4hvPD1zArq+UXR5VkmV8cZkC4Tb+NfXdFAHxdrX7KUWsfFrXPEf27Z4U8RaHqVhc6WFIkhvNTaD7RPbsRtVZRCHZT/y1+YDlq5vxh8BPjn8Q7LQdC8XP4eeXw1dWUsOuotz9tnjtbiKRgIcKkDzLHiQiSRewGDkfetFAHkHxr8Ba18Tvh7dfD3SblbOLVmit76Ulg32FnH2lIyvIeSINGp7bs14L4r/AGUZ4b/XZvhlqD20Hibw1faBqMepXN1dkuUI0+ZGldyFgZpFZenlvwMivtmigD4/1L9mrVP+FveDfib4f1GO1h0gq+tWRUlLyaCye0t7iMj7syK5RieHjCqeUFcd4b/Z7+NM3ws0v4C+M73RoPDFk8f2qaxE8l5dwRXH2gQgSqkcIkIVXOW+XO31r7xooA8f+OXgDVPip8HvEfw80eWK3utYsZbaKScExqzjALAc49a+fbD9mXX/ABTr95f+OrTRPD+nXWiXujTWnhyN0N2t6FUvO8iRg+SqnyRsO1mJyBwfuKigD48l+E3x28Z6RpXw0+JeoaQ3hzTp7SW7u7NZvtmox2LpLDG0TgR2+940MpV3yMhQueMrU/2fviZp+pReI/Cd1pk17b+MrzxLHFdmaOJoLq0a2ETNGrHzF35zjBwK+2KKAPjT4g/CT4vfEHXPCvjTXtN8NX19oQ1GKewvDNLZsl35QikjLQk70EfOUxjpVm6+AGqeNx4Qi8d6L4etLDw9qd3dz6ZZRM9nLFNavDGVR4kHmLI+5sqBgcc19hUUAeE/Cn4QR/CTXvEFn4XW3tPDGqzRX1np9umz7LdMmy62jGBHKVSQAH5XL4wKqfF7wR8RfEl5ZXfhFdK1TTo4pIb3Q9aizaXG4qY5kkWORo5YiCACrKysehAI+gaKAPg3w3+x+fs3hWw8cLp19puk6rqup3GlCN2s4Fv4ikNrZq+cRQNhvmxzkqAMKPRviv8As+W2r+EvDnhz4WaPottb6DrSaqdOvIfLsZ1EM0bqyxI3zFpQwJXqtfVlFAHx/c/BLx1rvhEWYsPD3hXVtK1S01nSX0mN3tmurYEEXUflwkq6ExEochWyCCBWlrvw/wDj38SPC3ijR/HN7pemx6rolzpVjp9j5k0CzXCFftM87pHJkcKqIuAM5JOMfV1FAHx1P+ynpvjTUNbu/ijeT3UV/plpolrDY3Vzaxx2EEAWRZVidFkaSd3chgQFCDsaxfC/wi/aL8Ca/pninTLvQtZv7fw3b6FdSXr3MPmNZzyPHOPLjfPmRsu8dQ4OODX2/RQB8qah8HvijLrXi/xdoGrWem6n4hi0ZoFMTTwB9ORhPBcKwG6CfcUymGCk9xSfBv4MeJvCPxI1b4k67YaPoH9oWMVkdM0Hf9mleOQyG6mLJEDNzsTEYwuQzHjH1ZRQB81+GvhD478MfB7VvAmg61Dp+sXWpahf2t7HD5sSfar6S7SN43+8pVvLkx2J24OK5v4SfBPxdoHxYl+KfiKw0Tw8Tp72ElnoAkEd7I8iSfaLnesa5j2YiAUlQzZc8AfXFFABRRRQAUUUUAf/1/7+KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/2Q==" alt="The Plumbing &amp; Heating People – local gas central heating and boiler specialists" width="404" height="139"></div>
+  <header class="top">
+    <svg width="28" height="34" viewBox="-46 -4 92 108" aria-hidden="true"><path d="M0 100 C-38 92 -46 52 -18 22 C-20 42 -8 50 -2 60 C2 38 14 26 8 0 C40 28 44 72 26 86 C18 96 8 100 0 100Z" fill="#E8741E"/><path d="M0 96 C-16 92 -20 72 -8 58 C-4 66 2 70 6 76 C12 68 14 82 8 90 C6 94 3 96 0 96Z" fill="#2F8FD8"/></svg>
+    <div><div class="name">Gas Reassessment Trainer</div><div class="sub">Domestic natural gas</div></div>
+  </header>
+  <main id="main" class="stack" aria-live="polite"></main>
+</div>
+<nav class="tabs" id="tabs" aria-label="Sections"></nav>
+
+<script>
+(function () {
+"use strict";
+var D = {"topics": ["Gas & combustion", "Emergencies", "Pipework & meters", "CO & analysis", "Law & practice", "Unsafe situations", "Calculations", "Flues", "Ventilation", "Appliances", "Testing & purging"], "questions": [{"id": "g1", "topic": "Gas & combustion", "q": "What is the main component of natural gas?", "opts": ["Propane", "Methane", "Butane", "Carbon monoxide"], "ans": 1, "why": "Natural gas is mostly methane (CH4)."}, {"id": "g2", "topic": "Gas & combustion", "q": "Compared with air, natural gas is:", "opts": ["Heavier", "About the same", "Lighter", "A liquid at room temperature"], "ans": 2, "why": "Relative density is about 0.6, so a leak rises."}, {"id": "g3", "topic": "Gas & combustion", "q": "The flammable range of natural gas in air is about:", "opts": ["1% to 3%", "5% to 15%", "20% to 40%", "50% to 70%"], "ans": 1, "why": "Below 5% is too lean and above 15% is too rich."}, {"id": "g4", "topic": "Emergencies", "q": "What is the National Gas Emergency number?", "opts": ["101", "111", "0800 111 999", "0300 303 0303"], "ans": 2, "why": "0800 111 999 is free and open 24 hours a day."}, {"id": "g5", "topic": "Pipework & meters", "q": "An ECV handle at right angles to the pipe means the valve is:", "opts": ["Open", "Closed", "Half open", "Faulty"], "ans": 1, "why": "It is a quarter-turn valve: in line is open, across is closed."}, {"id": "g6", "topic": "Gas & combustion", "q": "Which substance is added to natural gas so a leak can be smelled?", "opts": ["Methane", "Mercaptan", "Hydrogen", "Nitrogen"], "ans": 1, "why": "Mercaptans such as THT give the rotten-egg smell."}, {"id": "g7", "topic": "CO & analysis", "q": "Which gas, produced by incomplete combustion, is colourless, odourless and toxic?", "opts": ["Carbon dioxide", "Oxygen", "Carbon monoxide", "Water vapour"], "ans": 2, "why": "Carbon monoxide (CO) cannot be seen or smelled."}, {"id": "g8", "topic": "CO & analysis", "q": "The general pass level for the CO/CO2 ratio on a domestic appliance is:", "opts": ["0.0004", "0.004", "0.04", "0.4"], "ans": 1, "why": "0.004 or below is normally acceptable; above it, investigate."}, {"id": "g9", "topic": "Pipework & meters", "q": "The nominal pressure at the outlet of a domestic gas meter is about:", "opts": ["2 mbar", "21 mbar", "37 mbar", "75 mbar"], "ans": 1, "why": "Natural gas is nominally supplied at 21 mbar."}, {"id": "g10", "topic": "Pipework & meters", "q": "The maximum pressure drop from the meter to an appliance is:", "opts": ["0.1 mbar", "1 mbar", "5 mbar", "10 mbar"], "ans": 1, "why": "Pipework must be sized so the drop does not exceed 1 mbar."}, {"id": "g11", "topic": "Pipework & meters", "q": "Where is main equipotential bonding to gas pipework made?", "opts": ["Within 600 mm of the meter outlet, consumer's side", "At the boiler", "Upstream of the ECV", "At the cooker"], "ans": 0, "why": "Within 600 mm of the meter outlet and before any branch, using a BS 951 clamp."}, {"id": "g12", "topic": "Pipework & meters", "q": "The minimum size of the bonding conductor for gas pipework is:", "opts": ["2.5 mm²", "6 mm²", "10 mm²", "16 mm²"], "ans": 2, "why": "10 mm² green and yellow conductor."}, {"id": "g13", "topic": "Law & practice", "q": "A landlord must keep a gas safety record for:", "opts": ["6 months", "1 year", "2 years", "10 years"], "ans": 2, "why": "Records are kept for 2 years."}, {"id": "g14", "topic": "Unsafe situations", "q": "An appliance classified as Immediate Danger should be:", "opts": ["Left in use with advice", "Recorded only", "Made safe and not left in use", "Ignored if the customer objects"], "ans": 2, "why": "ID means make safe and do not leave the appliance in use."}, {"id": "g15", "topic": "Calculations", "q": "A boiler uses 0.03 m³ in 120 s. CV = 39.0 MJ/m³. Gross input is about:", "opts": ["2.5 kW", "9.75 kW", "11.7 kW", "35 kW"], "ans": 1, "why": "Gas rate 0.9 m³/h; 0.9 × 39 ÷ 3.6 = 9.75 kW."}, {"id": "g16", "topic": "Calculations", "q": "What is the net input for a 9.75 kW gross input (natural gas)?", "opts": ["8.9 kW", "10.7 kW", "9.75 kW", "1.1 kW"], "ans": 0, "why": "Net = gross ÷ 1.1 = 8.86 kW."}, {"id": "g17", "topic": "Calculations", "q": "1 mbar is equal to:", "opts": ["10 Pa", "100 Pa", "1,000 Pa", "10,000 Pa"], "ans": 1, "why": "1 mbar = 100 Pa."}, {"id": "g18", "topic": "Gas & combustion", "q": "Yellow tipping on a flame usually indicates:", "opts": ["Too much primary air", "Too little primary air or poor combustion", "Perfect combustion", "Low water pressure"], "ans": 1, "why": "Yellow tips mean not enough primary air or other causes of incomplete combustion."}, {"id": "g19", "topic": "Gas & combustion", "q": "Flame lift is typically caused by:", "opts": ["Pressure or primary air too high", "A full condensate trap", "A cold flue", "Low voltage"], "ans": 0, "why": "Lift is caused by too high a pressure or too much primary air."}, {"id": "g20", "topic": "Flues", "q": "Which appliance takes air from the room and uses a natural draught flue?", "opts": ["Room-sealed", "Open-flued", "Flueless", "Fanned balanced flue"], "ans": 1, "why": "Open-flued appliances use room air and a natural draught flue."}, {"id": "g21", "topic": "Flues", "q": "Which test shows whether an open flue is clearing combustion products?", "opts": ["Soundness test", "Spillage test", "Gas rate test", "Pressure test"], "ans": 1, "why": "The spillage test checks for products escaping at the draught diverter."}, {"id": "g22", "topic": "Ventilation", "q": "Which appliance type does not normally need ventilation for combustion air?", "opts": ["Open-flued boiler", "Room-sealed boiler", "Flueless heater", "Gas cooker"], "ans": 1, "why": "Room-sealed appliances take air from outside through a sealed circuit."}, {"id": "g23", "topic": "Ventilation", "q": "A typical open-flue room ventilation rule is 5 cm² per kW above what net input?", "opts": ["3 kW", "5 kW", "7 kW", "10 kW"], "ans": 2, "why": "5 cm² per kW of net input above 7 kW (confirm in BS 5440-2)."}, {"id": "g24", "topic": "Appliances", "q": "Condensate from a condensing boiler is:", "opts": ["Alkaline", "Neutral", "Acidic", "Flammable"], "ans": 2, "why": "It is acidic, roughly pH 3 to 5."}, {"id": "g25", "topic": "Appliances", "q": "A common cold-weather fault on condensing boilers is:", "opts": ["Frozen condensate pipe", "Frozen gas", "Frozen meter", "Flue gas freezing"], "ans": 0, "why": "A frozen condensate pipe can lock the boiler out."}, {"id": "g26", "topic": "Appliances", "q": "What does a thermocouple do?", "opts": ["Proves the pilot flame and keeps the gas valve open", "Measures gas pressure", "Detects gas leaks", "Creates a spark"], "ans": 0, "why": "It produces a small voltage from the pilot flame to hold the solenoid open."}, {"id": "g27", "topic": "Appliances", "q": "What does a flame failure device do?", "opts": ["Turns on the pump", "Shuts off gas if the flame goes out", "Lights the burner", "Measures CO"], "ans": 1, "why": "It stops the gas if the flame is lost."}, {"id": "g28", "topic": "Emergencies", "q": "If you smell gas, what should you do first?", "opts": ["Turn on the lights to look", "Open windows, avoid flames and switches, turn off at the ECV if safe, call 0800 111 999", "Light a match to test", "Wait for it to pass"], "ans": 1, "why": "Ventilate, avoid ignition sources, isolate if safe, and call the emergency number."}, {"id": "g29", "topic": "Law & practice", "q": "What is shown on the back of a Gas Safe ID card?", "opts": ["Home address", "The categories of gas work the engineer can do", "Vehicle registration", "Bank details"], "ans": 1, "why": "The back lists the categories the engineer is qualified for."}, {"id": "g30", "topic": "CO & analysis", "q": "Which is NOT a symptom of CO poisoning?", "opts": ["Headache", "Dizziness", "Nausea", "A strong smell of rotten eggs"], "ans": 3, "why": "CO has no smell. The rotten-egg smell comes from the odorant in natural gas."}, {"id": "g31", "topic": "CO & analysis", "q": "Which is a warning sign of CO at an appliance?", "opts": ["Black sooty stains", "Cold radiators", "Noisy pipes", "Low water pressure"], "ans": 0, "why": "Soot and staining are warning signs of incomplete combustion."}, {"id": "g32", "topic": "Gas & combustion", "q": "Propane is:", "opts": ["Lighter than air", "Heavier than air", "The same as air", "Non-flammable"], "ans": 1, "why": "Propane is about 1.5 times as dense as air and collects at low level."}, {"id": "g33", "topic": "CO & analysis", "q": "Which instrument measures CO and CO2 in flue gases?", "opts": ["Manometer", "Flue gas analyser", "Stethoscope", "Hygrometer"], "ans": 1, "why": "A combustion analyser (BS 7967) measures CO and CO2."}, {"id": "g34", "topic": "Gas & combustion", "q": "Primary air is air that:", "opts": ["Mixes with gas before the burner ports", "Reaches the flame from around it", "Is drawn up the chimney", "Is used for cooling"], "ans": 0, "why": "Primary air is mixed with the gas in the burner."}, {"id": "g35", "topic": "Pipework & meters", "q": "Gas pipework must never be used as:", "opts": ["A gas carrier", "A bonded conductor", "An earth electrode", "A pipe with an isolation valve"], "ans": 2, "why": "It must not be used as an earth electrode."}, {"id": "g36", "topic": "CO & analysis", "q": "A CO alarm for a home should comply with:", "opts": ["BS EN 50291", "BS 6891", "IGEM/UP/1B", "BS 5440"], "ans": 0, "why": "BS EN 50291 covers domestic CO alarms."}, {"id": "g37", "topic": "Law & practice", "q": "Which of these needs a Gas Safe registered engineer?", "opts": ["Any work on a gas appliance", "Only boilers", "Only landlords", "Only commercial premises"], "ans": 0, "why": "Competent, Gas Safe registered engineers must do all gas work in their categories."}, {"id": "g38", "topic": "Testing & purging", "q": "When purging pipework, gas should be released:", "opts": ["Into the occupied room", "To a safe place outside, away from ignition sources", "Into a cupboard", "Next to the boiler"], "ans": 1, "why": "Purge outside and away from ignition sources."}, {"id": "g39", "topic": "Calculations", "q": "An appliance has input 24 kW and output 22 kW. Its efficiency is about:", "opts": ["83.3%", "91.7%", "109%", "54%"], "ans": 1, "why": "22 ÷ 24 × 100 = 91.7%."}, {"id": "g40", "topic": "Appliances", "q": "What does ODS stand for on a gas fire?", "opts": ["Oxygen depletion sensor", "Open draught system", "Outlet differential switch", "Operating dial setting"], "ans": 0, "why": "An oxygen depletion sensor shuts the pilot off if oxygen in the room falls."}, {"id": "m1", "topic": "Law & practice", "q": "Before starting work you should:", "opts": ["Begin work immediately to save time", "Show your Gas Safe ID, explain the work and assess the risks", "Ask only for payment details", "Turn off the electricity at the consumer unit"], "ans": 1, "why": "Introduce yourself, show ID, explain the work and carry out a risk assessment."}, {"id": "m2", "topic": "Testing & purging", "q": "A let-by test checks whether:", "opts": ["The ECV passes gas when it is closed", "The flue is clear", "The appliance is the right size", "The bonding is in place"], "ans": 0, "why": "Let-by is gas passing a valve that should be shut."}, {"id": "m3", "topic": "Testing & purging", "q": "During a tightness test the gauge keeps falling after stabilisation and the drop exceeds the permitted figure. You should:", "opts": ["Pass the installation", "Find the leak with LDF, repair it and repeat the test", "Open the ECV and carry on", "Raise the pressure"], "ans": 1, "why": "A failed test means finding and fixing the leak, then repeating the test."}, {"id": "m4", "topic": "Testing & purging", "q": "Which of these must you never use to look for a gas leak?", "opts": ["Leak detection fluid", "A gas detector", "A naked flame", "A manometer test"], "ans": 2, "why": "Never use a naked flame."}, {"id": "m5", "topic": "Testing & purging", "q": "Before purging pipework you should:", "opts": ["Remove ignition sources and ventilate the area", "Light the appliance", "Close all windows", "Switch on extractor fans"], "ans": 0, "why": "Remove ignition sources and ventilate before purging."}, {"id": "m6", "topic": "Calculations", "q": "For a gas rate test, which appliances should be running?", "opts": ["All appliances", "Only the appliance under test", "Only the cooker", "None"], "ans": 1, "why": "Everything else, including pilots, should be off."}, {"id": "m7", "topic": "CO & analysis", "q": "A flue gas analyser should be zeroed:", "opts": ["In the flue", "In fresh air", "Next to the boiler", "After the test"], "ans": 1, "why": "Zero it in fresh air before use."}, {"id": "m8", "topic": "CO & analysis", "q": "CO = 36 ppm and CO₂ = 9.0%. The ratio is:", "opts": ["0.0004", "0.004", "0.04", "0.4"], "ans": 0, "why": "36 ÷ 90,000 = 0.0004."}, {"id": "m9", "topic": "Unsafe situations", "q": "An open-flued appliance fails the spillage test. You should:", "opts": ["Leave it in use and advise the customer", "Treat it as unsafe: turn it off, label it and follow the unsafe situations procedure", "Raise the burner pressure", "Remove the vent"], "ans": 1, "why": "A failed spillage test means products may be entering the room: make safe."}, {"id": "m10", "topic": "Appliances", "q": "A thermocouple is part of:", "opts": ["Flame supervision", "Ignition", "Condensate drainage", "Pressure regulation"], "ans": 0, "why": "It holds the gas valve open only while the pilot flame heats it."}, {"id": "m11", "topic": "Unsafe situations", "q": "A 'Do not use' label is fixed to:", "opts": ["The appliance or control that has been turned off", "The meter box lid only", "The customer's front door", "The flue terminal"], "ans": 0, "why": "It goes on the appliance or its control so it isn't used by mistake."}, {"id": "m12", "topic": "Unsafe situations", "q": "A warning notice should be given to:", "opts": ["The neighbour", "The person responsible for the premises", "The gas supplier only", "No one"], "ans": 1, "why": "The person responsible, ideally with a signature."}, {"id": "m13", "topic": "Pipework & meters", "q": "Which valve isolates a single appliance?", "opts": ["Emergency control valve", "Appliance isolation valve", "Meter regulator", "Pressure relief valve"], "ans": 1, "why": "Each appliance should have its own isolation valve."}, {"id": "m14", "topic": "Pipework & meters", "q": "The meter regulator:", "opts": ["Reduces and holds the supply pressure steady", "Measures CO", "Provides ventilation", "Earths the pipework"], "ans": 0, "why": "It keeps the supply at the nominal pressure."}, {"id": "m15", "topic": "Ventilation", "q": "An appliance in a compartment usually needs:", "opts": ["No ventilation", "High-level and low-level ventilation", "Only a low-level vent", "Only a window"], "ans": 1, "why": "Compartments usually need high and low vents; check the MIs."}, {"id": "m16", "topic": "Calculations", "q": "Gross input equals:", "opts": ["Net × 1.1", "Net ÷ 1.1", "Net × 0.9", "Net + 1.1"], "ans": 0, "why": "Net = gross ÷ 1.1, so gross = net × 1.1."}, {"id": "m17", "topic": "Gas & combustion", "q": "Light-back is typically caused by:", "opts": ["Gas pressure too low or too much primary air", "A frozen condensate pipe", "A full meter", "Too many vents"], "ans": 0, "why": "The flame burns back to the injector."}, {"id": "m18", "topic": "Flues", "q": "Which test shows whether flue products are being drawn away?", "opts": ["Flue flow test", "Let-by test", "Gas rate test", "Bonding test"], "ans": 0, "why": "Use smoke at the draught diverter."}, {"id": "m19", "topic": "Flues", "q": "You suspect an old flue is asbestos cement. You should:", "opts": ["Break it up to check", "Stop, avoid disturbing it and follow HSE guidance", "Drill it", "Burn it"], "ans": 1, "why": "Do not disturb suspect asbestos."}, {"id": "m20", "topic": "Law & practice", "q": "Landlord gas safety records should be given to existing tenants within:", "opts": ["7 days", "28 days", "3 months", "12 months"], "ans": 1, "why": "28 days of the check."}, {"id": "m21", "topic": "Flues", "q": "A flue terminal where people could touch it should have:", "opts": ["A terminal guard", "A bigger vent", "A second ECV", "A CO alarm only"], "ans": 0, "why": "Guards stop contact and damage."}, {"id": "m22", "topic": "Gas & combustion", "q": "LPG leaks are especially dangerous in cellars because LPG:", "opts": ["Is lighter than air", "Is heavier than air and collects at low level", "Is odourless", "Is non-flammable"], "ans": 1, "why": "LPG sinks and collects in low spaces."}, {"id": "m23", "topic": "Law & practice", "q": "'MI' stands for:", "opts": ["Maximum input", "Manufacturer's instructions", "Meter index", "Mains isolation"], "ans": 1, "why": "Manufacturer's instructions."}, {"id": "m24", "topic": "Appliances", "q": "A boiler locks out in freezing weather. A likely cause is:", "opts": ["Frozen condensate pipe", "Frozen meter", "Frozen gas main", "Too much ventilation"], "ans": 0, "why": "A frozen condensate pipe can stop the boiler."}, {"id": "m25", "topic": "Unsafe situations", "q": "A customer refuses to let you disconnect an appliance classed as Immediate Danger. You should:", "opts": ["Leave quietly", "Explain the danger, issue the warning notice and follow the procedure, including the Gas Emergency Service if required", "Reduce the price", "Turn the appliance up"], "ans": 1, "why": "Never simply leave; follow the unsafe situations procedure."}, {"id": "x1", "topic": "Emergencies", "q": "After a suspected gas escape, which action should you avoid?", "opts": ["Opening windows", "Operating electrical switches", "Turning off at the ECV if safe", "Calling 0800 111 999"], "ans": 1, "why": "Switches can create a spark, so avoid them along with flames."}, {"id": "x2", "topic": "Emergencies", "q": "If CO poisoning is suspected, you should:", "opts": ["Open a window and stay in the room", "Turn the appliance off, get everyone into fresh air and seek medical help", "Wait to see if symptoms pass", "Turn the heating up"], "ans": 1, "why": "Get people out into fresh air, turn the appliance off and get medical help."}, {"id": "x3", "topic": "Ventilation", "q": "Permanent ventilation openings must be:", "opts": ["Closable in winter", "Always open and unobstructed", "Covered with a cloth", "Smaller than 1 cm²"], "ans": 1, "why": "Permanent means it cannot be closed or blocked."}, {"id": "x4", "topic": "Ventilation", "q": "Extractor fans can cause problems for open-flued appliances because they may:", "opts": ["Pull combustion products back into the room", "Raise gas pressure", "Cool the meter", "Increase the gas rate"], "ans": 0, "why": "They can overcome the flue draught, so test spillage with fans running."}, {"id": "x5", "topic": "Flues", "q": "A room-sealed boiler takes its combustion air from:", "opts": ["The room", "Outside, through the flue system", "The gas supply", "A cupboard only"], "ans": 1, "why": "Room-sealed appliances have a sealed circuit to outside."}, {"id": "x6", "topic": "Pipework & meters", "q": "Gas pipework passing through a wall should be:", "opts": ["Sleeved and sealed", "Left bare in the cavity", "Buried in plaster with no protection", "Joined inside the wall"], "ans": 0, "why": "Sleeve and seal the pipe, and avoid joints in concealed spaces."}], "decks": {"facts": [{"id": "f0", "front": "Gas Emergency number?", "back": "0800 111 999 (free, 24 hours)."}, {"id": "f1", "front": "Main component and density of natural gas?", "back": "Methane, relative density about 0.6 (lighter than air)."}, {"id": "f2", "front": "Flammable range of natural gas?", "back": "About 5% to 15% in air."}, {"id": "f3", "front": "Which odorant is added to natural gas?", "back": "A mercaptan (such as THT), which smells of rotten eggs."}, {"id": "f4", "front": "Nominal pressure at the meter outlet?", "back": "21 mbar."}, {"id": "f5", "front": "Maximum pressure drop from meter to appliance?", "back": "1 mbar."}, {"id": "f6", "front": "ECV handle in line with the pipe means?", "back": "Open. Across the pipe means closed."}, {"id": "f7", "front": "Main bonding to gas pipework?", "back": "10 mm² conductor, within 600 mm of the meter outlet (consumer side), BS 951 clamp."}, {"id": "f8", "front": "CO/CO₂ ratio limit for a domestic appliance?", "back": "0.004 or below is normal. Above that, investigate."}, {"id": "f9", "front": "Convert CO₂ % to ppm?", "back": "1% = 10,000 ppm."}, {"id": "f10", "front": "Gross to net input (natural gas)?", "back": "Net = gross ÷ 1.1."}, {"id": "f11", "front": "Gross input formula?", "back": "Gas rate (m³/h) × CV (MJ/m³) ÷ 3.6 = kW gross."}, {"id": "f12", "front": "Gas rate formula?", "back": "Volume (m³) × 3600 ÷ time (seconds)."}, {"id": "f13", "front": "1 mbar in pascals?", "back": "100 Pa."}, {"id": "f14", "front": "Landlord gas safety rules?", "back": "Annual check, keep the record for 2 years, give tenants a copy within 28 days (new tenants before moving in)."}, {"id": "f15", "front": "Open-flue tests?", "back": "Visual check, flue flow test and spillage test, with extractor fans running."}, {"id": "f16", "front": "Yellow tipping means?", "back": "Too little primary air or poor combustion (dirty burner, blocked flue, poor ventilation)."}, {"id": "f17", "front": "Flame lift versus light-back?", "back": "Lift: pressure or primary air too high. Light-back: pressure too low or too much primary air."}, {"id": "f18", "front": "Unsafe situations in one line?", "back": "ID: make safe. AR: turn off and label. NCS: advise and record."}, {"id": "f19", "front": "Condensate from a condensing boiler?", "back": "Acidic (about pH 3 to 5). Drain through a trap and a pipe with a continuous fall; outside runs can freeze."}], "gloss": [{"id": "g0", "front": "AR", "back": "At Risk: an unsafe situation that is not immediate but could become dangerous."}, {"id": "g1", "front": "CV", "back": "Calorific value: the heat released by burning a unit volume of gas, in MJ per cubic metre."}, {"id": "g2", "front": "ECV", "back": "Emergency control valve: the main gas shut-off valve at the meter."}, {"id": "g3", "front": "FFD", "back": "Flame failure device: shuts off gas if the flame goes out."}, {"id": "g4", "front": "GIUSP", "back": "Gas Industry Unsafe Situations Procedure."}, {"id": "g5", "front": "GSIUR", "back": "Gas Safety (Installation and Use) Regulations 1998."}, {"id": "g6", "front": "ID", "back": "Immediate Danger: an unsafe situation that must be made safe straight away."}, {"id": "g7", "front": "LDF", "back": "Leak detection fluid: bubbles show gas leaks."}, {"id": "g8", "front": "Let-by", "back": "Gas passing a valve that should be shut."}, {"id": "g9", "front": "MI", "back": "Manufacturer's instructions."}, {"id": "g10", "front": "MPD", "back": "Maximum permitted pressure drop during a tightness test."}, {"id": "g11", "front": "NCS", "back": "Not to Current Standards."}, {"id": "g12", "front": "ODS", "back": "Oxygen depletion sensor."}, {"id": "g13", "front": "Overgassing", "back": "Supplying more gas to an appliance than it is designed for."}, {"id": "g14", "front": "Primary air", "back": "Air mixed with gas inside the burner before combustion."}, {"id": "g15", "front": "Room-sealed", "back": "Appliance with a sealed combustion circuit that takes air from and discharges to outside."}, {"id": "g16", "front": "Spillage", "back": "Combustion products escaping into the room instead of going up the flue."}, {"id": "g17", "front": "Stabilisation", "back": "The waiting period in a tightness test so the temperature and pressure settle."}, {"id": "g18", "front": "Terminal", "back": "The outlet of a flue where combustion products leave the building."}, {"id": "g19", "front": "U6", "back": "A standard domestic gas meter size (maximum flow 6 cubic metres per hour)."}], "viva": [{"id": "v0", "front": "What would you do on arrival if you smelled gas?", "back": "No flames or switches; open doors and windows; turn off at the ECV if safe; leave the building; call 0800 111 999; do not return until safe."}, {"id": "v1", "front": "How would you check ventilation for an open-flued boiler?", "back": "Identify the type and position of vents; check they are permanent and unobstructed; check the free area against the standard and MIs; then test spillage with extractors on."}, {"id": "v2", "front": "Why do you allow a stabilisation period in a tightness test?", "back": "Temperature and pressure changes in the pipework can make the gauge move, so you wait for it to settle before judging a leak."}, {"id": "v3", "front": "How do you decide between Immediate Danger, At Risk and Not to Current Standards?", "back": "Use the current unsafe situations procedure. Ask whether there is an immediate danger, whether it could become dangerous, or whether it is simply not to today's standards."}, {"id": "v4", "front": "What are the signs of CO at an appliance or in a home?", "back": "Lazy yellow or orange flames, soot or staining, pilot going out, condensation; headaches, dizziness, nausea, collapse."}, {"id": "v5", "front": "What does a CO/CO₂ ratio of 0.004 tell you?", "back": "It is the usual limit for a domestic appliance. Higher means poor combustion that needs investigating."}, {"id": "v6", "front": "What is the difference between gross and net input?", "back": "Gross includes the heat from condensing the water vapour; net does not. For natural gas, net = gross ÷ 1.1."}, {"id": "v7", "front": "Where is main bonding made, and why?", "back": "Within 600 mm of the meter outlet, consumer's side, with 10 mm² conductor and a BS 951 clamp, to keep the pipework at the same electrical potential as the earth."}, {"id": "v8", "front": "What do you check on a gas cooker?", "back": "Ventilation, flexible hose and restraint, isolation valve, flame picture, flame failure devices, gas tap operation, stability and position."}, {"id": "v9", "front": "What records do you complete after a landlord check or service?", "back": "Results of checks and tests, defects found and actions, appliance details, date and your details; give a copy to the customer or tenant and keep the record."}, {"id": "v10", "front": "What do you tell the customer at handover?", "back": "How the appliance works, where the ECV is, what to do if they smell gas, CO alarm advice, and when the next service is due."}, {"id": "v11", "front": "What is your responsibility if you cannot fix a fault?", "back": "Make safe, tell the responsible person, give a warning notice and record it. Never leave an unsafe appliance in use."}, {"id": "v12", "front": "What is the difference between primary and secondary air?", "back": "Primary air mixes with the gas inside the burner; secondary air reaches the flame from around it."}, {"id": "v13", "front": "Why must you use gas-rated jointing materials?", "back": "Ordinary water-rated tapes and compounds may not be suitable for gas, and could cause a leak or deteriorate."}, {"id": "v14", "front": "What would you do if you suspected asbestos in an old flue?", "back": "Stop, do not disturb it, inform the customer and follow HSE guidance."}]}, "scenarios": [{"i": 0, "text": "A leak is found with LDF at a union on the supply side, upstream of the ECV, and it cannot be stopped.", "cls": "ID", "why": "Ventilate, avoid ignition sources, leave the building and call the Gas Emergency Service on 0800 111 999. Pipework upstream of the ECV is the gas transporter's responsibility."}, {"i": 1, "text": "A gas cooker flexible hose is cracked and perished. LDF shows no leak and there is no smell of gas.", "cls": "AR", "why": "Turn off at the isolation valve, label it, advise the customer and replace the hose before it is used again."}, {"i": 2, "text": "A gas hob has no isolation valve, but is otherwise sound and passes all tests.", "cls": "NCS", "why": "Advise the customer and record it. A valve should be fitted, but the hob is not in immediate danger."}, {"i": 3, "text": "An open-flued fire is in a room with no permanent vent. It passes the spillage test and CO readings are normal.", "cls": "AR", "why": "Inadequate ventilation could lead to spillage or CO. Turn off, label and advise until proper ventilation is fitted."}, {"i": 4, "text": "An open-flued boiler fails the spillage test, products are escaping into the room and the occupant has headaches.", "cls": "ID", "why": "Turn off, make safe, ventilate and give medical advice if needed. Do not leave it in use. Issue a warning notice."}, {"i": 5, "text": "A flue joint is leaking products into a bedroom cupboard, with staining on the wall.", "cls": "ID", "why": "Products are entering an occupied part of the building. Turn off, make safe and explain the danger."}, {"i": 6, "text": "A condensing boiler works correctly, but its condensate pipe is run outside in small-bore, uninsulated pipe.", "cls": "NCS", "why": "Advise on freeze risk and improvement; no need to disconnect."}, {"i": 7, "text": "A gas fire's thermocouple has been bypassed with a wire so the pilot can't shut off the gas.", "cls": "ID", "why": "A safety device has been defeated. Turn off and disconnect, remove the bypass or the appliance from use, and issue a warning notice."}], "tasks": [{"n": 1, "title": "Arrive, assess and prepare", "goal": "Show you work safely and professionally before you touch anything.", "need": "ID card, PPE, test equipment, warning notices and labels, a note of the risk assessment.", "steps": ["Introduce yourself, show your Gas Safe ID and explain the work.", "Ask about any smell of gas, symptoms such as headaches, and any known faults.", "Walk the job: find the meter and ECV, the appliances, ventilation and flue routes.", "Risk assess: ignition sources, escape routes, vulnerable occupants, access, suspected asbestos.", "Check your equipment works and is in calibration; zero the analyser in fresh air.", "Tell the customer what will be turned off and for how long."], "looks": ["Clear, polite communication with the customer", "A real risk assessment, spoken or written", "ECV located and its position explained", "Test equipment checked before use"], "slips": ["Starting work before checking equipment", "Not locating the ECV until it is needed", "Forgetting to ask about symptoms or smells"]}, {"n": 2, "title": "Visual inspection of the installation and appliance", "goal": "Spot anything unsafe or non-compliant before testing.", "need": "Torch, mirror, LDF, rating plate details, manufacturer's instructions.", "steps": ["Check the appliance type is suitable for the room and installed to the manufacturer's instructions.", "Inspect the meter, ECV, regulator and pipework: support, corrosion, sleeves, joints, damage.", "Check main bonding is present within 600 mm of the meter outlet (10 mm² conductor, BS 951 clamp).", "Check there is a working appliance isolation valve.", "Inspect flexible hoses for damage, kinks, position and restraint.", "Look for soot, staining, scorching, water leaks and signs of overheating.", "Check the data plate: gas type, input and appliance category.", "Check ventilation openings are permanent and unobstructed; check the visible flue and terminal.", "Check for a CO alarm and its date."], "looks": ["Methodical order, not random looking", "Spoken findings, including 'nothing found'", "Correct identification of non-compliance and what it means", "Notes made as you go"], "slips": ["Missing the isolation valve or bonding", "Not checking the data plate", "Calling a minor issue unsafe, or an unsafe one 'fine'"]}, {"n": 3, "title": "Tightness test (including let-by)", "goal": "Prove the installation does not leak, and record it.", "need": "Calibrated manometer, test adaptor, LDF, gas detector. Follow IGEM/UP/1B for the permitted pressure drop [CHECK].", "steps": ["Check all appliance valves and burner controls are closed; no ignition sources; area ventilated.", "Fit the manometer at a suitable test point and check it reads zero.", "Let-by test: with the ECV closed and the downstream pipework open to atmosphere, check the gauge does not rise.", "Pressurise to working pressure, then close the ECV.", "Allow the stabilisation period so temperature effects settle.", "Observe the test period; note the start and end readings.", "Compare the drop with the MPD for the installation volume [CHECK].", "If it fails, find the leak with LDF, repair it and repeat the whole test.", "Make the test point sound, check it with LDF and reinstate."], "looks": ["Appliance valves confirmed closed", "Gauge connected correctly and zeroed", "Correct stabilisation and test periods", "Correct pass or fail decision with a recorded reading", "Re-test after any repair"], "slips": ["Cutting short the stabilisation period", "Testing with an appliance valve open", "Forgetting to leak-test the test point afterwards", "Not repeating the full test after a repair"]}, {"n": 4, "title": "Purging", "goal": "Replace air with gas (or gas with air) safely, to a safe place outside.", "need": "Gas detector, suitable hose to outside, LDF. Purge volumes and rates are in IGEM/UP/1B [CHECK].", "steps": ["Decide the purge point and a safe place outside for the discharge.", "Remove ignition sources, ventilate, keep people clear and tell the customer.", "Check appliance valves are closed.", "Open the ECV and purge at the chosen point, discharging outside.", "Use the gas detector to confirm the pipework is purged.", "Close the purge point and check the joint with LDF.", "Relight appliances in the right order and check they work."], "looks": ["Safe discharge point outside", "No ignition sources in the area", "Confirmation with a detector, not guessing", "Customer informed"], "slips": ["Purging into the room", "Stopping before gas is confirmed", "Not leak-testing the purge point afterwards"]}, {"n": 5, "title": "Working pressure, burner pressure and gas rate", "goal": "Prove the appliance is getting the right pressure and gas.", "need": "Manometer, stopwatch, calculator, CV from the gas bill or the manufacturer's data.", "steps": ["With all appliances off, note the static pressure at the meter outlet.", "Run the appliance (and others as required) and note the working pressure; the drop to the appliance should be no more than 1 mbar.", "Read the burner pressure and compare with the data plate.", "For the gas rate: turn all other gas off, including pilot lights, and time a measured volume on the meter dial.", "Calculate gas rate (m³/h), gross input (kW) and net input (kW).", "Compare with the rating plate. Adjust only as the manufacturer's instructions allow.", "Record readings and any adjustment."], "looks": ["Manometer connected and used correctly", "Other gas appliances off for the gas rate", "Correct formula and units, gross versus net", "Result compared with the data plate"], "slips": ["Pilot lights or other appliances left running", "Mixing gross and net input", "Using the wrong calorific value"]}, {"n": 6, "title": "Ventilation and flue tests (open-flued appliance)", "goal": "Prove the appliance gets enough air and the flue removes the products.", "need": "Smoke match or pellet, torch, mirror, manufacturer's instructions, BS 5440-1 and BS 5440-2.", "steps": ["Check the ventilation: type, position, free area and that it is unobstructed [CHECK].", "Visually inspect the flue and chimney, joints, support and terminal.", "Close doors and windows and switch on any extractor fans.", "Run the appliance on full.", "Flue flow test: use smoke at the draught diverter to see whether products are drawn into the flue.", "Spillage test: check for spillage at the draught diverter after the appliance has been running about 5 minutes (follow the standard and the MIs).", "Record the results. If it fails, treat it as unsafe (Task 9)."], "looks": ["Extractor fans tested on", "Correct use of smoke and a sensible time to wait", "Honest recording of a fail", "The right unsafe-situation response to a fail"], "slips": ["Forgetting extractor fans", "Judging flue flow by eye only", "Leaving a failed flue in use"]}, {"n": 7, "title": "Combustion analysis", "goal": "Measure CO and CO₂, calculate the ratio and decide what to do.", "need": "Calibrated flue gas analyser, manufacturer's test point details, calculator, BS 7967.", "steps": ["Zero the analyser in fresh air.", "Insert the probe at the correct test point for the appliance.", "Run the appliance until readings are stable, at full and (where the MIs say) at minimum rate.", "Record CO (ppm) and CO₂ (%).", "Convert CO₂ to ppm (1% = 10,000 ppm) and work out the CO/CO₂ ratio.", "Compare with 0.004. If the ratio is higher, investigate: burner, air supply, flue, gas pressure.", "Fix the cause, retest and record the final readings."], "looks": ["Analyser zeroed in fresh air", "Correct probe position and stable readings", "Ratio calculated correctly, with ppm and % handled properly", "Correct action on a high ratio"], "slips": ["Zeroing the analyser in the flue", "Forgetting to convert % to ppm", "Reading too early, before readings are stable"]}, {"n": 8, "title": "Safety devices and controls", "goal": "Prove that the safety devices work, within the manufacturer's instructions.", "need": "Manufacturer's instructions, stopwatch if required, analyser or detector as needed.", "steps": ["Identify which safety devices the appliance has: flame failure device, overheat thermostat, air pressure switch, ODS.", "With the appliance running, test the flame failure device as the MIs describe and check the gas shuts off.", "Test the overheat or limit device only as the MIs allow.", "Check the air pressure switch or fan proving, where fitted.", "Check the thermostats and time controls.", "Record the results and any device that does not work."], "looks": ["Correct list of safety devices for the appliance", "Tests carried out as the MIs say, not improvised", "A device that fails is treated as unsafe"], "slips": ["Bypassing a device 'to test it'", "Not knowing which devices a given appliance has", "Recording 'OK' without actually testing"]}, {"n": 9, "title": "Unsafe situation and paperwork", "goal": "Classify what you find and respond correctly, with the right documents.", "need": "Warning notices, labels, job sheet, the current Gas Industry Unsafe Situations Procedure.", "steps": ["Stop and assess; protect people first.", "Classify the situation: Immediate Danger, At Risk or Not to Current Standards.", "Explain the danger in plain words to the person responsible.", "Make safe: turn off, and with permission disconnect or cap as needed. Fit a Do not use label.", "Complete the warning notice, get a signature where you can, and leave a copy.", "If permission is refused, follow the procedure, including the Gas Emergency Service where required.", "Record everything on the job sheet."], "looks": ["A clear, correct classification with a reason", "Appliance made safe or the correct escalation", "Notice and label completed correctly", "Explanation the customer could understand"], "slips": ["Under-classifying to avoid a difficult conversation", "Leaving an Immediate Danger appliance in use", "Incomplete paperwork"]}, {"n": 10, "title": "Handover and records", "goal": "Leave the customer informed and the paperwork complete.", "need": "Manufacturer's instructions, commissioning record or checklist, gas safety record where required.", "steps": ["Show the customer the appliance working and how the controls work.", "Show where the ECV is and explain what to do if they smell gas (0800 111 999).", "Advise on CO alarms and on regular servicing.", "Leave the manufacturer's instructions with the customer.", "Complete the commissioning or service record and any gas safety record.", "Make sure the Building Regulations notification is made where required.", "Tidy up, remove all test equipment and leave the site clean."], "looks": ["Customer understands how to use and isolate the appliance", "Records complete, accurate and legible", "Emergency advice given"], "slips": ["Rushing the handover", "Not leaving instructions or the ECV location", "Forgetting to notify the work"]}]};
+var KEY = "gasTrainer.v1";
+var store = { q: {}, cards: {}, scen: {}, tasks: {}, drill: { s: 0, c: 0 }, mocks: [] };
+try {
+  var raw = localStorage.getItem(KEY);
+  if (raw) { var p = JSON.parse(raw); if (p && typeof p === "object") { for (var k in p) store[k] = p[k]; } }
+} catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+
+/* ---------- helpers ---------- */
+function h(tag, a) {
+  var el = document.createElement(tag);
+  if (a) {
+    Object.keys(a).forEach(function (k) {
+      var v = a[k];
+      if (v === undefined || v === null || v === false) return;
+      if (k === "class") el.className = v;
+      else if (k === "on") Object.keys(v).forEach(function (e) { el.addEventListener(e, v[e]); });
+      else if (k === "checked") el.checked = !!v;
+      else if (k === "value") el.value = v;
+      else el.setAttribute(k, v === true ? "" : v);
+    });
+  }
+  var kids = Array.prototype.slice.call(arguments, 2);
+  (function add(list) {
+    list.forEach(function (c) {
+      if (c === null || c === undefined || c === false) return;
+      if (Array.isArray(c)) return add(c);
+      el.append(c.nodeType ? c : document.createTextNode(String(c)));
+    });
+  })(kids);
+  return el;
+}
+function rich(t) {
+  var f = document.createDocumentFragment();
+  String(t).split("\n").forEach(function (line, li) {
+    if (li) f.append(document.createElement("br"));
+    line.split("[CHECK]").forEach(function (part, i) {
+      if (i) f.append(h("span", { class: "chk", title: "Confirm against the current standard" }, "CHECK"));
+      f.append(document.createTextNode(part));
+    });
+  });
+  return f;
+}
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function rnd(a, b) { return a + Math.random() * (b - a); }
+function rint(a, b) { return Math.floor(rnd(a, b + 1)); }
+function pct(c, s) { return s ? Math.round(100 * c / s) : null; }
+var LET = "ABCD";
+
+/* ---------- stats ---------- */
+function rec(id, ok) { var r = store.q[id] || (store.q[id] = { s: 0, c: 0, l: null }); r.s++; if (ok) r.c++; r.l = ok; }
+function topicStats() {
+  var t = {};
+  D.topics.forEach(function (n) { t[n] = { total: 0, seen: 0, s: 0, c: 0 }; });
+  D.questions.forEach(function (q) {
+    var x = t[q.topic]; x.total++;
+    var r = store.q[q.id];
+    if (r && r.s) { x.seen++; x.s += r.s; x.c += r.c; }
+  });
+  return t;
+}
+function totals() {
+  var s = 0, c = 0, seen = 0;
+  D.questions.forEach(function (q) { var r = store.q[q.id]; if (r && r.s) { seen++; s += r.s; c += r.c; } });
+  return { s: s, c: c, seen: seen };
+}
+function barClass(p) { return p === null ? "" : p >= 80 ? "high" : p >= 60 ? "mid" : "low"; }
+
+/* ---------- state ---------- */
+var V = { tab: "home", quiz: { mode: "menu" }, cards: { mode: "menu" }, scen: { mode: "menu" }, drill: { sub: "practice", q: null, answered: false, sess: { n: 0, c: 0 } }, task: null, confirmReset: false };
+var main = document.getElementById("main");
+var tabsEl = document.getElementById("tabs");
+var TABS = [["home", "Home"], ["quiz", "Quiz"], ["cards", "Cards"], ["scen", "Scenarios"], ["drill", "Drills"], ["tasks", "Tasks"]];
+function renderTabs() {
+  tabsEl.textContent = "";
+  TABS.forEach(function (t) {
+    tabsEl.append(h("button", { class: "tab", type: "button", "aria-current": V.tab === t[0] ? "page" : null, on: { click: function () { go(t[0]); } } }, t[1]));
+  });
+}
+function go(t) { V.tab = t; render(); window.scrollTo(0, 0); }
+function render() {
+  renderTabs();
+  main.textContent = "";
+  var view = { home: viewHome, quiz: viewQuiz, cards: viewCards, scen: viewScen, drill: viewDrill, tasks: viewTasks }[V.tab];
+  main.append(view());
+}
+
+/* ---------- HOME ---------- */
+function viewHome() {
+  var T = totals(), ts = topicStats();
+  var acc = pct(T.c, T.s);
+  var weakest = null;
+  D.topics.forEach(function (n) { var x = ts[n]; if (x.s >= 3) { var p = pct(x.c, x.s); if (weakest === null || p < weakest.p) weakest = { n: n, p: p }; } });
+  var box = h("div", { class: "stack" });
+  box.append(h("div", { class: "stack" },
+    h("h2", null, "Get ready for reassessment"),
+    h("p", { class: "muted" }, "Quizzes, a timed mock exam, flashcards, unsafe-situation scenarios, calculation drills and task checklists for domestic natural gas safety.")));
+  box.append(h("div", { class: "stats" },
+    h("div", { class: "stat" }, h("b", null, String(T.s)), h("span", null, "Answers given")),
+    h("div", { class: "stat" }, h("b", null, acc === null ? "--" : acc + "%"), h("span", null, "Accuracy")),
+    h("div", { class: "stat" }, h("b", null, T.seen + "/" + D.questions.length), h("span", null, "Questions seen"))));
+  var acts = h("div", { class: "stack" });
+  acts.append(h("button", { class: "btn block", type: "button", on: { click: function () { go("quiz"); startQuiz("mock"); } } }, "Start mock exam: 25 questions, 30 minutes"));
+  acts.append(h("div", { class: "row" },
+    h("button", { class: "btn ghost", style: "flex:1", type: "button", on: { click: function () { go("quiz"); startQuiz("mixed"); } } }, "Quick 10"),
+    h("button", { class: "btn ghost", style: "flex:1", type: "button", on: { click: function () { go("quiz"); startQuiz("weak"); } } }, "Weak spots")));
+  if (weakest) {
+    acts.append(h("div", { class: "panel flat" }, h("div", { class: "eyebrow" }, "Focus next"),
+      h("p", null, h("b", null, weakest.n), " is at ", h("span", { class: "mono" }, weakest.p + "%"), ". "),
+      h("button", { class: "btn small ghost", style: "margin-top:8px", type: "button", on: { click: function () { go("quiz"); startQuiz("topic", weakest.n); } } }, "Practise " + weakest.n)));
+  }
+  box.append(acts);
+  var tp = h("div", { class: "panel" }, h("h3", null, "By topic"));
+  D.topics.forEach(function (n) {
+    var x = ts[n], p = pct(x.c, x.s);
+    tp.append(h("div", { class: "topic" },
+      h("span", null, n),
+      h("span", { class: "mono small muted" }, (p === null ? "not started" : p + "%") + "  " + x.seen + "/" + x.total),
+      h("div", { class: "bar", role: "img", "aria-label": n + " accuracy" }, h("i", { class: barClass(p), style: "width:" + (p === null ? 0 : p) + "%" }))));
+  });
+  box.append(tp);
+  if (store.mocks.length) {
+    var mp = h("div", { class: "panel" }, h("h3", null, "Recent mock exams"));
+    store.mocks.slice(-3).reverse().forEach(function (m) {
+      mp.append(h("div", { class: "row between", style: "padding-block:6px" }, h("span", { class: "muted" }, m.d), h("span", { class: "mono" }, m.score + "/" + m.total + "  " + pct(m.score, m.total) + "%")));
+    });
+    box.append(mp);
+  }
+  var foot = h("div", { class: "stack small muted" });
+  foot.append(h("p", null, "Independent study aid. It is not produced or endorsed by Gas Safe Register, the HSE, IGEM, BSI or any awarding body or assessment centre, and it does not replace training, the current regulations, or manufacturers' instructions."));
+  foot.append(h("p", null, rich("Items marked [CHECK] are figures to confirm against the current standard before relying on them.")));
+  foot.append(h("p", null, "Progress is saved in this browser only."));
+  if (V.confirmReset) {
+    foot.append(h("div", { class: "row" },
+      h("span", null, "Clear all progress on this device?"),
+      h("button", { class: "btn small", type: "button", on: { click: function () { store = { q: {}, cards: {}, scen: {}, tasks: {}, drill: { s: 0, c: 0 }, mocks: [] }; save(); V.confirmReset = false; render(); } } }, "Yes, clear"),
+      h("button", { class: "btn small quiet", type: "button", on: { click: function () { V.confirmReset = false; render(); } } }, "Cancel")));
+  } else {
+    foot.append(h("div", null, h("button", { class: "btn small quiet", type: "button", on: { click: function () { V.confirmReset = true; render(); } } }, "Reset progress")));
+  }
+  box.append(foot);
+  return box;
+}
+
+/* ---------- QUIZ ---------- */
+function startQuiz(mode, topic) {
+  var pool = D.questions, list = [], mock = false;
+  if (mode === "topic") list = shuffle(pool.filter(function (q) { return q.topic === topic; }));
+  else if (mode === "mixed") list = shuffle(pool).slice(0, 10);
+  else if (mode === "mock") { list = shuffle(pool).slice(0, 25); mock = true; }
+  else if (mode === "weak") {
+    var weak = pool.filter(function (q) { var r = store.q[q.id]; return r && r.s && (r.l === false || r.c / r.s < 0.7); });
+    var ts = topicStats();
+    var weakTopics = D.topics.filter(function (n) { return ts[n].s >= 3 && ts[n].c / ts[n].s < 0.7; });
+    var extra = pool.filter(function (q) { return weakTopics.indexOf(q.topic) > -1 && weak.indexOf(q) < 0; });
+    list = shuffle(weak).concat(shuffle(extra)).slice(0, 10);
+    if (list.length < 5) { var fill = shuffle(pool.filter(function (q) { return list.indexOf(q) < 0 && !(store.q[q.id] && store.q[q.id].s); })); list = list.concat(fill).slice(0, 10); }
+  }
+  if (!list.length) list = shuffle(pool).slice(0, 10);
+  var items = list.map(function (q) { return { q: q, order: shuffle([0, 1, 2, 3].slice(0, q.opts.length)), sel: null }; });
+  V.quiz = { mode: "run", kind: mode, topic: topic || null, items: items, i: 0, mock: mock, done: false, confirm: false, endAt: mock ? Date.now() + 30 * 60 * 1000 : 0, timer: null };
+  if (mock) V.quiz.timer = setInterval(tick, 1000);
+  render();
+}
+function tick() {
+  var r = V.quiz;
+  if (!r || !r.mock || r.done) { clearInterval(r && r.timer); return; }
+  var left = Math.max(0, r.endAt - Date.now());
+  var el = document.getElementById("timer");
+  if (el) { el.textContent = fmtTime(left); el.className = "timer" + (left < 5 * 60000 ? " low" : ""); }
+  if (left <= 0) finishQuiz();
+}
+function fmtTime(ms) { var s = Math.ceil(ms / 1000), m = Math.floor(s / 60); return m + ":" + String(s % 60).padStart(2, "0"); }
+function finishQuiz() {
+  var r = V.quiz; if (!r || r.done) return;
+  r.done = true; clearInterval(r.timer);
+  var score = 0;
+  r.items.forEach(function (it) {
+    var ok = it.sel !== null && it.order[it.sel] === it.q.ans;
+    if (r.mock) { if (it.sel !== null) rec(it.q.id, ok); }
+    if (ok) score++;
+  });
+  r.score = score;
+  if (r.mock) { store.mocks.push({ d: new Date().toLocaleDateString("en-GB"), score: score, total: r.items.length }); }
+  save(); render(); window.scrollTo(0, 0);
+}
+function viewQuiz() {
+  var r = V.quiz;
+  if (r.mode === "menu") return quizMenu();
+  if (r.done) return quizDone();
+  return quizRun();
+}
+function quizMenu() {
+  var ts = topicStats();
+  var box = h("div", { class: "stack" }, h("h2", null, "Quiz"));
+  box.append(h("button", { class: "btn block", type: "button", on: { click: function () { startQuiz("mock"); } } }, "Mock exam: 25 questions, 30 minutes"));
+  box.append(h("div", { class: "row" },
+    h("button", { class: "btn ghost", style: "flex:1", type: "button", on: { click: function () { startQuiz("mixed"); } } }, "Mixed 10"),
+    h("button", { class: "btn ghost", style: "flex:1", type: "button", on: { click: function () { startQuiz("weak"); } } }, "Weak spots")));
+  box.append(h("p", { class: "eyebrow" }, "By topic"));
+  var list = h("div", { class: "stack", style: "gap:8px" });
+  D.topics.forEach(function (n) {
+    var x = ts[n], p = pct(x.c, x.s);
+    list.append(h("button", { class: "menu-item", type: "button", on: { click: function () { startQuiz("topic", n); } } },
+      h("span", null, n), h("span", { class: "mono" }, (p === null ? "" : p + "%  ") + x.total + " Qs")));
+  });
+  box.append(list);
+  return box;
+}
+function quizRun() {
+  var r = V.quiz, it = r.items[r.i], q = it.q;
+  var locked = !r.mock && it.sel !== null;
+  var box = h("div", { class: "stack" });
+  box.append(h("div", { class: "qhead" },
+    h("span", { class: "mono small muted" }, "Question " + (r.i + 1) + " of " + r.items.length),
+    r.mock ? h("span", { id: "timer", class: "timer" }, fmtTime(Math.max(0, r.endAt - Date.now()))) : h("span", { class: "chip" }, q.topic)));
+  box.append(h("div", { class: "progress", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": r.items.length, "aria-valuenow": r.i + 1 }, h("i", { style: "width:" + Math.round(100 * (r.i + (locked ? 1 : 0)) / r.items.length) + "%" })));
+  box.append(h("p", { class: "qtext" }, rich(q.q)));
+  var opts = h("div", { class: "opts" });
+  it.order.forEach(function (oi, pos) {
+    var cls = "opt";
+    if (locked) { if (oi === q.ans) cls += " right"; else if (pos === it.sel) cls += " wrong"; }
+    opts.append(h("button", { class: cls, type: "button", disabled: locked, "aria-pressed": r.mock ? String(it.sel === pos) : null, on: { click: function () { choose(pos); } } },
+      h("span", { class: "l" }, LET[pos]), h("span", null, rich(q.opts[oi]))));
+  });
+  box.append(opts);
+  if (locked) {
+    var ok = it.order[it.sel] === q.ans;
+    box.append(h("div", { class: "feedback " + (ok ? "good" : "bad"), role: "status" }, h("b", null, ok ? "Correct" : "Not quite"), h("p", null, ok ? "" : "The answer is " + LET[it.order.indexOf(q.ans)] + ". "), h("p", null, rich(q.why))));
+  }
+  var nav = h("div", { class: "row between" });
+  if (r.mock) {
+    nav.append(h("button", { class: "btn quiet", type: "button", disabled: r.i === 0, on: { click: function () { r.i--; render(); window.scrollTo(0, 0); } } }, "Back"));
+    if (r.i < r.items.length - 1) nav.append(h("button", { class: "btn", type: "button", on: { click: function () { r.i++; render(); window.scrollTo(0, 0); } } }, "Next"));
+    else nav.append(h("button", { class: "btn", type: "button", on: { click: function () { r.confirm = true; render(); } } }, "Finish exam"));
+    box.append(nav);
+    var unanswered = r.items.filter(function (x) { return x.sel === null; }).length;
+    if (r.confirm) {
+      box.append(h("div", { class: "panel flat stack" }, h("p", null, unanswered ? unanswered + " question" + (unanswered > 1 ? "s" : "") + " not answered. Finish the exam now?" : "All questions answered. Finish the exam now?"),
+        h("div", { class: "row" },
+          h("button", { class: "btn", type: "button", on: { click: finishQuiz } }, "Finish and mark"),
+          h("button", { class: "btn quiet", type: "button", on: { click: function () { r.confirm = false; render(); } } }, "Keep going"))));
+    }
+  } else {
+    nav.append(h("button", { class: "btn quiet", type: "button", on: { click: quitQuiz } }, "Quit"));
+    if (locked) nav.append(h("button", { class: "btn", type: "button", on: { click: function () { if (r.i < r.items.length - 1) { r.i++; render(); window.scrollTo(0, 0); } else finishQuiz(); } } }, r.i < r.items.length - 1 ? "Next" : "See results"));
+    box.append(nav);
+  }
+  return box;
+}
+function choose(pos) {
+  var r = V.quiz, it = r.items[r.i];
+  if (r.mock) { it.sel = pos; render(); return; }
+  if (it.sel !== null) return;
+  it.sel = pos;
+  rec(it.q.id, it.order[pos] === it.q.ans);
+  save(); render();
+}
+function quitQuiz() { if (V.quiz.timer) clearInterval(V.quiz.timer); V.quiz = { mode: "menu" }; render(); }
+function quizDone() {
+  var r = V.quiz, n = r.items.length, p = pct(r.score, n);
+  var band = p >= 88 ? "Ready. Keep it fresh with a quick set each day." : p >= 72 ? "Nearly there. Review the ones you missed." : "Keep revising. Work through the topics below and try again.";
+  var box = h("div", { class: "stack" }, h("h2", null, r.mock ? "Mock exam result" : "Set complete"));
+  box.append(h("div", { class: "panel stack" }, h("div", { class: "scoreline" }, r.score + "/" + n), h("p", { class: "mono muted" }, p + "%"), h("p", null, band)));
+  var wrong = r.items.filter(function (it) { return it.sel === null || it.order[it.sel] !== it.q.ans; });
+  if (wrong.length) {
+    var rv = h("div", { class: "panel" }, h("h3", null, "Review (" + wrong.length + ")"));
+    wrong.forEach(function (it) {
+      var q = it.q;
+      rv.append(h("details", { class: "review" }, h("summary", null, rich(q.q)),
+        h("p", { style: "margin-top:8px" }, h("b", null, "Answer: "), rich(q.opts[q.ans])),
+        it.sel !== null ? h("p", { class: "muted" }, "You chose: ", rich(q.opts[it.order[it.sel]])) : h("p", { class: "muted" }, "Not answered."),
+        h("p", { style: "margin-top:6px" }, rich(q.why)), h("span", { class: "chip", style: "margin-top:8px" }, q.topic)));
+    });
+    box.append(rv);
+  }
+  box.append(h("div", { class: "row" },
+    h("button", { class: "btn", type: "button", on: { click: function () { startQuiz(r.kind, r.topic); } } }, "Another set"),
+    h("button", { class: "btn quiet", type: "button", on: { click: function () { V.quiz = { mode: "menu" }; render(); } } }, "Back to quiz menu")));
+  return box;
+}
+
+/* ---------- CARDS ---------- */
+var DECKS = [["facts", "Key facts", "Numbers and rules to know cold"], ["gloss", "Glossary", "Terms and abbreviations"], ["viva", "Viva questions", "Spoken questions with key points"]];
+function viewCards() {
+  var c = V.cards;
+  if (c.mode === "run") return cardRun();
+  var box = h("div", { class: "stack" }, h("h2", null, "Flashcards"), h("p", { class: "muted" }, "Tap a card to flip it, then mark whether you knew it. Cards you miss are kept for review."));
+  DECKS.forEach(function (d) {
+    var cards = D.decks[d[0]], review = cards.filter(function (x) { return store.cards[x.id] === "r"; }).length, known = cards.filter(function (x) { return store.cards[x.id] === "k"; }).length;
+    var p = h("div", { class: "panel stack" },
+      h("div", { class: "row between" }, h("h3", null, d[1]), h("span", { class: "mono small muted" }, known + "/" + cards.length + " known")),
+      h("p", { class: "muted small" }, d[2]),
+      h("div", { class: "row" },
+        h("button", { class: "btn", type: "button", on: { click: function () { startCards(d[0], false); } } }, "Study all"),
+        review ? h("button", { class: "btn ghost", type: "button", on: { click: function () { startCards(d[0], true); } } }, "Review " + review + " missed") : null));
+    box.append(p);
+  });
+  return box;
+}
+function startCards(deck, onlyReview) {
+  var list = D.decks[deck].filter(function (x) { return !onlyReview || store.cards[x.id] === "r"; });
+  V.cards = { mode: "run", deck: deck, list: shuffle(list), i: 0, flipped: false, got: 0, miss: 0 };
+  render();
+}
+function cardRun() {
+  var c = V.cards, name = DECKS.filter(function (d) { return d[0] === c.deck; })[0][1];
+  if (c.i >= c.list.length) {
+    return h("div", { class: "stack" }, h("h2", null, "Deck finished"),
+      h("div", { class: "panel stack" }, h("p", null, "You knew ", h("b", { class: "mono" }, String(c.got)), " and missed ", h("b", { class: "mono" }, String(c.miss)), "."),
+        h("p", { class: "muted" }, "Missed cards stay in the review pile for this deck.")),
+      h("div", { class: "row" }, h("button", { class: "btn", type: "button", on: { click: function () { startCards(c.deck, false); } } }, "Go again"),
+        h("button", { class: "btn quiet", type: "button", on: { click: function () { V.cards = { mode: "menu" }; render(); } } }, "All decks")));
+  }
+  var card = c.list[c.i];
+  var box = h("div", { class: "stack" });
+  box.append(h("div", { class: "qhead" }, h("span", { class: "chip" }, name), h("span", { class: "mono small muted" }, (c.i + 1) + " of " + c.list.length)));
+  box.append(h("div", { class: "progress" }, h("i", { style: "width:" + Math.round(100 * c.i / c.list.length) + "%" })));
+  box.append(h("button", { class: "card" + (c.flipped ? " back" : ""), type: "button", "aria-label": c.flipped ? "Answer. Tap to see the question." : "Question. Tap to see the answer.", on: { click: function () { c.flipped = !c.flipped; render(); } } },
+    h("span", { class: "side" }, c.flipped ? "Answer" : "Question"), h("span", { class: "txt" }, rich(c.flipped ? card.back : card.front))));
+  if (!c.flipped) box.append(h("button", { class: "btn block", type: "button", on: { click: function () { c.flipped = true; render(); } } }, "Show answer"));
+  else box.append(h("div", { class: "row" },
+    h("button", { class: "btn ghost", style: "flex:1", type: "button", on: { click: function () { store.cards[card.id] = "r"; c.miss++; c.i++; c.flipped = false; save(); render(); } } }, "Missed it"),
+    h("button", { class: "btn", style: "flex:1", type: "button", on: { click: function () { store.cards[card.id] = "k"; c.got++; c.i++; c.flipped = false; save(); render(); } } }, "Knew it")));
+  box.append(h("div", null, h("button", { class: "btn small quiet", type: "button", on: { click: function () { V.cards = { mode: "menu" }; render(); } } }, "Quit deck")));
+  return box;
+}
+
+/* ---------- SCENARIOS ---------- */
+var CLASSES = [["ID", "Immediate Danger", "Make safe now"], ["AR", "At Risk", "Turn off and label"], ["NCS", "Not to Current Standards", "Advise and record"]];
+function viewScen() {
+  var s = V.scen;
+  if (s.mode === "menu") {
+    var done = Object.keys(store.scen).length;
+    return h("div", { class: "stack" }, h("h2", null, "Unsafe situations"),
+      h("p", { class: "muted" }, "Read each situation, classify it, then see what to do. Answers are teaching examples. In an assessment, follow the current Gas Industry Unsafe Situations Procedure and your centre's criteria."),
+      h("div", { class: "panel stack" }, h("div", { class: "row between" }, h("b", null, D.scenarios.length + " scenarios"), h("span", { class: "mono small muted" }, done + " tried")),
+        h("button", { class: "btn block", type: "button", on: { click: function () { V.scen = { mode: "run", list: shuffle(D.scenarios), i: 0, chosen: null, score: 0 }; render(); } } }, "Start")));
+  }
+  if (s.i >= s.list.length) {
+    return h("div", { class: "stack" }, h("h2", null, "Scenarios finished"), h("div", { class: "panel stack" }, h("div", { class: "scoreline" }, s.score + "/" + s.list.length), h("p", { class: "muted" }, "classified correctly")),
+      h("div", { class: "row" }, h("button", { class: "btn", type: "button", on: { click: function () { V.scen = { mode: "run", list: shuffle(D.scenarios), i: 0, chosen: null, score: 0 }; render(); } } }, "Go again"),
+        h("button", { class: "btn quiet", type: "button", on: { click: function () { V.scen = { mode: "menu" }; render(); } } }, "Back")));
+  }
+  var sc = s.list[s.i], box = h("div", { class: "stack" });
+  box.append(h("div", { class: "qhead" }, h("span", { class: "chip" }, "Scenario"), h("span", { class: "mono small muted" }, (s.i + 1) + " of " + s.list.length)));
+  box.append(h("div", { class: "progress" }, h("i", { style: "width:" + Math.round(100 * s.i / s.list.length) + "%" })));
+  box.append(h("p", { class: "qtext" }, rich(sc.text)));
+  box.append(h("p", { class: "eyebrow" }, "How would you classify it?"));
+  var cl = h("div", { class: "cls" });
+  CLASSES.forEach(function (c) {
+    var cls = "opt";
+    if (s.chosen) { if (c[0] === sc.cls) cls += " right"; else if (c[0] === s.chosen) cls += " wrong"; }
+    cl.append(h("button", { class: cls, type: "button", disabled: !!s.chosen, on: { click: function () {
+      s.chosen = c[0]; var ok = c[0] === sc.cls; if (ok) s.score++;
+      var r = store.scen[sc.i] || (store.scen[sc.i] = { s: 0, c: 0 }); r.s++; if (ok) r.c++; save(); render(); } } },
+      h("span", { class: "l" }, c[0]), h("span", null, h("b", null, c[1]), h("br"), h("span", { class: "muted small" }, c[2]))));
+  });
+  box.append(cl);
+  if (s.chosen) {
+    var ok = s.chosen === sc.cls;
+    box.append(h("div", { class: "feedback " + (ok ? "good" : "bad"), role: "status" }, h("b", null, ok ? "Correct: " : "Suggested class: "), h("span", { class: "tag " + sc.cls }, sc.cls), h("p", { style: "margin-top:6px" }, rich(sc.why))));
+    box.append(h("button", { class: "btn block", type: "button", on: { click: function () { s.i++; s.chosen = null; render(); window.scrollTo(0, 0); } } }, s.i < s.list.length - 1 ? "Next scenario" : "See results"));
+  }
+  return box;
+}
+
+/* ---------- DRILLS ---------- */
+function f(x, d) { return x.toFixed(d); }
+var GEN = [
+  function gInput() {
+    var Vv = pick([0.01, 0.02, 0.025, 0.03, 0.05]), CV = pick([38.0, 38.5, 39.0, 39.5]), target = rnd(8, 32);
+    var t = Math.max(20, Math.round(Vv * 3600 * CV / (3.6 * target)));
+    var rate = Vv * 3600 / t, gross = rate * CV / 3.6, net = gross / 1.1, ask = pick(["gross", "net", "rate"]);
+    var base = "A boiler passes " + Vv + " m³ of gas in " + t + " seconds. The calorific value is " + f(CV, 1) + " MJ/m³. ";
+    var w = "Gas rate = " + Vv + " × 3600 ÷ " + t + " = " + f(rate, 3) + " m³/h\nGross = " + f(rate, 3) + " × " + f(CV, 1) + " ÷ 3.6 = " + f(gross, 2) + " kW\nNet = " + f(gross, 2) + " ÷ 1.1 = " + f(net, 2) + " kW";
+    if (ask === "rate") return { text: base + "What is the gas rate?", unit: "m³/h", ans: rate, tolRel: 0.015, tolAbs: 0.01, dp: 3, work: w };
+    if (ask === "gross") return { text: base + "What is the gross heat input?", unit: "kW", ans: gross, tolRel: 0.015, tolAbs: 0.05, dp: 2, work: w };
+    return { text: base + "What is the net heat input?", unit: "kW", ans: net, tolRel: 0.015, tolAbs: 0.05, dp: 2, work: w };
+  },
+  function gExpected() {
+    var net = rint(12, 36), CV = pick([38.0, 38.5, 39.0, 39.5]), Vv = pick([0.02, 0.025, 0.05]);
+    var gross = net * 1.1, rate = gross * 3.6 / CV, t = Vv * 3600 / rate;
+    return { text: "A boiler is rated " + net + " kW net. CV = " + f(CV, 1) + " MJ/m³. How many seconds should " + Vv + " m³ take to pass the meter?", unit: "seconds", ans: t, tolRel: 0.03, tolAbs: 1, dp: 0,
+      work: "Gross = " + net + " × 1.1 = " + f(gross, 1) + " kW\nGas rate = " + f(gross, 1) + " × 3.6 ÷ " + f(CV, 1) + " = " + f(rate, 3) + " m³/h\nTime = " + Vv + " × 3600 ÷ " + f(rate, 3) + " = " + f(t, 0) + " s" };
+  },
+  function gRatio() {
+    var CO = pick([20, 35, 45, 60, 80, 120, 260, 420, 520, 700]), CO2 = Math.round(rnd(8, 10) * 10) / 10, ratio = CO / (CO2 * 10000);
+    return { text: "CO = " + CO + " ppm and CO₂ = " + f(CO2, 1) + "%. Work out the CO/CO₂ ratio as a decimal, for example 0.0012.", unit: "", ans: ratio, tolRel: 0.03, tolAbs: 0.00003, dp: 4,
+      work: "CO₂ = " + f(CO2, 1) + " × 10,000 = " + Math.round(CO2 * 10000) + " ppm\nRatio = " + CO + " ÷ " + Math.round(CO2 * 10000) + " = " + f(ratio, 5) + "\n" + (ratio <= 0.004 ? "Within 0.004." : "Above 0.004: investigate.") };
+  },
+  function gRatioChoice() {
+    var CO = pick([30, 50, 70, 380, 460, 600]), CO2 = Math.round(rnd(8, 10) * 10) / 10, ratio = CO / (CO2 * 10000), within = ratio <= 0.004;
+    return { text: "An analyser shows CO = " + CO + " ppm and CO₂ = " + f(CO2, 1) + "%. Is the CO/CO₂ ratio within the normal 0.004 limit?", choices: ["Within 0.004", "Above 0.004"], correct: within ? 0 : 1,
+      work: "CO₂ = " + Math.round(CO2 * 10000) + " ppm\nRatio = " + CO + " ÷ " + Math.round(CO2 * 10000) + " = " + f(ratio, 5) + "\n" + (within ? "Within 0.004." : "Above 0.004: investigate the cause.") };
+  },
+  function gEff() {
+    var inp = rint(18, 35), eff = Math.round(rnd(88, 94) * 10) / 10, out = Math.round(inp * eff) / 100, e = out / inp * 100;
+    return { text: "An appliance has " + inp + " kW input and " + f(out, 1) + " kW output. What is its efficiency?", unit: "%", ans: e, tolRel: 0, tolAbs: 0.15, dp: 1,
+      work: "Efficiency = " + f(out, 1) + " ÷ " + inp + " × 100 = " + f(e, 1) + "%" };
+  },
+  function gPress() {
+    var app = Math.round(rnd(19.6, 20.95) * 10) / 10, drop = Math.round((21 - app) * 10) / 10, ok = drop <= 1.0;
+    return { text: "Working pressure is 21.0 mbar at the meter outlet and " + f(app, 1) + " mbar at the appliance. Is the pressure drop acceptable?", choices: ["Acceptable (1 mbar or less)", "Too high (over 1 mbar)"], correct: ok ? 0 : 1,
+      work: "Drop = 21.0 − " + f(app, 1) + " = " + f(drop, 1) + " mbar\nLimit is 1 mbar, so it is " + (ok ? "acceptable." : "too high: check pipe size, condition and regulator.") };
+  },
+  function gUnit() {
+    var kind = pick(["mbar", "ppm", "kw"]);
+    if (kind === "mbar") { var m = pick([0.5, 1.5, 2.5, 4, 20.5, 21]); return { text: "Convert " + m + " mbar to pascals.", unit: "Pa", ans: m * 100, tolRel: 0.001, tolAbs: 0.5, dp: 0, work: m + " × 100 = " + m * 100 + " Pa" }; }
+    if (kind === "ppm") { var p = pick([8.5, 9.0, 9.5, 10.2]); return { text: "Convert " + p + "% CO₂ to ppm.", unit: "ppm", ans: p * 10000, tolRel: 0.001, tolAbs: 1, dp: 0, work: p + " × 10,000 = " + Math.round(p * 10000) + " ppm" }; }
+    var k = pick([18, 24, 28, 30]); return { text: "Convert " + k + " kW to MJ/h.", unit: "MJ/h", ans: k * 3.6, tolRel: 0.002, tolAbs: 0.1, dp: 1, work: k + " × 3.6 = " + f(k * 3.6, 1) + " MJ/h" };
+  },
+  function gTight() {
+    var drop = pick([0.5, 1, 2, 3, 4.5, 6]), pass = drop <= 4;
+    return { text: "A tightness test starts at 20.0 mbar and ends at " + f(20 - drop, 1) + " mbar after the stabilisation period. Taking the maximum permitted drop as 4 mbar [CHECK], is it a pass or a fail?", choices: ["Pass", "Fail"], correct: pass ? 0 : 1,
+      work: "Drop = 20.0 − " + f(20 - drop, 1) + " = " + f(drop, 1) + " mbar\n" + (pass ? "That is within 4 mbar: pass." : "That is more than 4 mbar: fail. Find the leak with LDF, repair it and repeat the whole test.") };
+  },
+  function gImperial() {
+    var ft = pick([1, 2]), CV = pick([38.5, 39.0, 39.5]), target = rnd(8, 28), m3 = ft * 0.0283, t = Math.max(15, Math.round(m3 * 3600 * CV / (3.6 * target)));
+    var rate = m3 * 3600 / t, gross = rate * CV / 3.6;
+    return { text: "An old meter shows " + ft + " ft³ passing in " + t + " seconds. 1 ft³ = 0.0283 m³ and CV = " + f(CV, 1) + " MJ/m³. What is the gross input?", unit: "kW", ans: gross, tolRel: 0.015, tolAbs: 0.05, dp: 2,
+      work: "Volume = " + ft + " × 0.0283 = " + f(m3, 4) + " m³\nGas rate = " + f(m3, 4) + " × 3600 ÷ " + t + " = " + f(rate, 3) + " m³/h\nGross = " + f(rate, 3) + " × " + f(CV, 1) + " ÷ 3.6 = " + f(gross, 2) + " kW" };
+  }
+];
+function newDrill() { var d = V.drill; d.q = pick(GEN)(); d.answered = false; d.result = null; }
+function viewDrill() {
+  var d = V.drill;
+  var box = h("div", { class: "stack" }, h("h2", null, "Drills"),
+    h("div", { class: "seg", role: "group", "aria-label": "Drill mode" },
+      h("button", { type: "button", "aria-pressed": String(d.sub === "practice"), on: { click: function () { d.sub = "practice"; render(); } } }, "Practice"),
+      h("button", { type: "button", "aria-pressed": String(d.sub === "calc"), on: { click: function () { d.sub = "calc"; render(); } } }, "Calculators")));
+  box.append(d.sub === "practice" ? drillPractice() : drillCalc());
+  return box;
+}
+function drillPractice() {
+  var d = V.drill; if (!d.q) newDrill();
+  var q = d.q, box = h("div", { class: "stack" });
+  box.append(h("div", { class: "qhead" }, h("span", { class: "chip" }, "Calculation"), h("span", { class: "mono small muted" }, "This session " + d.sess.c + "/" + d.sess.n)));
+  box.append(h("p", { class: "qtext" }, rich(q.text)));
+  if (q.choices) {
+    var opts = h("div", { class: "opts" });
+    q.choices.forEach(function (c, i) {
+      var cls = "opt";
+      if (d.answered) { if (i === q.correct) cls += " right"; else if (i === d.picked) cls += " wrong"; }
+      opts.append(h("button", { class: cls, type: "button", disabled: d.answered, on: { click: function () { d.picked = i; submitDrill(i === q.correct); } } }, h("span", { class: "l" }, LET[i]), h("span", null, c)));
+    });
+    box.append(opts);
+  } else {
+    var inp = h("input", { class: "input", id: "drill-answer", type: "text", inputmode: "decimal", autocomplete: "off", "aria-label": "Your answer" + (q.unit ? " in " + q.unit : ""), disabled: d.answered, value: d.answered ? d.typed : "" });
+    var go1 = function () {
+      var v = parseFloat(String(inp.value).replace(",", "."));
+      if (isNaN(v)) { inp.focus(); return; }
+      d.typed = inp.value;
+      var tol = Math.max(q.tolAbs || 0, Math.abs(q.ans) * (q.tolRel || 0));
+      submitDrill(Math.abs(v - q.ans) <= tol);
+    };
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter" && !d.answered) go1(); });
+    box.append(h("div", { class: "field" }, h("label", { for: "drill-answer" }, q.unit ? "Your answer (" + q.unit + ")" : "Your answer"), inp));
+    if (!d.answered) box.append(h("button", { class: "btn block", type: "button", on: { click: go1 } }, "Check"));
+  }
+  if (d.answered) {
+    box.append(h("div", { class: "feedback " + (d.result ? "good" : "bad"), role: "status" }, h("b", null, d.result ? "Correct" : "Not quite"),
+      q.choices ? null : h("p", null, "Answer: ", h("span", { class: "mono" }, f(q.ans, q.dp) + (q.unit ? " " + q.unit : ""))),
+      h("p", { class: "work", style: "margin-top:6px" }, rich(q.work))));
+    box.append(h("button", { class: "btn block", type: "button", on: { click: function () { newDrill(); render(); } } }, "Next question"));
+  }
+  box.append(h("details", { class: "panel flat" }, h("summary", { style: "cursor:pointer;font-weight:600" }, "Formulas"),
+    h("p", { class: "work", style: "margin-top:8px" }, "Gas rate (m³/h) = volume (m³) × 3600 ÷ time (s)\nGross kW = gas rate × CV (MJ/m³) ÷ 3.6\nNet kW = gross ÷ 1.1\nRatio = CO ppm ÷ CO₂ ppm (1% = 10,000 ppm)\nEfficiency = output ÷ input × 100")));
+  return box;
+}
+function submitDrill(ok) {
+  var d = V.drill; d.answered = true; d.result = ok; d.sess.n++; if (ok) d.sess.c++;
+  store.drill.s++; if (ok) store.drill.c++; save(); render();
+}
+function drillCalc() {
+  var box = h("div", { class: "stack" });
+  function num(id, label, val, step) { return h("div", { class: "field" }, h("label", { for: id }, label), h("input", { class: "input", id: id, type: "number", inputmode: "decimal", step: step || "any", value: val })); }
+  var out1 = h("div", { class: "readout", "aria-live": "polite" });
+  var a1 = num("c-vol", "Volume (m³)", "0.03"), a2 = num("c-time", "Time (seconds)", "120"), a3 = num("c-cv", "Calorific value (MJ/m³)", "39.0");
+  function calc1() {
+    var v = parseFloat(a1.querySelector("input").value), t = parseFloat(a2.querySelector("input").value), cv = parseFloat(a3.querySelector("input").value);
+    out1.textContent = "";
+    if (!(v > 0 && t > 0 && cv > 0)) { out1.append(h("div", null, "Enter volume, time and CV")); return; }
+    var rate = v * 3600 / t, g = rate * cv / 3.6;
+    [["Gas rate", f(rate, 3) + " m³/h"], ["Gross input", f(g, 2) + " kW"], ["Net input", f(g / 1.1, 2) + " kW"]].forEach(function (r) { out1.append(h("div", null, h("span", null, r[0]), h("span", { class: "mono" }, r[1]))); });
+  }
+  [a1, a2, a3].forEach(function (a) { a.querySelector("input").addEventListener("input", calc1); });
+  box.append(h("div", { class: "panel stack" }, h("h3", null, "Gas rate and input"), h("div", { class: "grid2" }, a1, a2, a3), out1));
+  calc1();
+  var out2 = h("div", { class: "readout", "aria-live": "polite" });
+  var b1 = num("c-co", "CO (ppm)", "55"), b2 = num("c-co2", "CO₂ (%)", "9.5");
+  function calc2() {
+    var co = parseFloat(b1.querySelector("input").value), c2 = parseFloat(b2.querySelector("input").value);
+    out2.textContent = "";
+    if (!(co >= 0 && c2 > 0)) { out2.append(h("div", null, "Enter CO and CO₂")); return; }
+    var r = co / (c2 * 10000);
+    out2.append(h("div", null, h("span", null, "Ratio"), h("span", { class: "mono" }, f(r, 5))));
+    out2.append(h("div", null, h("span", null, "Against 0.004"), h("span", { class: "mono" }, r <= 0.004 ? "Within" : "Above: investigate")));
+  }
+  [b1, b2].forEach(function (a) { a.querySelector("input").addEventListener("input", calc2); });
+  box.append(h("div", { class: "panel stack" }, h("h3", null, "CO/CO₂ ratio"), h("div", { class: "grid2" }, b1, b2), out2));
+  calc2();
+  var out3 = h("div", { class: "readout", "aria-live": "polite" });
+  var e1 = num("c-in", "Input (kW)", "24"), e2 = num("c-out", "Output (kW)", "22");
+  function calc3() {
+    var i = parseFloat(e1.querySelector("input").value), o = parseFloat(e2.querySelector("input").value);
+    out3.textContent = "";
+    if (!(i > 0 && o >= 0)) { out3.append(h("div", null, "Enter input and output")); return; }
+    out3.append(h("div", null, h("span", null, "Efficiency"), h("span", { class: "mono" }, f(o / i * 100, 1) + "%")));
+  }
+  [e1, e2].forEach(function (a) { a.querySelector("input").addEventListener("input", calc3); });
+  box.append(h("div", { class: "panel stack" }, h("h3", null, "Efficiency"), h("div", { class: "grid2" }, e1, e2), out3));
+  calc3();
+  box.append(h("p", { class: "small muted" }, "Check results against the rating plate and the manufacturer's instructions. Use the calorific value from the gas bill or the manufacturer's data."));
+  return box;
+}
+
+/* ---------- TASKS ---------- */
+function viewTasks() {
+  if (V.task === null) {
+    var box = h("div", { class: "stack" }, h("h2", null, "Practical tasks"),
+      h("p", { class: "muted" }, "Rehearse each task step by step, tick what you cover, and log every attempt. Follow your centre's procedure, the manufacturer's instructions and the current standards for the real thing."));
+    D.tasks.forEach(function (t, idx) {
+      var rec = store.tasks[t.n] || { log: [] }, last = rec.log[rec.log.length - 1], passes = rec.log.filter(function (x) { return x.r === "pass"; }).length;
+      box.append(h("button", { class: "menu-item", type: "button", on: { click: function () { V.task = idx; render(); window.scrollTo(0, 0); } } },
+        h("span", null, h("b", null, "Task " + t.n + ": "), t.title),
+        h("span", { class: "mono" }, rec.log.length ? passes + "/" + rec.log.length : "")));
+    });
+    return box;
+  }
+  var t = D.tasks[V.task], rec = store.tasks[t.n] || (store.tasks[t.n] = { log: [], ticks: {} });
+  if (!rec.ticks) rec.ticks = {};
+  var b = h("div", { class: "stack" });
+  b.append(h("div", null, h("button", { class: "btn small quiet", type: "button", on: { click: function () { V.task = null; render(); } } }, "All tasks")));
+  b.append(h("div", { class: "stack", style: "gap:6px" }, h("div", { class: "eyebrow" }, "Task " + t.n), h("h2", null, t.title)));
+  b.append(h("p", null, h("b", null, "Goal: "), rich(t.goal)));
+  b.append(h("p", { class: "small muted" }, h("b", null, "You will need: "), rich(t.need)));
+  function checks(title, arr, pre) {
+    var p = h("div", { class: "panel" }, h("h3", { style: "margin-bottom:6px" }, title));
+    arr.forEach(function (txt, i) {
+      var id = "tk-" + t.n + "-" + pre + i;
+      p.append(h("div", { class: "check" }, h("input", { type: "checkbox", id: id, checked: !!rec.ticks[pre + i], on: { change: function (e) { rec.ticks[pre + i] = e.target.checked; save(); } } }), h("label", { for: id }, rich(txt))));
+    });
+    return p;
+  }
+  b.append(checks("Steps to rehearse", t.steps, "s"));
+  b.append(checks("The assessor looks for", t.looks, "l"));
+  var sl = h("div", { class: "panel" }, h("h3", { style: "margin-bottom:6px" }, "Common slips"));
+  var ul = h("ul", { class: "list" }); t.slips.forEach(function (x) { ul.append(h("li", null, rich(x))); }); sl.append(ul);
+  b.append(sl);
+  var lg = h("div", { class: "panel stack" }, h("h3", null, "Practice log"));
+  lg.append(h("p", { class: "small muted" }, "Log the attempt when you finish. This clears the ticks for the next go."));
+  lg.append(h("div", { class: "row" },
+    h("button", { class: "btn", type: "button", on: { click: function () { logAttempt(rec, "pass"); } } }, "Log: passed"),
+    h("button", { class: "btn ghost", type: "button", on: { click: function () { logAttempt(rec, "not yet"); } } }, "Log: not yet")));
+  if (rec.log.length) {
+    var hist = h("div", null);
+    rec.log.slice(-5).reverse().forEach(function (x) { hist.append(h("div", { class: "row between small", style: "padding-block:4px;border-top:1px solid var(--line)" }, h("span", { class: "muted" }, x.d), h("span", { class: "mono" }, x.r))); });
+    lg.append(hist);
+  }
+  b.append(lg);
+  return b;
+}
+function logAttempt(rec, r) { rec.log.push({ d: new Date().toLocaleDateString("en-GB"), r: r }); rec.ticks = {}; save(); render(); window.scrollTo(0, 0); }
+
+render();
+})();
+</script>
