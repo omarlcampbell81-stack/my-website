@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gallery | Birth Loop</title>
+<meta name="description" content="Photos and films from past Birth Loop sessions in Brixton and Peckham.">
+<meta property="og:title" content="Gallery | Birth Loop">
+<meta property="og:description" content="Photos and films from past Birth Loop sessions in Brixton and Peckham.">
+<meta property="og:type" content="website">
+<link rel="icon" href="Logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>.tab{color:var(--black);border-color:var(--line-light)}.tab:hover{border-color:var(--gold)}.tab[aria-pressed="true"]{color:var(--black)}</style>
+</head>
+<body>
+<header class="site-header" >
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Birth Loop home"><img src="Logo-light.png" alt="Birth Loop" onerror="this.replaceWith(document.createTextNode('Birth Loop'))"></a>
+    <nav class="nav" aria-label="Main"><a href="index.html">Home</a><a href="experience.html">The experience</a><a href="sessions.html">Sessions</a><a href="gallery.html" aria-current="page">Gallery</a><a href="about.html">About</a><a href="contact.html">Contact</a><a class="btn" href="sessions.html#booking">Book a free place</a></nav>
+    <button class="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+  </div>
+</header>
+<div class="mobile-menu" id="mobile-menu">
+  <button class="close" aria-label="Close menu">&times;</button>
+  <a href="index.html">Home</a><a href="experience.html">The experience</a><a href="sessions.html">Sessions</a><a href="gallery.html">Gallery</a><a href="about.html">About</a><a href="contact.html">Contact</a>
+  <a class="btn" href="sessions.html#booking" style="font-family:var(--sans);font-size:1rem;color:var(--black)">Book a free place</a>
+  <div class="socials"><a href="https://www.instagram.com/birth.loop" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@birthloop" target="_blank" rel="noopener">TikTok</a></div>
+</div>
+<main>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>Past events</h1>
+    <p>Photos and films from our sessions across South East London.</p>
+  </div>
+</section>
+
+<section style="padding-top:clamp(48px,6vw,80px)">
+  <div class="wrap">
+    <div class="tabs" id="tabs" role="group" aria-label="Filter by event" style="color:var(--black)"></div>
+    <div id="albums"></div>
+  </div>
+</section>
+
+<section class="on-dark" id="films-block">
+  <div class="wrap">
+    <h2>Films from our sessions</h2>
+    <hr class="rule">
+    <div class="films">
+      <figure class="film" style="margin:0"><div class="video-wide" style="margin:0;max-width:none"><video controls playsinline preload="metadata" poster="images/films/own-words.jpg"><source src="videos/own-words.mp4" type="video/mp4"></video></div><figcaption><h3>In your own words</h3><p>A parent on what the session was like.</p></figcaption></figure>
+      <figure class="film" style="margin:0"><div class="video-portrait" style="max-width:none"><video muted loop playsinline controls preload="metadata" poster="images/films/in-action.jpg"><source src="videos/in-action.mp4" type="video/mp4"></video></div><figcaption><h3>See it in action</h3><p>Guests in conversation during a session.</p></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="on-pale" id="concept-films" data-films-section>
+  <div class="wrap">
+    <h2>Concept films</h2>
+    <hr class="rule">
+    <p class="ai-note">These short films were generated with AI to show the spirit of a Birth Loop Luxe celebration. They are not footage of real people or real events.</p>
+    <div class="films" data-films></div>
+  </div>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>Birth Loop</h4>
+        <p>A free community birth preparation programme in South East London, played with a bespoke board game alongside a registered midwife and a BACP-accredited counsellor.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="experience.html">The experience</a>
+        <a href="sessions.html">Sessions and booking</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="about.html">About and team</a>
+      </div>
+      <div>
+        <h4>Get in touch</h4>
+        <a href="mailto:hello@birthloop.com">hello@birthloop.com</a>
+        <a href="https://www.instagram.com/birth.loop" target="_blank" rel="noopener">Instagram @birth.loop</a>
+        <a href="https://www.tiktok.com/@birthloop" target="_blank" rel="noopener">TikTok @birthloop</a>
+      </div>
+      <div>
+        <h4>Birth Loop Luxe</h4>
+        <p>Private baby showers and birth celebrations. Every Luxe event helps keep Birth Loop free.</p>
+        <a href="https://birthloopluxe.com" target="_blank" rel="noopener">birthloopluxe.com</a>
+      </div>
+    </div>
+    <div class="legal">
+      <span>&copy; 2026 Learn Loop Ltd, a not-for-profit company limited by guarantee, registered in England and Wales. Trading as Birth Loop.</span>
+      <span><a href="privacy-policy.html">Privacy</a> &middot; <a href="cookie-policy.html">Cookies</a> &middot; <button type="button" class="linklike" data-cookie-settings>Cookie settings</button> &middot; <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+<script src="js/media.js"></script>
+<script src="js/main.js"></script>
+<script src="js/cookies.js"></script>
+<script src="js/gallery.js"></script>
+</body>
+</html>

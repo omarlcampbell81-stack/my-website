@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact | Birth Loop</title>
+<meta name="description" content="Contact Birth Loop about sessions, partnerships or bringing the programme to your organisation.">
+<meta property="og:title" content="Contact | Birth Loop">
+<meta property="og:description" content="Contact Birth Loop about sessions, partnerships or bringing the programme to your organisation.">
+<meta property="og:type" content="website">
+<link rel="icon" href="Logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>.on-cream .form-group input,.on-cream .form-group textarea{width:100%;padding:14px 16px;border:1px solid rgba(26,26,26,.2);background:#fff;font-family:var(--sans);font-size:1rem;font-weight:300;border-radius:0}.on-cream .form-group label{display:block;margin-bottom:8px;font-weight:400;color:var(--black)}.on-cream .form-group input:focus,.on-cream .form-group textarea:focus{outline:none;border-color:var(--gold)}</style>
+</head>
+<body>
+<header class="site-header" >
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Birth Loop home"><img src="Logo-light.png" alt="Birth Loop" onerror="this.replaceWith(document.createTextNode('Birth Loop'))"></a>
+    <nav class="nav" aria-label="Main"><a href="index.html">Home</a><a href="experience.html">The experience</a><a href="sessions.html">Sessions</a><a href="gallery.html">Gallery</a><a href="about.html">About</a><a href="contact.html" aria-current="page">Contact</a><a class="btn" href="sessions.html#booking">Book a free place</a></nav>
+    <button class="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+  </div>
+</header>
+<div class="mobile-menu" id="mobile-menu">
+  <button class="close" aria-label="Close menu">&times;</button>
+  <a href="index.html">Home</a><a href="experience.html">The experience</a><a href="sessions.html">Sessions</a><a href="gallery.html">Gallery</a><a href="about.html">About</a><a href="contact.html">Contact</a>
+  <a class="btn" href="sessions.html#booking" style="font-family:var(--sans);font-size:1rem;color:var(--black)">Book a free place</a>
+  <div class="socials"><a href="https://www.instagram.com/birth.loop" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@birthloop" target="_blank" rel="noopener">TikTok</a></div>
+</div>
+<main>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>Get in touch</h1>
+    <p>Questions about a session, a partnership or bringing Birth Loop to your organisation? We would love to hear from you.</p>
+  </div>
+</section>
+
+<section class="on-cream">
+  <div class="wrap contact-grid">
+    <div>
+      <h2>Say hello</h2>
+      <hr class="rule">
+      <p>Email <a href="mailto:hello@birthloop.com" style="color:var(--gold)">hello@birthloop.com</a></p>
+      <p>Instagram <a href="https://www.instagram.com/birth.loop" target="_blank" rel="noopener" style="color:var(--gold)">@birth.loop</a><br>TikTok <a href="https://www.tiktok.com/@birthloop" target="_blank" rel="noopener" style="color:var(--gold)">@birthloop</a></p>
+      <p>Looking to book a place at a session? <a href="sessions.html#booking" style="color:var(--gold)">Use the booking form</a>.</p>
+    </div>
+    <div>
+      <div id="sent" style="display:none;background:var(--gold-pale);border:1px solid var(--gold);padding:18px 22px;margin-bottom:24px" role="status">Thank you. Your message has been sent and we will reply soon.</div>
+      <form id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="1981bbed-fe49-40c4-b29d-8d80b4320a2a">
+        <input type="hidden" name="redirect" value="https://www.birthloop.com/contact.html?sent=1">
+        <input type="hidden" name="_subject" value="New Birth Loop enquiry">
+        <div class="form-group"><label for="c_name">Name *</label><input type="text" id="c_name" name="name" required autocomplete="name"></div>
+        <div class="form-group"><label for="c_email">Email *</label><input type="email" id="c_email" name="email" required autocomplete="email"></div>
+        <div class="form-group"><label for="c_msg">Message *</label><textarea id="c_msg" name="message" rows="6" required></textarea></div>
+        <button class="btn" type="submit">Send message</button>
+      </form>
+    </div>
+  </div>
+</section>
+<script>if(new URLSearchParams(location.search).get('sent')==='1'){document.getElementById('sent').style.display='block'}</script>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>Birth Loop</h4>
+        <p>A free community birth preparation programme in South East London, played with a bespoke board game alongside a registered midwife and a BACP-accredited counsellor.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="experience.html">The experience</a>
+        <a href="sessions.html">Sessions and booking</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="about.html">About and team</a>
+      </div>
+      <div>
+        <h4>Get in touch</h4>
+        <a href="mailto:hello@birthloop.com">hello@birthloop.com</a>
+        <a href="https://www.instagram.com/birth.loop" target="_blank" rel="noopener">Instagram @birth.loop</a>
+        <a href="https://www.tiktok.com/@birthloop" target="_blank" rel="noopener">TikTok @birthloop</a>
+      </div>
+      <div>
+        <h4>Birth Loop Luxe</h4>
+        <p>Private baby showers and birth celebrations. Every Luxe event helps keep Birth Loop free.</p>
+        <a href="https://birthloopluxe.com" target="_blank" rel="noopener">birthloopluxe.com</a>
+      </div>
+    </div>
+    <div class="legal">
+      <span>&copy; 2026 Learn Loop Ltd, a not-for-profit company limited by guarantee, registered in England and Wales. Trading as Birth Loop.</span>
+      <span><a href="privacy-policy.html">Privacy</a> &middot; <a href="cookie-policy.html">Cookies</a> &middot; <button type="button" class="linklike" data-cookie-settings>Cookie settings</button> &middot; <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+<script src="js/media.js"></script>
+<script src="js/main.js"></script>
+<script src="js/cookies.js"></script>
+
+</body>
+</html>

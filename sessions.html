@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sessions and booking | Birth Loop</title>
+<meta name="description" content="Book a free place at an upcoming Birth Loop session in Peckham or Brixton.">
+<meta property="og:title" content="Sessions and booking | Birth Loop">
+<meta property="og:description" content="Book a free place at an upcoming Birth Loop session in Peckham or Brixton.">
+<meta property="og:type" content="website">
+<link rel="icon" href="Logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+<header class="site-header" >
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Birth Loop home"><img src="Logo-light.png" alt="Birth Loop" onerror="this.replaceWith(document.createTextNode('Birth Loop'))"></a>
+    <nav class="nav" aria-label="Main"><a href="index.html">Home</a><a href="experience.html">The experience</a><a href="sessions.html" aria-current="page">Sessions</a><a href="gallery.html">Gallery</a><a href="about.html">About</a><a href="contact.html">Contact</a><a class="btn" href="sessions.html#booking">Book a free place</a></nav>
+    <button class="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+  </div>
+</header>
+<div class="mobile-menu" id="mobile-menu">
+  <button class="close" aria-label="Close menu">&times;</button>
+  <a href="index.html">Home</a><a href="experience.html">The experience</a><a href="sessions.html">Sessions</a><a href="gallery.html">Gallery</a><a href="about.html">About</a><a href="contact.html">Contact</a>
+  <a class="btn" href="sessions.html#booking" style="font-family:var(--sans);font-size:1rem;color:var(--black)">Book a free place</a>
+  <div class="socials"><a href="https://www.instagram.com/birth.loop" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@birthloop" target="_blank" rel="noopener">TikTok</a></div>
+</div>
+<main>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>Sessions and booking</h1>
+    <p>Free to attend, all are welcome. Choose a session and reserve your place below.</p>
+  </div>
+</section>
+
+<section class="on-dark" style="padding-top:clamp(56px,8vw,96px)">
+  <div class="wrap">
+    <div class="center narrow" style="margin:0 auto"><h2>Upcoming sessions</h2><hr class="rule"></div>
+    <div class="events">
+  <article class="event-card">
+    <p class="tag">Dads and birth partners only</p>
+    <h3>Saturday 17 October</h3>
+    <p class="meta">Peckham &middot; 12:00pm to 4:00pm &middot; Free &middot; Food, crèche and voucher included</p>
+    <p>A dedicated session built for dads and birth partners: the same immersive game and trauma-informed facilitation, shaped around your role in labour, supporting your partner and preparing for life with a newborn.</p>
+    <a class="btn" href="sessions.html?session=dads-oct17#booking">Reserve a place</a>
+  </article>
+  <article class="event-card">
+    <p class="tag">Women only</p>
+    <h3>Saturday 14 November</h3>
+    <p class="meta">Brixton &middot; 12:00pm to 4:00pm &middot; Free &middot; Food, crèche and voucher included</p>
+    <p>A women-only session in Brixton: a safe, supportive space to prepare for birth alongside other women, with a qualified midwife and BACP-accredited counsellor on hand throughout.</p>
+    <a class="btn" href="sessions.html?session=women-nov14#booking">Reserve a place</a>
+  </article>
+</div>
+  </div>
+</section>
+
+<section class="on-dark booking" id="booking" style="padding-top:0">
+  <div class="wrap">
+    <div class="form-card">
+      <h2>Reserve your place</h2>
+      <p class="sub" id="booking-sub">Select a session below to get started</p>
+      <form id="booking-form" action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value="1981bbed-fe49-40c4-b29d-8d80b4320a2a">
+  <input type="hidden" name="redirect" value="https://www.birthloop.com/thank-you">
+  <input type="hidden" name="location" id="location-field" value="">
+  <input type="hidden" name="format" id="format-field" value="">
+
+  <div class="form-group">
+    <label for="event-select">Which Session Would You Like to Book? *</label>
+    <select name="event_date" id="event-select" required onchange="toggleEvent(this.value)">
+      <option value="">Select a session</option>
+      <option value="dads-oct17">Saturday 17 October — Dads &amp; Birth Partners Only — Peckham</option>
+      <option value="women-nov14">Saturday 14 November — Women-Only — Brixton</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group"><label for="first_name">First Name *</label><input type="text" id="first_name" name="first_name" placeholder="First name" required autocomplete="given-name"></div>
+    <div class="form-group"><label for="last_name">Last Name *</label><input type="text" id="last_name" name="last_name" placeholder="Last name" required autocomplete="family-name"></div>
+  </div>
+
+  <div class="form-group"><label for="email">Email Address *</label><input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email"></div>
+  <div class="form-group"><label for="phone">Phone Number *</label><input type="tel" id="phone" name="phone" placeholder="+44 ..." required autocomplete="tel"></div>
+
+  <div class="form-group">
+    <label for="borough">Which Borough Do You Live In?</label>
+    <select name="borough" id="borough">
+      <option value="">Select your borough</option>
+      <option>Southwark</option><option>Lewisham</option><option>Lambeth</option><option>Greenwich</option><option>Other</option>
+    </select>
+  </div>
+
+  <div class="form-group"><label for="participant_age">Participant Age *</label><input type="number" id="participant_age" name="participant_age" min="16" max="99" placeholder="Your age" required></div>
+
+  <!-- DADS & BIRTH PARTNERS — Sat 17 Oct, Peckham -->
+  <div id="dads-fields" class="conditional-fields" style="display:none;">
+    <div class="form-group"><label for="partner_due_date">Your Partner's Due Date *</label><input type="date" id="partner_due_date" name="partner_due_date"></div>
+    <div class="form-group">
+      <label for="partner_trimester">Which Trimester Is Your Partner In? *</label>
+      <select name="partner_trimester" id="partner_trimester">
+        <option value="">Select trimester</option>
+        <option>1st Trimester (Weeks 1–12)</option>
+        <option>2nd Trimester (Weeks 13–26)</option>
+        <option>3rd Trimester (Weeks 27–40)</option>
+        <option>Already given birth — attending for future support</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="partner_role">How Would You Describe Your Role? *</label>
+      <select name="partner_role" id="partner_role">
+        <option value="">Select an option</option>
+        <option>Dad / Co-Parent</option><option>Partner</option><option>Other Birth Partner</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="focus_area_dads">Areas You'd Like to Focus On</label>
+      <p class="hint">You may select more than one by holding <strong>Ctrl</strong> (Windows) or <strong>Command</strong> (Mac).</p>
+      <select name="focus_area_dads" id="focus_area_dads" multiple>
+        <option>How to Support Your Partner During Labour</option>
+        <option>Being a Birth Partner — Roles &amp; Responsibilities</option>
+        <option>Partner Mental Health &amp; Emotional Wellbeing</option>
+        <option>Bonding with Baby as a Birth Partner</option>
+        <option>Managing Labour Pain — How Partners Can Help</option>
+        <option>Communication with Midwives &amp; Hospital Staff</option>
+        <option>Birth Preferences &amp; Birth Plans</option>
+        <option>Newborn Care &amp; First Days at Home</option>
+        <option>Paternity Leave &amp; Rights</option>
+        <option>Postnatal Recovery &amp; Support</option>
+        <option>C-Section</option>
+        <option>Water Birth</option>
+        <option>Pain Relief Options</option>
+        <option>Induction of Labour</option>
+        <option>Home Birth</option>
+        <option>NICU / Premature Baby</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- WOMEN-ONLY — Sat 14 Nov, Brixton -->
+  <div id="women-fields" class="conditional-fields" style="display:none;">
+    <div class="form-group">
+      <label for="format-select">Session Format *</label>
+      <select name="format_women" id="format-select" onchange="toggleBirthPartner(this.value)">
+        <option value="">Select a format</option>
+        <option value="Women-Only">Women-Only — attending on my own</option>
+        <option value="Couples">Couples — attending with my birth partner</option>
+      </select>
+    </div>
+    <div id="birth-partner-section" style="display:none;">
+      <div class="form-group"><label for="birth_partner_name">Birth Partner's Name</label><input type="text" id="birth_partner_name" name="birth_partner_name" placeholder="Birth partner's name"></div>
+      <div class="form-group"><label for="birth_partner_phone">Birth Partner's Phone Number</label><input type="tel" id="birth_partner_phone" name="birth_partner_phone" placeholder="+44 ..."></div>
+      <div class="form-group"><label for="birth_partner_email">Birth Partner's Email Address</label><input type="email" id="birth_partner_email" name="birth_partner_email" placeholder="their@email.com"></div>
+    </div>
+    <div class="form-group">
+      <label for="focus_area">Areas of the Game You'd Like to Focus On</label>
+      <p class="hint">You may select more than one by holding <strong>Ctrl</strong> (Windows) or <strong>Command</strong> (Mac).</p>
+      <select name="focus_area" id="focus_area" multiple>
+        <option>C-Section</option><option>Water Birth</option><option>Pain Relief Options</option>
+        <option>VBAC (Vaginal Birth After C-Section)</option><option>NICU / Premature Baby</option>
+        <option>Gestational Diabetes</option><option>Hypertension in Pregnancy</option>
+        <option>Induction of Labour</option><option>Home Birth</option>
+        <option>How to Support Your Partner During Labour</option>
+        <option>Being a Birth Partner — Roles &amp; Responsibilities</option>
+        <option>Partner Mental Health &amp; Emotional Wellbeing</option>
+        <option>Bonding with Baby as a Birth Partner</option>
+        <option>Newborn Care &amp; First Days at Home</option>
+        <option>Feeding — Breast, Bottle &amp; Combination</option>
+        <option>Paternity Leave &amp; Rights</option>
+        <option>Postnatal Recovery &amp; Support</option>
+        <option>Managing Labour Pain — How Partners Can Help</option>
+        <option>Communication with Midwives &amp; Hospital Staff</option>
+        <option>Birth Preferences &amp; Birth Plans</option>
+      </select>
+    </div>
+    <div class="form-group"><label for="due_date">Due Date *</label><input type="date" id="due_date" name="due_date"></div>
+    <div class="form-group">
+      <label for="trimester">Which Trimester Are You In? *</label>
+      <select name="trimester" id="trimester">
+        <option value="">Select your trimester</option>
+        <option>1st Trimester (Weeks 1–12)</option>
+        <option>2nd Trimester (Weeks 13–26)</option>
+        <option>3rd Trimester (Weeks 27–40)</option>
+        <option>Not currently pregnant — supporting someone</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="childcare-select">Do You Require Childcare During the Session?</label>
+    <select name="childcare" id="childcare-select" onchange="toggleChildcareAges(this.value)">
+      <option value="">Select an option</option>
+      <option>No</option><option>Yes</option><option>Maybe / Would like more information</option>
+    </select>
+  </div>
+  <div class="form-group" id="childcare-ages-section" style="display:none;">
+    <label for="childcare_ages">Ages of Child(ren) Needing Childcare</label>
+    <input type="text" id="childcare_ages" name="childcare_ages" placeholder="e.g. 2 years, 5 years">
+  </div>
+
+  <div class="form-group"><label for="dietary_requirements">Dietary Requirements</label><input type="text" id="dietary_requirements" name="dietary_requirements" placeholder="e.g. Vegetarian, Halal, Allergies"></div>
+
+  <div class="form-group">
+    <label for="first_language">First Language *</label>
+    <select name="first_language" id="first_language" required>
+      <option value="">Select your first language</option>
+      <option value="English">English</option>
+<option value="Arabic">Arabic</option>
+<option value="Bengali">Bengali</option>
+<option value="French">French</option>
+<option value="Gujarati">Gujarati</option>
+<option value="Hindi">Hindi</option>
+<option value="Panjabi">Panjabi</option>
+<option value="Polish">Polish</option>
+<option value="Portuguese">Portuguese</option>
+<option value="Romanian">Romanian</option>
+<option value="Somali">Somali</option>
+<option value="Spanish">Spanish</option>
+<option value="Tamil">Tamil</option>
+<option value="Turkish">Turkish</option>
+<option value="Urdu">Urdu</option>
+<option value="Yoruba">Yoruba</option>
+<option value="Other">Other</option>
+    </select>
+  </div>
+
+  <div class="form-group"><label for="additional_needs">Additional Needs or Accessibility Requirements</label><textarea id="additional_needs" name="additional_needs" rows="3" placeholder="Let us know if you need any support or accommodations"></textarea></div>
+
+  <input type="hidden" name="_subject" value="New Birth Loop Booking Request">
+  <button type="submit" class="btn form-submit">Submit Booking Request</button>
+  <p class="form-note">Your details are kept confidential and used only to coordinate your booking.</p>
+</form>
+      <div id="booking-confirmation" class="booking-confirm" role="status" tabindex="-1" hidden>
+        <p class="tick" aria-hidden="true">&#10003;</p>
+        <h3>Your space has been registered</h3>
+        <p id="booking-confirm-text">Thank you. You will receive full details of your session by email shortly.</p>
+        <p class="small">Can't find it? Check your spam or junk folder, or email <a href="mailto:hello@birthloop.com">hello@birthloop.com</a>.</p>
+        <div class="btn-row" style="justify-content:center"><a class="btn" href="index.html">Back to the homepage</a><a class="btn ghost" href="gallery.html">See past events</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap narrow" style="margin:0 auto">
+    <h2>Before you book</h2>
+    <hr class="rule">
+    <div class="faq">
+  <details><summary>Is it really free?</summary><p>Yes. Birth Loop sessions are free to attend and everyone is welcome. Food and a crèche are included too.</p></details>
+  <details><summary>What is included?</summary><p>Everything: the game, the escape room, food, a crèche and a voucher are all included at no cost.</p></details>
+  <details><summary>Do I need to be pregnant to come?</summary><p>No. You can attend at any stage of pregnancy, and the booking form has an option for people who are supporting someone else.</p></details>
+  <details><summary>What is the escape room?</summary><p>After the game and a break for food, teams take on a 45-minute escape room called The Appointment. You work together through puzzles, ciphers and padlocks while following one woman's story through pregnancy, complications, the neonatal unit and recovery at home. It is collaborative, not competitive, and nobody is ever asked to speak out loud.</p></details>
+  <details><summary>Who will be in the room?</summary><p>A registered midwife and a BACP-accredited counsellor are in the room throughout, alongside the team who run the game.</p></details>
+  <details><summary>Can I bring my birth partner?</summary><p>At our women-only sessions you can choose the couples format when you book and add your birth partner's details. We also run sessions for dads and birth partners.</p></details>
+  <details><summary>Is childcare available?</summary><p>Yes, a crèche is included at our sessions. Tell us on the booking form if you will need it and how old your children are, so we can make sure there is the right space for them.</p></details>
+  <details><summary>What if I have dietary or access needs?</summary><p>Add them to the booking form. There is a field for dietary requirements and one for additional needs or accessibility requirements.</p></details>
+  <details><summary>What happens after I book?</summary><p>We email you to confirm your place and the venue. If a session is full, we add you to the waitlist.</p></details>
+</div>
+  </div>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>Birth Loop</h4>
+        <p>A free community birth preparation programme in South East London, played with a bespoke board game alongside a registered midwife and a BACP-accredited counsellor.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="experience.html">The experience</a>
+        <a href="sessions.html">Sessions and booking</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="about.html">About and team</a>
+      </div>
+      <div>
+        <h4>Get in touch</h4>
+        <a href="mailto:hello@birthloop.com">hello@birthloop.com</a>
+        <a href="https://www.instagram.com/birth.loop" target="_blank" rel="noopener">Instagram @birth.loop</a>
+        <a href="https://www.tiktok.com/@birthloop" target="_blank" rel="noopener">TikTok @birthloop</a>
+      </div>
+      <div>
+        <h4>Birth Loop Luxe</h4>
+        <p>Private baby showers and birth celebrations. Every Luxe event helps keep Birth Loop free.</p>
+        <a href="https://birthloopluxe.com" target="_blank" rel="noopener">birthloopluxe.com</a>
+      </div>
+    </div>
+    <div class="legal">
+      <span>&copy; 2026 Learn Loop Ltd, a not-for-profit company limited by guarantee, registered in England and Wales. Trading as Birth Loop.</span>
+      <span><a href="privacy-policy.html">Privacy</a> &middot; <a href="cookie-policy.html">Cookies</a> &middot; <button type="button" class="linklike" data-cookie-settings>Cookie settings</button> &middot; <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+<script src="js/media.js"></script>
+<script src="js/main.js"></script>
+<script src="js/cookies.js"></script>
+<script src="js/booking.js"></script>
+</body>
+</html>
